@@ -13,6 +13,7 @@ import android.util.Log
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.http.isSuccess
@@ -75,16 +76,22 @@ private class DiskTileCache(private val dao: TileDao) {
 
 /** Handles fetching raster tiles */
 class MapTileClient(database: TileCacheDatabase) {
-    private val client = HttpClient(OkHttp)
+    private val client = HttpClient(OkHttp) {
+        install(HttpTimeout) {
+            connectTimeoutMillis = CONNECT_TIMEOUT_MS
+            requestTimeoutMillis = REQUEST_TIMEOUT_MS
+        }
+    }
     private val diskCache = DiskTileCache(database.tileDao())
 
     companion object {
         private const val VOYAGER_BASE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager"
         private const val DARK_BASE_URL = "https://{s}.basemaps.cartocdn.com/dark_all"
         private const val SUBDOMAINS = "abcd"
-        // private const val USER_AGENT = "LightTransitTool/1.0 (+https://github.com/lightphone)"
         private const val USER_AGENT = "light-transit"
         private const val COVERAGE_MARGIN = 1.15
+        private const val CONNECT_TIMEOUT_MS = 5_000L
+        private const val REQUEST_TIMEOUT_MS = 10_000L
 
         private fun subdomainFor(x: Int, y: Int): Char = SUBDOMAINS[Math.floorMod(x + y, SUBDOMAINS.length)]
     }
@@ -105,14 +112,17 @@ class MapTileClient(database: TileCacheDatabase) {
         val radiusTilesY = ceil((halfHeightMeters / metersPerPx * COVERAGE_MARGIN) / TILE_SIZE).toInt().coerceAtLeast(1)
         val centerTileX = floor(centerFracX).toInt()
         val centerTileY = floor(centerFracY).toInt()
+        val maxTileIndex = (1 shl zoom) - 1
 
+        // antimeridian handling
         val tileCoords = buildList {
             for (tileX in (centerTileX - radiusTilesX)..(centerTileX + radiusTilesX)) {
                 for (tileY in (centerTileY - radiusTilesY)..(centerTileY + radiusTilesY)) {
-                    add(tileX to tileY)
+                    if (tileY in 0..maxTileIndex) add(tileX to tileY)
                 }
             }
         }
+
         val tiles = tileCoords
             .map { (tileX, tileY) ->
                 async {
@@ -126,10 +136,11 @@ class MapTileClient(database: TileCacheDatabase) {
         MapTiles(zoom, tiles, tileCoords.toSet())
     }
 
-    /** Fetch an individual tile */
+    /** Fetch an individual tile; [x] is wrapped around the antimeridian before use */
     private suspend fun fetchTile(x: Int, y: Int, zoom: Int, darkMode: Boolean): Bitmap? {
+        val wrappedX = Math.floorMod(x, 1 shl zoom)
         val style = if (darkMode) "dark" else "voyager"
-        val key = "$style/$zoom/$x/$y"
+        val key = "$style/$zoom/$wrappedX/$y"
         TileCache.get(key)?.let { return it }
 
         diskCache.get(key)?.let { bytes ->
@@ -139,9 +150,9 @@ class MapTileClient(database: TileCacheDatabase) {
         }
 
         val baseUrl = (if (darkMode) DARK_BASE_URL else VOYAGER_BASE_URL)
-            .replace("{s}", subdomainFor(x, y).toString())
+            .replace("{s}", subdomainFor(wrappedX, y).toString())
         return try {
-            val response = client.get("$baseUrl/$zoom/$x/$y.png") {
+            val response = client.get("$baseUrl/$zoom/$wrappedX/$y.png") {
                 header("User-Agent", USER_AGENT)
             }
             if (!response.status.isSuccess()) return null

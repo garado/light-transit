@@ -77,6 +77,8 @@ fun TransitMapView(isDarkTheme: Boolean, database: TileCacheDatabase, modifier: 
 
     // fetch on theme change + canvas init
     LaunchedEffect(canvasSize, isDarkTheme) {
+        liveTiles.clear()
+        tileZoomLevel = null
         refetch()
     }
 

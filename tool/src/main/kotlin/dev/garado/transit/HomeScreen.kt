@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -114,6 +115,9 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
         val themeColors by LightThemeController.colors.collectAsState()
         val tileCacheDatabase = remember {
             lightContext.buildDatabase(TileCacheDatabase::class.java, "tile_cache.db")
+        }
+        DisposableEffect(tileCacheDatabase) {
+            onDispose { tileCacheDatabase.close() }
         }
 
         LightTheme(colors = themeColors) {
