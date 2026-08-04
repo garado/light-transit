@@ -154,8 +154,8 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                             ),
                     ) {
                         when (selectedTab) {
-                            HomeTab.SEARCH -> HelloTabContent()
-                            HomeTab.MAP -> WorldTabContent()
+                            HomeTab.SEARCH -> SearchTabContent()
+                            HomeTab.MAP -> MapTabContent()
                             HomeTab.SETTINGS -> SettingsTabContent(
                                 options = settingsOptions,
                                 displayName = displayName,
@@ -174,12 +174,12 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
 }
 
 @Composable
-private fun HelloTabContent() {
+private fun SearchTabContent() {
     LightText(text = "Hello", variant = LightTextVariant.Heading)
 }
 
 @Composable
-private fun WorldTabContent() {
+private fun MapTabContent() {
     LightText(text = "World", variant = LightTextVariant.Heading)
 }
 
