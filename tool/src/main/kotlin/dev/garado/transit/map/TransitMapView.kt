@@ -1,4 +1,4 @@
-package dev.garado.transit
+package dev.garado.transit.map
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -28,12 +28,11 @@ import kotlin.math.roundToInt
 private const val MIN_ZOOM = 3f
 private const val MAX_ZOOM = 19f
 private const val DEFAULT_ZOOM = 14f
-// New York City -- there's no location API wired up yet in this minimal pass, so the map just
-// opens on a fixed, reasonable default center until a real "center on me" feature exists.
-private const val DEFAULT_LAT = 40.7128
-private const val DEFAULT_LON = -74.0060
 private const val REFETCH_DEBOUNCE_MS = 400L
 private const val METERS_PER_DEGREE_LAT = 111_320.0
+
+private const val DEFAULT_LAT = 40.7128 // NYC
+private const val DEFAULT_LON = -74.0060
 
 @Composable
 fun TransitMapView(isDarkTheme: Boolean, modifier: Modifier = Modifier) {
