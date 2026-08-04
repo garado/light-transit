@@ -7,14 +7,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.SimpleLightScreen
+import com.thelightphone.sdk.buildDatabase
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightScrollView
@@ -27,6 +30,7 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.api.nominatim.NominatimClient
+import dev.garado.transit.api.nominatim.NominatimResult
 import dev.garado.transit.api.nominatim.toDisplayLine
 
 // TODO: dummy origin bias until the "From" location carries real coordinates
@@ -41,18 +45,22 @@ class LocationResultsScreen(
     @Composable
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
+        val cacheDatabase = remember {
+            lightContext.buildDatabase(SearchCacheDatabase::class.java, "search_cache.db")
+        }
+        DisposableEffect(cacheDatabase) {
+            onDispose { cacheDatabase.close() }
+        }
+        val cache = remember(cacheDatabase) { SearchCache(cacheDatabase) }
+
         val results by produceState<List<LocationResult>?>(initialValue = null, query) {
-            value = NominatimClient.search(
+            val cached = cache.get(query, DUMMY_ORIGIN_LAT, DUMMY_ORIGIN_LON)
+            val nominatimResults = cached ?: NominatimClient.search(
                 query = query,
                 originLat = DUMMY_ORIGIN_LAT,
                 originLon = DUMMY_ORIGIN_LON,
-            ).mapNotNull { result ->
-                val lat = result.lat.toDoubleOrNull() ?: return@mapNotNull null
-                val lon = result.lon.toDoubleOrNull() ?: return@mapNotNull null
-                val title = result.displayName.substringBefore(",")
-                val address = result.address?.toDisplayLine() ?: result.displayName.substringAfter(", ")
-                LocationResult(title = title, address = address, lat = lat, lon = lon)
-            }
+            ).also { cache.put(query, DUMMY_ORIGIN_LAT, DUMMY_ORIGIN_LON, it) }
+            value = nominatimResults.mapNotNull(NominatimResult::toLocationResult)
         }
 
         LightTheme(colors = themeColors) {
@@ -82,6 +90,14 @@ class LocationResultsScreen(
             }
         }
     }
+}
+
+private fun NominatimResult.toLocationResult(): LocationResult? {
+    val resultLat = lat.toDoubleOrNull() ?: return null
+    val resultLon = lon.toDoubleOrNull() ?: return null
+    val title = displayName.substringBefore(",")
+    val resultAddress = address?.toDisplayLine() ?: displayName.substringAfter(", ")
+    return LocationResult(title = title, address = resultAddress, lat = resultLat, lon = resultLon)
 }
 
 @Composable
