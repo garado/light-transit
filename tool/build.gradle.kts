@@ -59,6 +59,10 @@ kotlin {
 
 dependencies {
     implementation(project(":sdk:client"))
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
     testImplementation(libs.kotlin.test)
     ksp(libs.androidx.room.compiler)
 }

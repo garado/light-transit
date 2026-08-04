@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -21,6 +22,7 @@ import com.thelightphone.sdk.InitialScreen
 import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightActivity
+import com.thelightphone.sdk.buildDatabase
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightBottomBar
 import com.thelightphone.sdk.ui.LightIcon
@@ -34,6 +36,8 @@ import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
+import dev.garado.transit.map.TileCacheDatabase
+import dev.garado.transit.map.TransitMapView
 import com.thelightphone.sdk.ui.lightClickable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -109,6 +113,12 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
         val isEditingName by viewModel.isEditingName.collectAsState()
         val editSessionId by viewModel.editSessionId.collectAsState()
         val themeColors by LightThemeController.colors.collectAsState()
+        val tileCacheDatabase = remember {
+            lightContext.buildDatabase(TileCacheDatabase::class.java, "tile_cache.db")
+        }
+        DisposableEffect(tileCacheDatabase) {
+            onDispose { tileCacheDatabase.close() }
+        }
 
         LightTheme(colors = themeColors) {
             if (isEditingName) {
@@ -147,15 +157,23 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                     Column(
                         modifier = Modifier
                             .weight(1f)
-                            .padding(horizontal = 32.dp)
-                            .padding(
-                                top = if (selectedTab == HomeTab.SETTINGS) 0.dp else 16.dp,
-                                bottom = 16.dp,
-                            ),
+                            .let {
+                                if (selectedTab == HomeTab.MAP) {
+                                    it
+                                } else {
+                                    it.padding(horizontal = 32.dp).padding(
+                                        top = if (selectedTab == HomeTab.SETTINGS) 0.dp else 16.dp,
+                                        bottom = 16.dp,
+                                    )
+                                }
+                            },
                     ) {
                         when (selectedTab) {
                             HomeTab.SEARCH -> SearchTabContent()
-                            HomeTab.MAP -> MapTabContent()
+                            HomeTab.MAP -> MapTabContent(
+                                isDarkTheme = LightThemeController.isDarkTheme,
+                                database = tileCacheDatabase,
+                            )
                             HomeTab.SETTINGS -> SettingsTabContent(
                                 options = settingsOptions,
                                 displayName = displayName,
@@ -179,8 +197,8 @@ private fun SearchTabContent() {
 }
 
 @Composable
-private fun MapTabContent() {
-    LightText(text = "World", variant = LightTextVariant.Heading)
+private fun MapTabContent(isDarkTheme: Boolean, database: TileCacheDatabase) {
+    TransitMapView(isDarkTheme = isDarkTheme, database = database, modifier = Modifier.fillMaxSize())
 }
 
 @Composable
@@ -252,6 +270,7 @@ private fun SettingsNavigationRow(label: String, onClick: () -> Unit) {
 @Composable
 private fun HomeBottomBar(onSelectTab: (HomeTab) -> Unit) {
     LightBottomBar(
+        modifier = Modifier.background(LightThemeTokens.colors.background),
         items = listOf(
             LightBarButton.LightIcon(
                 icon = LightIcons.SEARCH,
