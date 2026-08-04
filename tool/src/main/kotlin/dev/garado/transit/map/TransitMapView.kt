@@ -23,6 +23,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import java.io.File
 import kotlinx.coroutines.flow.debounce
 import kotlin.math.cos
 import kotlin.math.ln
@@ -39,14 +40,14 @@ private const val DEFAULT_LAT = 40.7128 // NYC
 private const val DEFAULT_LON = -74.0060
 
 @Composable
-fun TransitMapView(isDarkTheme: Boolean, modifier: Modifier = Modifier) {
+fun TransitMapView(isDarkTheme: Boolean, cacheDir: File, modifier: Modifier = Modifier) {
     var centerLat by remember { mutableStateOf(DEFAULT_LAT) }
     var centerLon by remember { mutableStateOf(DEFAULT_LON) }
     var zoom by remember { mutableStateOf(DEFAULT_ZOOM) }
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
     var mapTiles by remember { mutableStateOf<MapTiles?>(null) }
 
-    val tileClient = remember { MapTileClient() }
+    val tileClient = remember { MapTileClient(cacheDir) }
     DisposableEffect(Unit) {
         onDispose { tileClient.close() }
     }

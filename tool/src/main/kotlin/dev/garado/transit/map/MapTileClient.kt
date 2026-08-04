@@ -15,6 +15,7 @@ import io.ktor.client.request.header
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import java.io.File
 import kotlin.math.ceil
 import kotlin.math.floor
 
@@ -46,7 +47,7 @@ private object TileCache {
  * and on-screen "© OpenStreetMap contributors © CARTO" attribution is required wherever these
  * tiles are displayed -- see TransitMapView's Content().
  */
-class MapTileClient {
+class MapTileClient(private val cacheDir: File) {
     private val client = HttpClient(OkHttp)
 
     companion object {
