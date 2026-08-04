@@ -21,7 +21,7 @@ class HomeScreenViewModel : LightViewModel<Unit>() {
     private val _displayName = MutableStateFlow("")
     val displayName: StateFlow<String> = _displayName.asStateFlow()
 
-    private val _fromLocation = MutableStateFlow("57 Bogart St.")
+    private val _fromLocation = MutableStateFlow("19th St BART Station")
     val fromLocation: StateFlow<String> = _fromLocation.asStateFlow()
 
     private val _toLocation = MutableStateFlow("")
