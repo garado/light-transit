@@ -1,3 +1,7 @@
+/**
+ * Fetches map tiles from OpenStreetMap.
+ */
+
 package dev.garado.transit.map
 
 import android.graphics.Bitmap
@@ -14,24 +18,13 @@ import kotlinx.coroutines.coroutineScope
 import kotlin.math.ceil
 import kotlin.math.floor
 
-/** One fetched map tile and its integer tile coordinates at the map's zoom level. */
+/** One fetched map tile and its integer tile coordinates at the map's zoom level */
 data class FetchedTile(val tileX: Int, val tileY: Int, val bitmap: Bitmap)
 
-/**
- * Every tile fetched to cover the requested area around one center point. Each tile is drawn
- * independently at its own screen offset (computed live from the current center, since that can
- * keep panning/zooming between fetches) -- there's no pre-stitched composite bitmap, so a handful
- * of individually-failed tiles just leave that one patch blank instead of requiring a grid size
- * guessed to be "big enough" up front.
- */
+/** Every tile around one center point */
 data class MapTiles(val zoom: Int, val tiles: List<FetchedTile>)
 
-/**
- * A small in-process LRU of decoded tile bitmaps, keyed by "style/z/x/y", shared by every
- * [MapTileClient] instance -- panning back over an already-fetched area reuses tiles already
- * downloaded instead of refetching them. Capacity is a tile count, not a byte budget, since every
- * raster tile is the same 256x256 size.
- */
+/** LRU of decoded tile bitmaps, keyed by "style/z/x/y" */
 private object TileCache {
     private const val MAX_ENTRIES = 300
     private val entries = object : LinkedHashMap<String, Bitmap>(16, 0.75f, true) {

@@ -1,3 +1,7 @@
+/**
+ * Core map UI implementation.
+ */
+
 package dev.garado.transit.map
 
 import androidx.compose.foundation.Canvas

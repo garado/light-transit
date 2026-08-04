@@ -1,3 +1,7 @@
+/**
+ * Map view utilities.
+ */
+
 package dev.garado.transit.map
 
 import kotlin.math.cos
