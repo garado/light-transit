@@ -2,7 +2,7 @@
  * Fetches raster map tiles from OpenStreetMap.
  *
  * - Tiles fetched from Carto
- * - Cached to disk
+ * - Cached to a local SQLite database
  */
 
 package dev.garado.transit.map
@@ -20,7 +20,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
-import java.io.File
 import kotlin.math.ceil
 import kotlin.math.floor
 
@@ -46,48 +45,38 @@ private object TileCache {
     }
 }
 
-/**
- * Local tile cache, keyed with "style/z/x/y"
- *
- * @param cacheDir Directory where tiles will be cached.
- */
-private class DiskTileCache(cacheDir: File) {
-    private val tileDir = File(cacheDir, "tile_cache")
-
-    private fun fileFor(key: String): File = File(tileDir, key.replace('/', '_') + ".png")
-
-    suspend fun get(key: String): ByteArray? = withContext(Dispatchers.IO) {
-        val file = fileFor(key)
-        if (file.exists()) file.readBytes() else null
+/** Local tile cache backed by SQLite (via Room), keyed with "style/z/x/y" */
+private class DiskTileCache(private val dao: TileDao) {
+    suspend fun get(key: String): ByteArray? {
+        val bytes = dao.getBytes(key) ?: return null
+        dao.touch(key, System.currentTimeMillis())
+        return bytes
     }
 
-    suspend fun put(key: String, bytes: ByteArray) = withContext(Dispatchers.IO) {
-        tileDir.mkdirs()
-        fileFor(key).writeBytes(bytes)
+    suspend fun put(key: String, bytes: ByteArray) {
+        dao.upsert(TileEntity(key, bytes, bytes.size.toLong(), System.currentTimeMillis()))
         evictIfOverBudget()
     }
 
-    /** Deletes oldest-modified files first until the directory is back under [MAX_CACHE_BYTES] */
-    private fun evictIfOverBudget() {
-        val files = tileDir.listFiles() ?: return
-        var totalBytes = files.sumOf { it.length() }
-        if (totalBytes <= MAX_CACHE_BYTES) return
-        for (file in files.sortedBy { it.lastModified() }) {
-            if (totalBytes <= MAX_CACHE_BYTES) break
-            totalBytes -= file.length()
-            file.delete()
+    /** Deletes oldest-accessed tiles in batches until back under [MAX_CACHE_BYTES] */
+    private suspend fun evictIfOverBudget() {
+        while (dao.totalSize() > MAX_CACHE_BYTES) {
+            val oldest = dao.oldestKeys(EVICTION_BATCH_SIZE)
+            if (oldest.isEmpty()) break
+            dao.deleteByKeys(oldest)
         }
     }
 
     companion object {
         private const val MAX_CACHE_BYTES = 1_073_741_824L // 1 GiB
+        private const val EVICTION_BATCH_SIZE = 50
     }
 }
 
 /** Handles fetching raster tiles */
-class MapTileClient(cacheDir: File) {
+class MapTileClient(database: TileCacheDatabase) {
     private val client = HttpClient(OkHttp)
-    private val diskCache = DiskTileCache(cacheDir)
+    private val diskCache = DiskTileCache(database.tileDao())
 
     companion object {
         private const val VOYAGER_BASE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager"

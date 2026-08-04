@@ -21,6 +21,7 @@ import com.thelightphone.sdk.InitialScreen
 import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightActivity
+import com.thelightphone.sdk.buildDatabase
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightBottomBar
 import com.thelightphone.sdk.ui.LightIcon
@@ -34,9 +35,9 @@ import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
+import dev.garado.transit.map.TileCacheDatabase
 import dev.garado.transit.map.TransitMapView
 import com.thelightphone.sdk.ui.lightClickable
-import java.io.File
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -111,6 +112,9 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
         val isEditingName by viewModel.isEditingName.collectAsState()
         val editSessionId by viewModel.editSessionId.collectAsState()
         val themeColors by LightThemeController.colors.collectAsState()
+        val tileCacheDatabase = remember {
+            lightContext.buildDatabase(TileCacheDatabase::class.java, "tile_cache.db")
+        }
 
         LightTheme(colors = themeColors) {
             if (isEditingName) {
@@ -164,7 +168,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                             HomeTab.SEARCH -> SearchTabContent()
                             HomeTab.MAP -> MapTabContent(
                                 isDarkTheme = LightThemeController.isDarkTheme,
-                                cacheDir = lightContext.filesDir,
+                                database = tileCacheDatabase,
                             )
                             HomeTab.SETTINGS -> SettingsTabContent(
                                 options = settingsOptions,
@@ -189,8 +193,8 @@ private fun SearchTabContent() {
 }
 
 @Composable
-private fun MapTabContent(isDarkTheme: Boolean, cacheDir: File) {
-    TransitMapView(isDarkTheme = isDarkTheme, cacheDir = cacheDir, modifier = Modifier.fillMaxSize())
+private fun MapTabContent(isDarkTheme: Boolean, database: TileCacheDatabase) {
+    TransitMapView(isDarkTheme = isDarkTheme, database = database, modifier = Modifier.fillMaxSize())
 }
 
 @Composable
