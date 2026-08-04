@@ -1,4 +1,4 @@
-package dev.garado.template
+package dev.garado.transit
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

@@ -1,6 +1,6 @@
 [tool]
-id = "dev.garado.template"
-label = "Light SDK Tool"
+id = "dev.garado.transit"
+label = "Transit"
 versionCode = 1
 versionName = "0.1.0"
 permissions = ["android.permission.INTERNET"]
