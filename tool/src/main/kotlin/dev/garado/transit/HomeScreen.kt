@@ -147,15 +147,20 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                     Column(
                         modifier = Modifier
                             .weight(1f)
-                            .padding(horizontal = 32.dp)
-                            .padding(
-                                top = if (selectedTab == HomeTab.SETTINGS) 0.dp else 16.dp,
-                                bottom = 16.dp,
-                            ),
+                            .let {
+                                if (selectedTab == HomeTab.MAP) {
+                                    it
+                                } else {
+                                    it.padding(horizontal = 32.dp).padding(
+                                        top = if (selectedTab == HomeTab.SETTINGS) 0.dp else 16.dp,
+                                        bottom = 16.dp,
+                                    )
+                                }
+                            },
                     ) {
                         when (selectedTab) {
                             HomeTab.SEARCH -> SearchTabContent()
-                            HomeTab.MAP -> MapTabContent()
+                            HomeTab.MAP -> MapTabContent(isDarkTheme = LightThemeController.isDarkTheme)
                             HomeTab.SETTINGS -> SettingsTabContent(
                                 options = settingsOptions,
                                 displayName = displayName,
@@ -179,8 +184,8 @@ private fun SearchTabContent() {
 }
 
 @Composable
-private fun MapTabContent() {
-    LightText(text = "World", variant = LightTextVariant.Heading)
+private fun MapTabContent(isDarkTheme: Boolean) {
+    TransitMapView(isDarkTheme = isDarkTheme, modifier = Modifier.fillMaxSize())
 }
 
 @Composable
@@ -252,6 +257,7 @@ private fun SettingsNavigationRow(label: String, onClick: () -> Unit) {
 @Composable
 private fun HomeBottomBar(onSelectTab: (HomeTab) -> Unit) {
     LightBottomBar(
+        modifier = Modifier.background(LightThemeTokens.colors.background),
         items = listOf(
             LightBarButton.LightIcon(
                 icon = LightIcons.SEARCH,
