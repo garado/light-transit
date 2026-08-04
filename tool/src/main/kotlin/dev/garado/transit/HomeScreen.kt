@@ -39,12 +39,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-enum class HomeTab { HELLO, WORLD, SETTINGS }
+enum class HomeTab { SEARCH, MAP, SETTINGS }
 
 data class SettingsOption(val label: String, val enabled: Boolean)
 
 class HomeScreenViewModel : LightViewModel<Unit>() {
-    private val _selectedTab = MutableStateFlow(HomeTab.HELLO)
+    private val _selectedTab = MutableStateFlow(HomeTab.SEARCH)
     val selectedTab: StateFlow<HomeTab> = _selectedTab.asStateFlow()
 
     private val _settingsOptions = MutableStateFlow(
@@ -154,8 +154,8 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                             ),
                     ) {
                         when (selectedTab) {
-                            HomeTab.HELLO -> HelloTabContent()
-                            HomeTab.WORLD -> WorldTabContent()
+                            HomeTab.SEARCH -> HelloTabContent()
+                            HomeTab.MAP -> WorldTabContent()
                             HomeTab.SETTINGS -> SettingsTabContent(
                                 options = settingsOptions,
                                 displayName = displayName,
@@ -254,14 +254,14 @@ private fun HomeBottomBar(onSelectTab: (HomeTab) -> Unit) {
     LightBottomBar(
         items = listOf(
             LightBarButton.LightIcon(
-                icon = LightIcons.COMPOSE_MESSAGE,
-                contentDescription = "Hello",
-                onClick = { onSelectTab(HomeTab.HELLO) },
+                icon = LightIcons.SEARCH,
+                contentDescription = "Search",
+                onClick = { onSelectTab(HomeTab.SEARCH) },
             ),
             LightBarButton.LightIcon(
                 icon = LightIcons.MAP,
-                contentDescription = "World",
-                onClick = { onSelectTab(HomeTab.WORLD) },
+                contentDescription = "Map",
+                onClick = { onSelectTab(HomeTab.MAP) },
             ),
             LightBarButton.LightIcon(
                 icon = LightIcons.SETTINGS,
