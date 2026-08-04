@@ -111,11 +111,12 @@ fun TransitMapView(isDarkTheme: Boolean, database: TileCacheDatabase, modifier: 
 
             translate(left = size.width / 2f, top = size.height / 2f) {
                 for (tile in liveTiles.values) {
-                    val offsetX = ((tile.tileX - liveFracX) * TILE_SIZE).toFloat() * scale
-                    val offsetY = ((tile.tileY - liveFracY) * TILE_SIZE).toFloat() * scale
+                    val offset = tileFractionToOffset(
+                        tile.tileX.toDouble(), tile.tileY.toDouble(), liveFracX, liveFracY, scale,
+                    )
                     drawImage(
                         image = tile.bitmap.asImageBitmap(),
-                        dstOffset = IntOffset(offsetX.roundToInt(), offsetY.roundToInt()),
+                        dstOffset = IntOffset(offset.x.roundToInt(), offset.y.roundToInt()),
                         dstSize = IntSize(drawSizeInt, drawSizeInt),
                     )
                 }
