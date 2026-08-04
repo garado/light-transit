@@ -112,12 +112,12 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                                 toLocation = toLocation,
                                 onFromClick = {
                                     navigateTo(::LocationSearchScreen) { result ->
-                                        viewModel.setFromLocation(result.label)
+                                        viewModel.setFromLocation(result.title)
                                     }
                                 },
                                 onToClick = {
                                     navigateTo(::LocationSearchScreen) { result ->
-                                        viewModel.setToLocation(result.label)
+                                        viewModel.setToLocation(result.title)
                                     }
                                 },
                                 onSwapLocations = viewModel::swapLocations,
