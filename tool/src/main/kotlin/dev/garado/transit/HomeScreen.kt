@@ -36,6 +36,7 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import dev.garado.transit.map.TransitMapView
 import com.thelightphone.sdk.ui.lightClickable
+import java.io.File
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -161,7 +162,10 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                     ) {
                         when (selectedTab) {
                             HomeTab.SEARCH -> SearchTabContent()
-                            HomeTab.MAP -> MapTabContent(isDarkTheme = LightThemeController.isDarkTheme)
+                            HomeTab.MAP -> MapTabContent(
+                                isDarkTheme = LightThemeController.isDarkTheme,
+                                cacheDir = lightContext.filesDir,
+                            )
                             HomeTab.SETTINGS -> SettingsTabContent(
                                 options = settingsOptions,
                                 displayName = displayName,
@@ -185,8 +189,8 @@ private fun SearchTabContent() {
 }
 
 @Composable
-private fun MapTabContent(isDarkTheme: Boolean) {
-    TransitMapView(isDarkTheme = isDarkTheme, modifier = Modifier.fillMaxSize())
+private fun MapTabContent(isDarkTheme: Boolean, cacheDir: File) {
+    TransitMapView(isDarkTheme = isDarkTheme, cacheDir = cacheDir, modifier = Modifier.fillMaxSize())
 }
 
 @Composable

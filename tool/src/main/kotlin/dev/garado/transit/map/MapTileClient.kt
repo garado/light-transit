@@ -1,5 +1,8 @@
 /**
- * Fetches map tiles from OpenStreetMap.
+ * Fetches raster map tiles from OpenStreetMap.
+ *
+ * - Tiles fetched from Carto
+ * - Cached to disk
  */
 
 package dev.garado.transit.map
@@ -13,8 +16,10 @@ import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.http.isSuccess
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -42,13 +47,47 @@ private object TileCache {
 }
 
 /**
- * Fetches individual raster tiles from one of CARTO's free basemaps (built on OpenStreetMap data),
- * caching decoded bitmaps in [TileCache]. A real, descriptive User-Agent is sent on every request,
- * and on-screen "© OpenStreetMap contributors © CARTO" attribution is required wherever these
- * tiles are displayed -- see TransitMapView's Content().
+ * Local tile cache, keyed with "style/z/x/y"
+ *
+ * @param cacheDir Directory where tiles will be cached.
  */
-class MapTileClient(private val cacheDir: File) {
+private class DiskTileCache(cacheDir: File) {
+    private val tileDir = File(cacheDir, "tile_cache")
+
+    private fun fileFor(key: String): File = File(tileDir, key.replace('/', '_') + ".png")
+
+    suspend fun get(key: String): ByteArray? = withContext(Dispatchers.IO) {
+        val file = fileFor(key)
+        if (file.exists()) file.readBytes() else null
+    }
+
+    suspend fun put(key: String, bytes: ByteArray) = withContext(Dispatchers.IO) {
+        tileDir.mkdirs()
+        fileFor(key).writeBytes(bytes)
+        evictIfOverBudget()
+    }
+
+    /** Deletes oldest-modified files first until the directory is back under [MAX_CACHE_BYTES] */
+    private fun evictIfOverBudget() {
+        val files = tileDir.listFiles() ?: return
+        var totalBytes = files.sumOf { it.length() }
+        if (totalBytes <= MAX_CACHE_BYTES) return
+        for (file in files.sortedBy { it.lastModified() }) {
+            if (totalBytes <= MAX_CACHE_BYTES) break
+            totalBytes -= file.length()
+            file.delete()
+        }
+    }
+
+    companion object {
+        private const val MAX_CACHE_BYTES = 1_073_741_824L // 1 GiB
+    }
+}
+
+/** Handles fetching raster tiles */
+class MapTileClient(cacheDir: File) {
     private val client = HttpClient(OkHttp)
+    private val diskCache = DiskTileCache(cacheDir)
 
     companion object {
         // {s} shards requests across CARTO's 4 tile subdomains (see subdomainFor) so a screenful of
@@ -64,13 +103,7 @@ class MapTileClient(private val cacheDir: File) {
         private fun subdomainFor(x: Int, y: Int): Char = SUBDOMAINS[Math.floorMod(x + y, SUBDOMAINS.length)]
     }
 
-    /**
-     * Every tile needed to cover a [halfWidthMeters] x [halfHeightMeters] rectangle around (lat, lon)
-     * at [zoom], fetched concurrently. Individual tile failures are logged and simply omitted from
-     * the result -- never fail the whole map for one bad tile. Sized to the actual viewport rectangle
-     * (rather than a square built from the larger of the two dimensions) so a screen fetches only the
-     * tiles it can actually show, plus [COVERAGE_MARGIN] headroom.
-     */
+    /** Fetch tiles around a specific point */
     suspend fun fetchTilesAround(
         lat: Double,
         lon: Double,
@@ -100,10 +133,15 @@ class MapTileClient(private val cacheDir: File) {
         MapTiles(zoom, tiles)
     }
 
+    /** Fetch an individual tile */
     private suspend fun fetchTile(x: Int, y: Int, zoom: Int, darkMode: Boolean): Bitmap? {
         val style = if (darkMode) "dark" else "voyager"
         val key = "$style/$zoom/$x/$y"
         TileCache.get(key)?.let { return it }
+
+        diskCache.get(key)?.let { bytes ->
+            return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.also { TileCache.put(key, it) }
+        }
 
         val baseUrl = (if (darkMode) DARK_BASE_URL else VOYAGER_BASE_URL)
             .replace("{s}", subdomainFor(x, y).toString())
@@ -113,7 +151,10 @@ class MapTileClient(private val cacheDir: File) {
             }
             if (!response.status.isSuccess()) return null
             val bytes: ByteArray = response.body()
-            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.also { TileCache.put(key, it) }
+            val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
+            TileCache.put(key, bitmap)
+            diskCache.put(key, bytes)
+            bitmap
         } catch (e: Exception) {
             Log.e("MapTileClient", "Tile fetch failed for $key", e)
             null
