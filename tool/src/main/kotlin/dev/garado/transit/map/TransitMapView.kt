@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -45,7 +46,10 @@ fun TransitMapView(isDarkTheme: Boolean, cacheDir: File, modifier: Modifier = Mo
     var centerLon by remember { mutableStateOf(DEFAULT_LON) }
     var zoom by remember { mutableStateOf(DEFAULT_ZOOM) }
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
-    var mapTiles by remember { mutableStateOf<MapTiles?>(null) }
+    var tileZoomLevel by remember { mutableStateOf<Int?>(null) }
+
+    // currently displayed tiles
+    val liveTiles = remember { mutableStateMapOf<Pair<Int, Int>, FetchedTile>() }
 
     val tileClient = remember { MapTileClient(cacheDir) }
     DisposableEffect(Unit) {
@@ -58,17 +62,26 @@ fun TransitMapView(isDarkTheme: Boolean, cacheDir: File, modifier: Modifier = Mo
         val metersPerPx = metersPerPixel(centerLat, tileZoom)
         val halfWidthMeters = (canvasSize.width / 2f) * metersPerPx
         val halfHeightMeters = (canvasSize.height / 2f) * metersPerPx
-        mapTiles = tileClient.fetchTilesAround(centerLat, centerLon, tileZoom, halfWidthMeters.toDouble(), halfHeightMeters.toDouble(), isDarkTheme)
+
+        if (tileZoomLevel != tileZoom) {
+            liveTiles.clear()
+            tileZoomLevel = tileZoom
+        }
+
+        val result = tileClient.fetchTilesAround(
+            centerLat, centerLon, tileZoom, halfWidthMeters.toDouble(), halfHeightMeters.toDouble(), isDarkTheme,
+        ) { tile -> liveTiles[tile.tileX to tile.tileY] = tile }
+
+        // prune stale tiles
+        liveTiles.keys.retainAll(result.requestedKeys)
     }
 
-    // Initial fetch once the canvas has a real size, and again if the theme (map style) changes.
+    // fetch on theme change + canvas init
     LaunchedEffect(canvasSize, isDarkTheme) {
         refetch()
     }
 
-    // Debounced refetch as the user pans/zooms -- the canvas redraws immediately every frame from
-    // live centerLat/centerLon/zoom (see the draw loop below); this just keeps the underlying tile
-    // set current once a gesture settles, rather than refetching on every intermediate frame.
+    // debounced refetch during pan/zoom
     LaunchedEffect(Unit) {
         snapshotFlow { Triple(centerLat, centerLon, zoom) }
             .debounce(REFETCH_DEBOUNCE_MS)
@@ -83,8 +96,6 @@ fun TransitMapView(isDarkTheme: Boolean, cacheDir: File, modifier: Modifier = Mo
                 .pointerInput(Unit) {
                     detectTransformGestures { _, pan, gestureZoom, _ ->
                         val metersPerPx = metersPerPixel(centerLat, zoom.toDouble())
-                        // Screen-right/up pans should reveal what's west/south of center, so the
-                        // center itself moves the opposite direction of the drag.
                         centerLon -= (pan.x * metersPerPx) / (METERS_PER_DEGREE_LAT * cos(Math.toRadians(centerLat)))
                         centerLat += (pan.y * metersPerPx) / METERS_PER_DEGREE_LAT
                         if (gestureZoom != 1f) {
@@ -93,18 +104,14 @@ fun TransitMapView(isDarkTheme: Boolean, cacheDir: File, modifier: Modifier = Mo
                     }
                 },
         ) {
-            val tiles = mapTiles ?: return@Canvas
-            val (liveFracX, liveFracY) = lonLatToTileFraction(centerLat, centerLon, tiles.zoom)
-            val scale = 2.0.pow((zoom - tiles.zoom).toDouble()).toFloat()
+            val tilesZoom = tileZoomLevel ?: return@Canvas
+            val (liveFracX, liveFracY) = lonLatToTileFraction(centerLat, centerLon, tilesZoom)
+            val scale = 2.0.pow((zoom - tilesZoom).toDouble()).toFloat()
             val drawSize = (TILE_SIZE * scale).toFloat()
             val drawSizeInt = drawSize.roundToInt().coerceAtLeast(1)
 
             translate(left = size.width / 2f, top = size.height / 2f) {
-                // (tile.tileX, tile.tileY) is the tile's own top-left corner in tile-space (the
-                // slippy-map convention), so this offset -- its corner's screen position relative to
-                // the live center -- IS the dstOffset directly; no additional half-tile-size
-                // centering is needed (a tile isn't a point-anchored icon).
-                for (tile in tiles.tiles) {
+                for (tile in liveTiles.values) {
                     val offsetX = ((tile.tileX - liveFracX) * TILE_SIZE).toFloat() * scale
                     val offsetY = ((tile.tileY - liveFracY) * TILE_SIZE).toFloat() * scale
                     drawImage(

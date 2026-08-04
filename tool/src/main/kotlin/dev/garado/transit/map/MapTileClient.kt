@@ -27,8 +27,8 @@ import kotlin.math.floor
 /** One fetched map tile and its integer tile coordinates at the map's zoom level */
 data class FetchedTile(val tileX: Int, val tileY: Int, val bitmap: Bitmap)
 
-/** Every tile around one center point */
-data class MapTiles(val zoom: Int, val tiles: List<FetchedTile>)
+/** Every tile around one center point, plus every (x, y) requested, including failures */
+data class MapTiles(val zoom: Int, val tiles: List<FetchedTile>, val requestedKeys: Set<Pair<Int, Int>>)
 
 /** LRU of decoded tile bitmaps, keyed by "style/z/x/y" */
 private object TileCache {
@@ -90,14 +90,11 @@ class MapTileClient(cacheDir: File) {
     private val diskCache = DiskTileCache(cacheDir)
 
     companion object {
-        // {s} shards requests across CARTO's 4 tile subdomains (see subdomainFor) so a screenful of
-        // tiles isn't bottlenecked behind one host's HTTP connection limit.
         private const val VOYAGER_BASE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager"
         private const val DARK_BASE_URL = "https://{s}.basemaps.cartocdn.com/dark_all"
         private const val SUBDOMAINS = "abcd"
-        private const val USER_AGENT = "LightTransitTool/1.0 (+https://github.com/lightphone)"
-        // Fetched area is this much larger than the requested half-extents, so a little panning
-        // headroom exists beyond exactly what's on screen right now.
+        // private const val USER_AGENT = "LightTransitTool/1.0 (+https://github.com/lightphone)"
+        private const val USER_AGENT = "light-transit"
         private const val COVERAGE_MARGIN = 1.15
 
         private fun subdomainFor(x: Int, y: Int): Char = SUBDOMAINS[Math.floorMod(x + y, SUBDOMAINS.length)]
@@ -111,6 +108,7 @@ class MapTileClient(cacheDir: File) {
         halfWidthMeters: Double,
         halfHeightMeters: Double,
         darkMode: Boolean,
+        onTileReady: (FetchedTile) -> Unit = {},
     ): MapTiles = coroutineScope {
         val (centerFracX, centerFracY) = lonLatToTileFraction(lat, lon, zoom)
         val metersPerPx = metersPerPixel(lat, zoom)
@@ -127,10 +125,16 @@ class MapTileClient(cacheDir: File) {
             }
         }
         val tiles = tileCoords
-            .map { (tileX, tileY) -> async { fetchTile(tileX, tileY, zoom, darkMode)?.let { FetchedTile(tileX, tileY, it) } } }
+            .map { (tileX, tileY) ->
+                async {
+                    fetchTile(tileX, tileY, zoom, darkMode)
+                        ?.let { FetchedTile(tileX, tileY, it) }
+                        ?.also { onTileReady(it) }
+                }
+            }
             .mapNotNull { it.await() }
 
-        MapTiles(zoom, tiles)
+        MapTiles(zoom, tiles, tileCoords.toSet())
     }
 
     /** Fetch an individual tile */
@@ -140,7 +144,9 @@ class MapTileClient(cacheDir: File) {
         TileCache.get(key)?.let { return it }
 
         diskCache.get(key)?.let { bytes ->
-            return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.also { TileCache.put(key, it) }
+            return withContext(Dispatchers.Default) {
+                BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            }?.also { TileCache.put(key, it) }
         }
 
         val baseUrl = (if (darkMode) DARK_BASE_URL else VOYAGER_BASE_URL)
@@ -151,7 +157,9 @@ class MapTileClient(cacheDir: File) {
             }
             if (!response.status.isSuccess()) return null
             val bytes: ByteArray = response.body()
-            val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
+            val bitmap = withContext(Dispatchers.Default) {
+                BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            } ?: return null
             TileCache.put(key, bitmap)
             diskCache.put(key, bytes)
             bitmap
