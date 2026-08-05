@@ -3,6 +3,7 @@ package dev.garado.transit.settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
@@ -12,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.thelightphone.lp3Keyboard.ui.KeyboardOptions
 import com.thelightphone.sdk.LightScreen
@@ -27,6 +29,7 @@ import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
+import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.search.LocationSearchScreen
 import dev.garado.transit.search.SavedLocation
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -79,6 +82,7 @@ class SavedLocationsScreen(sealedActivity: SealedLightActivity) :
                 SavedLocationsList(
                     savedLocations = savedLocations,
                     onBack = { goBack() },
+                    onEditClick = { /* TODO: edit mode */ },
                     onAddClick = { isEnteringName = true },
                 )
             }
@@ -90,6 +94,7 @@ class SavedLocationsScreen(sealedActivity: SealedLightActivity) :
 private fun SavedLocationsList(
     savedLocations: List<SavedLocation>,
     onBack: () -> Unit,
+    onEditClick: () -> Unit,
     onAddClick: () -> Unit,
 ) {
     Column(
@@ -100,12 +105,22 @@ private fun SavedLocationsList(
         LightTopBar(
             leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = onBack),
             center = LightTopBarCenter.Text("Saved Locations"),
-            rightButton = LightBarButton.LightIcon(icon = LightIcons.ADD, onClick = onAddClick),
+            rightButton = LightBarButton.LightIcon(icon = LightIcons.PENCIL, onClick = onEditClick, sizeUnits=1.5f),
         )
 
-        LightScrollView(modifier = Modifier.padding(horizontal = 32.dp)) {
+        LightScrollView(modifier = Modifier.weight(1f).padding(horizontal = 32.dp)) {
             savedLocations.forEach { saved -> SavedLocationRow(saved = saved) }
         }
+
+        LightText(
+            text = "ADD LOCATION",
+            variant = LightTextVariant.Button,
+            align = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp, vertical = 16.dp)
+                .lightClickable(onClick = onAddClick),
+        )
     }
 }
 
