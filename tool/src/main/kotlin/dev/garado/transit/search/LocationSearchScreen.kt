@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import com.thelightphone.lp3Keyboard.ui.KeyboardOptions
 import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.SimpleLightScreen
-import com.thelightphone.sdk.buildDatabase
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightIcon
 import com.thelightphone.sdk.ui.LightIcons
@@ -43,13 +41,7 @@ class LocationSearchScreen(
     @Composable
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
-        val database = remember {
-            lightContext.buildDatabase(SavedLocationDatabase::class.java, "saved_locations.db")
-        }
-        DisposableEffect(database) {
-            onDispose { database.close() }
-        }
-        val store = remember(database) { SavedLocationStore(database) }
+        val store = remember { SavedLocationStore(SavedLocationDatabaseHolder.get(lightContext)) }
         val savedLocations by store.all.collectAsState(initial = emptyList())
 
         var isEnteringQuery by remember { mutableStateOf(startInSearch) }

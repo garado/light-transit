@@ -24,16 +24,7 @@ internal class SavedLocationStore(database: SavedLocationDatabase) {
     }
 
     suspend fun delete(savedLocation: SavedLocation) {
-        dao.delete(
-            SavedLocationEntity(
-                id = savedLocation.id,
-                displayName = savedLocation.displayName,
-                title = savedLocation.result.title,
-                address = savedLocation.result.address,
-                lat = savedLocation.result.lat,
-                lon = savedLocation.result.lon,
-            )
-        )
+        dao.deleteById(savedLocation.id)
     }
 }
 
