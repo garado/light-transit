@@ -30,8 +30,10 @@ class TransitApiUsageTracker(private val dataStore: DataStore<Preferences>) {
 
     private fun currentMonth(): String = YearMonth.now().toString()
 
-    private companion object {
-        val COUNT_KEY = intPreferencesKey("transit_api_call_count")
-        val MONTH_KEY = stringPreferencesKey("transit_api_call_count_month")
+    companion object {
+        const val MONTHLY_CALL_LIMIT = 1500
+
+        private val COUNT_KEY = intPreferencesKey("transit_api_call_count")
+        private val MONTH_KEY = stringPreferencesKey("transit_api_call_count_month")
     }
 }

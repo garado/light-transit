@@ -23,6 +23,7 @@ fun SettingsTabContent(
     onToggle: (String) -> Unit,
     onAboutClick: () -> Unit,
     onSavedLocationsClick: () -> Unit,
+    onApiSettingsClick: () -> Unit,
     onEditName: () -> Unit,
 ) {
     LazyColumn {
@@ -47,6 +48,13 @@ fun SettingsTabContent(
             SettingsNavigationRow(
                 label = "Saved Locations",
                 onClick = onSavedLocationsClick,
+            )
+        }
+
+        item {
+            SettingsNavigationRow(
+                label = "API Settings",
+                onClick = onApiSettingsClick,
             )
         }
 
