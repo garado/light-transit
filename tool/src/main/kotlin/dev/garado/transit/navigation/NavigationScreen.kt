@@ -116,7 +116,7 @@ private fun DirectionsList(plan: TripPlan, toLocation: LocationResult) {
     LightScrollView(modifier = Modifier.fillMaxSize().padding(start = 10.dp, end = 8.dp)) {
         DirectionsSummaryHeader(plan)
         plan.legs.forEach { leg -> DirectionsRow(leg) }
-        DestinationRow(toLocation)
+        DestinationRow(toLocation, eta = formatClockTime(plan.endTime))
     }
 }
 
@@ -157,7 +157,7 @@ private fun DirectionsRow(leg: TripLeg) {
 }
 
 @Composable
-private fun DestinationRow(toLocation: LocationResult) {
+private fun DestinationRow(toLocation: LocationResult, eta: String) {
     Row(modifier = Modifier.padding(vertical = 8.dp)) {
         Box(modifier = Modifier.widthIn(min = LEG_ICON_MIN_WIDTH), contentAlignment = Alignment.Center) {
             LightIcon(icon = LightIcons.DIRECTIONS_ARRIVAL, size = 1.25f)
@@ -165,11 +165,14 @@ private fun DestinationRow(toLocation: LocationResult) {
         Column(modifier = Modifier.weight(1f)) {
             LightText(text = toLocation.title, variant = LightTextVariant.Paragraph)
             if (toLocation.address.isNotBlank()) {
-                LightText(
-                    text = toLocation.address,
-                    variant = LightTextVariant.Detail,
-                    modifier = Modifier.padding(top = 2.dp),
-                )
+                Row(modifier = Modifier.padding(top = 2.dp)) {
+                    LightText(
+                        text = toLocation.address,
+                        variant = LightTextVariant.Detail,
+                        modifier = Modifier.weight(1f).padding(end = 8.dp),
+                    )
+                    LightText(text = eta, variant = LightTextVariant.Detail, maxLines = 1)
+                }
             }
         }
     }
