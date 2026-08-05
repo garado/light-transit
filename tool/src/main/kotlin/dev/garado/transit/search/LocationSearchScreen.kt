@@ -84,10 +84,6 @@ class LocationSearchScreen(sealedActivity: SealedLightActivity) : SimpleLightScr
 
                     Column(modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp)) {
                         SearchNavigationRow(onClick = { isEnteringQuery = true })
-
-                        savedLocations.forEach { saved ->
-                            SavedLocationRow(saved = saved, onClick = { goBack(saved.result) })
-                        }
                     }
                 }
             }
@@ -106,19 +102,5 @@ private fun SearchNavigationRow(onClick: () -> Unit) {
     ) {
         LightText(text = "Search", variant = LightTextVariant.Copy, modifier = Modifier.weight(1f))
         LightIcon(icon = LightIcons.ARROW_RIGHT)
-    }
-}
-
-@Composable
-private fun SavedLocationRow(saved: SavedLocation, onClick: () -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .lightClickable(onClick = onClick)
-            .padding(vertical = 12.dp),
-    ) {
-        LightIcon(icon = saved.icon, modifier = Modifier.padding(end = 16.dp))
-        LightText(text = saved.label, variant = LightTextVariant.Copy)
     }
 }
