@@ -1,7 +1,7 @@
 package dev.garado.transit
 
 import com.thelightphone.sdk.LightViewModel
-import dev.garado.transit.search.LocationResult
+import dev.garado.transit.search.SearchState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 data class SettingsOption(val label: String, val enabled: Boolean)
 
 class HomeScreenViewModel : LightViewModel<Unit>() {
+    val search = SearchState()
+
     private val _selectedTab = MutableStateFlow(HomeTab.SEARCH)
     val selectedTab: StateFlow<HomeTab> = _selectedTab.asStateFlow()
 
@@ -21,26 +23,6 @@ class HomeScreenViewModel : LightViewModel<Unit>() {
 
     private val _displayName = MutableStateFlow("")
     val displayName: StateFlow<String> = _displayName.asStateFlow()
-
-    private val _fromLocation = MutableStateFlow<LocationResult?>(null)
-    val fromLocation: StateFlow<LocationResult?> = _fromLocation.asStateFlow()
-
-    private val _toLocation = MutableStateFlow<LocationResult?>(null)
-    val toLocation: StateFlow<LocationResult?> = _toLocation.asStateFlow()
-
-    fun swapLocations() {
-        val from = _fromLocation.value
-        _fromLocation.value = _toLocation.value
-        _toLocation.value = from
-    }
-
-    fun setFromLocation(value: LocationResult) {
-        _fromLocation.value = value
-    }
-
-    fun setToLocation(value: LocationResult) {
-        _toLocation.value = value
-    }
 
     private val _isEditingName = MutableStateFlow(false)
     val isEditingName: StateFlow<Boolean> = _isEditingName.asStateFlow()

@@ -49,8 +49,8 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
         val selectedTab by viewModel.selectedTab.collectAsState()
         val settingsOptions by viewModel.settingsOptions.collectAsState()
         val displayName by viewModel.displayName.collectAsState()
-        val fromLocation by viewModel.fromLocation.collectAsState()
-        val toLocation by viewModel.toLocation.collectAsState()
+        val fromLocation by viewModel.search.fromLocation.collectAsState()
+        val toLocation by viewModel.search.toLocation.collectAsState()
         val isEditingName by viewModel.isEditingName.collectAsState()
         val editSessionId by viewModel.editSessionId.collectAsState()
         val themeColors by LightThemeController.colors.collectAsState()
@@ -115,15 +115,15 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                                 toLocation = toLocation?.title ?: "",
                                 onFromClick = {
                                     navigateTo(::LocationSearchScreen) { result ->
-                                        viewModel.setFromLocation(result)
+                                        viewModel.search.setFromLocation(result)
                                     }
                                 },
                                 onToClick = {
                                     navigateTo(::LocationSearchScreen) { result ->
-                                        viewModel.setToLocation(result)
+                                        viewModel.search.setToLocation(result)
                                     }
                                 },
-                                onSwapLocations = viewModel::swapLocations,
+                                onSwapLocations = viewModel.search::swapLocations,
                                 onStartClick = {
                                     val from = fromLocation
                                     val to = toLocation
