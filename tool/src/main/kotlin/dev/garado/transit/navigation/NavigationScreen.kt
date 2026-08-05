@@ -1,10 +1,13 @@
 package dev.garado.transit.navigation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
@@ -20,8 +23,6 @@ import androidx.compose.ui.unit.dp
 import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.SimpleLightScreen
 import com.thelightphone.sdk.buildDatabase
-import com.thelightphone.sdk.ui.LightBarButton
-import com.thelightphone.sdk.ui.LightBottomBar
 import com.thelightphone.sdk.ui.LightIcon
 import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightScrollView
@@ -30,6 +31,8 @@ import com.thelightphone.sdk.ui.LightTextVariant
 import com.thelightphone.sdk.ui.LightTheme
 import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
+import com.thelightphone.sdk.ui.gridUnitsAsDp
+import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.LegIcon
 import dev.garado.transit.StatusBar
 import dev.garado.transit.api.transit.models.TripLeg
@@ -97,7 +100,7 @@ class NavigationScreen(
 
                 NavigationBottomBar(
                     viewMode = viewMode,
-                    eta = formatClockTime(plan.endTime),
+                    stepSummary = plan.stepSummary(index = 0, toLocation = toLocation),
                     onRecenter = { /* TODO: recenter to live gps location */ },
                     onSwitchView = {
                         viewMode = when (viewMode) {
@@ -181,21 +184,40 @@ private fun DestinationRow(toLocation: LocationResult, eta: String) {
 @Composable
 private fun NavigationBottomBar(
     viewMode: NavigationViewMode,
-    eta: String,
+    stepSummary: String,
     onRecenter: () -> Unit,
     onSwitchView: () -> Unit,
 ) {
-    val items = when (viewMode) {
-        NavigationViewMode.DIRECTIONS -> listOf(
-            null,
-            LightBarButton.Text(text = eta, onClick = null),
-            LightBarButton.LightIcon(icon = LightIcons.MAP, onClick = onSwitchView),
-        )
-        NavigationViewMode.MAP -> listOf(
-            LightBarButton.LightIcon(icon = LightIcons.CROSSHAIR, onClick = onRecenter),
-            LightBarButton.Text(text = eta, onClick = null),
-            LightBarButton.LightIcon(icon = LightIcons.LIST, onClick = onSwitchView),
-        )
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(4f.gridUnitsAsDp())
+            .padding(horizontal = 2f.gridUnitsAsDp()),
+    ) {
+        when (viewMode) {
+            NavigationViewMode.DIRECTIONS -> {
+                LightIcon(icon = LightIcons.SPACER)
+                LightText(text = stepSummary, variant = LightTextVariant.Detail)
+                LightIcon(icon = LightIcons.MAP, modifier = Modifier.lightClickable(onClick = onSwitchView))
+            }
+            NavigationViewMode.MAP -> {
+                LightIcon(icon = LightIcons.CROSSHAIR, modifier = Modifier.lightClickable(onClick = onRecenter))
+                LightText(text = stepSummary, variant = LightTextVariant.Detail)
+                LightIcon(icon = LightIcons.LIST, modifier = Modifier.lightClickable(onClick = onSwitchView))
+            }
+        }
     }
-    LightBottomBar(items = items)
+}
+
+private fun TripPlan.stepSummary(index: Int, toLocation: LocationResult): String =
+    when (val leg = legs.getOrNull(index) ?: return "") {
+        is TripLeg.Walk -> "Walk to ${legs.getOrNull(index + 1)?.startLocationName(toLocation) ?: toLocation.title}"
+        is TripLeg.Transit -> "Board ${leg.routeName}"
+    }
+
+private fun TripLeg.startLocationName(toLocation: LocationResult): String = when (this) {
+    is TripLeg.Transit -> stops.firstOrNull()?.name ?: toLocation.title
+    is TripLeg.Walk -> toLocation.title
 }
