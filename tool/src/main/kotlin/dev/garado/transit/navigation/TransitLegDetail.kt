@@ -106,7 +106,11 @@ private fun StopHeaderRow(name: String, time: String) {
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.fillMaxWidth(),
     ) {
-        LightText(text = name, variant = LightTextVariant.Paragraph)
-        LightText(text = time, variant = LightTextVariant.Paragraph)
+        LightText(
+            text = name,
+            variant = LightTextVariant.Paragraph,
+            modifier = Modifier.weight(1f).padding(end = 8.dp),
+        )
+        LightText(text = time, variant = LightTextVariant.Paragraph, maxLines = 1)
     }
 }

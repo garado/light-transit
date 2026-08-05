@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -13,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.thelightphone.sdk.SealedLightActivity
@@ -20,6 +22,7 @@ import com.thelightphone.sdk.SimpleLightScreen
 import com.thelightphone.sdk.buildDatabase
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightBottomBar
+import com.thelightphone.sdk.ui.LightIcon
 import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightScrollView
 import com.thelightphone.sdk.ui.LightText
@@ -38,12 +41,16 @@ import dev.garado.transit.map.TileCacheDatabase
 import dev.garado.transit.map.TransitMapView
 import dev.garado.transit.route.centroid
 import dev.garado.transit.route.toOverlays
+import dev.garado.transit.search.LocationResult
 
 private enum class NavigationViewMode { DIRECTIONS, MAP }
+
+private val LEG_ICON_MIN_WIDTH = 32.dp
 
 class NavigationScreen(
     sealedActivity: SealedLightActivity,
     private val plan: TripPlan,
+    private val toLocation: LocationResult,
 ) : SimpleLightScreen<Unit>(sealedActivity) {
 
     @Composable
@@ -77,7 +84,7 @@ class NavigationScreen(
                 // Main content area
                 Box(modifier = Modifier.weight(1f).fillMaxSize()) {
                     when (viewMode) {
-                        NavigationViewMode.DIRECTIONS -> DirectionsList(plan)
+                        NavigationViewMode.DIRECTIONS -> DirectionsList(plan, toLocation)
                         NavigationViewMode.MAP -> TransitMapView(
                             isDarkTheme = LightThemeController.isDarkTheme,
                             tileSource = tileSource,
@@ -105,10 +112,11 @@ class NavigationScreen(
 }
 
 @Composable
-private fun DirectionsList(plan: TripPlan) {
+private fun DirectionsList(plan: TripPlan, toLocation: LocationResult) {
     LightScrollView(modifier = Modifier.fillMaxSize().padding(start = 10.dp, end = 8.dp)) {
         DirectionsSummaryHeader(plan)
         plan.legs.forEach { leg -> DirectionsRow(leg) }
+        DestinationRow(toLocation)
     }
 }
 
@@ -134,7 +142,7 @@ private fun DirectionsSummaryHeader(plan: TripPlan) {
 @Composable
 private fun DirectionsRow(leg: TripLeg) {
     Row(modifier = Modifier.padding(vertical = 8.dp)) {
-        LegIcon(leg = leg.shortened(), modifier = Modifier.padding(top = 2.dp), minWidth = 32.dp)
+        LegIcon(leg = leg.shortened(), modifier = Modifier.padding(top = 2.dp), minWidth = LEG_ICON_MIN_WIDTH)
         Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
             when (leg) {
                 is TripLeg.Walk -> LightText(
@@ -143,6 +151,25 @@ private fun DirectionsRow(leg: TripLeg) {
                     lighten = true,
                 )
                 is TripLeg.Transit -> TransitLegDetail(leg)
+            }
+        }
+    }
+}
+
+@Composable
+private fun DestinationRow(toLocation: LocationResult) {
+    Row(modifier = Modifier.padding(vertical = 8.dp)) {
+        Box(modifier = Modifier.widthIn(min = LEG_ICON_MIN_WIDTH), contentAlignment = Alignment.Center) {
+            LightIcon(icon = LightIcons.DIRECTIONS_ARRIVAL, size = 1.25f)
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            LightText(text = toLocation.title, variant = LightTextVariant.Paragraph)
+            if (toLocation.address.isNotBlank()) {
+                LightText(
+                    text = toLocation.address,
+                    variant = LightTextVariant.Detail,
+                    modifier = Modifier.padding(top = 2.dp),
+                )
             }
         }
     }

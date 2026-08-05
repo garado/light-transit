@@ -96,7 +96,7 @@ class RoutePreviewScreen(
                     showCycleButtons = tripPlans.size > 1,
                     onPrevious = { currentIndex = (currentIndex - 1 + tripPlans.size) % tripPlans.size },
                     onNext = { currentIndex = (currentIndex + 1) % tripPlans.size },
-                    onSelect = { navigateTo({ activity -> NavigationScreen(activity, plan) }) },
+                    onSelect = { navigateTo({ activity -> NavigationScreen(activity, plan, toLocation) }) },
                 )
             }
         }
