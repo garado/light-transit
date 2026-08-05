@@ -18,7 +18,7 @@ import com.thelightphone.sdk.ui.LightTextVariant
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
 
-private val SWAP_ICON_GAP = 4.dp
+private val SWAP_ICON_GAP = 2.dp
 
 @Composable
 fun SearchTabContent(
@@ -29,9 +29,9 @@ fun SearchTabContent(
     onSwapLocations: () -> Unit,
     onStartClick: () -> Unit,
 ) {
-    val swapIconSize = 2f.gridUnitsAsDp()
+    val swapIconSize = 1.5f.gridUnitsAsDp()
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         LightTextField(
             label = "From:",
             value = fromLocation,
@@ -50,7 +50,7 @@ fun SearchTabContent(
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(top = 24.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
     ) {
         LightTextField(
             label = "To:",
