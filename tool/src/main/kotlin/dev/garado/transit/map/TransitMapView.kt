@@ -1,5 +1,5 @@
 /**
- * Core map UI implementation.
+ * Core map UI implementation; tile-format-agnostic
  */
 
 package dev.garado.transit.map
@@ -9,7 +9,6 @@ import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -18,11 +17,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.flow.debounce
 import kotlin.math.cos
@@ -36,24 +39,24 @@ private const val DEFAULT_ZOOM = 14f
 private const val REFETCH_DEBOUNCE_MS = 400L
 private const val METERS_PER_DEGREE_LAT = 111_320.0
 
-private const val DEFAULT_LAT = 40.7128 // NYC
-private const val DEFAULT_LON = -74.0060
+private val DEFAULT_CENTER = LatLon(lat = 40.7128, lon = -74.0060) // NYC
 
 @Composable
-fun TransitMapView(isDarkTheme: Boolean, database: TileCacheDatabase, modifier: Modifier = Modifier) {
-    var centerLat by remember { mutableStateOf(DEFAULT_LAT) }
-    var centerLon by remember { mutableStateOf(DEFAULT_LON) }
+fun TransitMapView(
+    isDarkTheme: Boolean,
+    tileSource: MapTileSource,
+    initialCenter: LatLon = DEFAULT_CENTER,
+    overlays: List<MapOverlay> = emptyList(),
+    modifier: Modifier = Modifier,
+) {
+    var centerLat by remember(initialCenter) { mutableStateOf(initialCenter.lat) }
+    var centerLon by remember(initialCenter) { mutableStateOf(initialCenter.lon) }
     var zoom by remember { mutableStateOf(DEFAULT_ZOOM) }
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
     var tileZoomLevel by remember { mutableStateOf<Int?>(null) }
 
     // currently displayed tiles
-    val liveTiles = remember { mutableStateMapOf<Pair<Int, Int>, FetchedTile>() }
-
-    val tileClient = remember { MapTileClient(database) }
-    DisposableEffect(Unit) {
-        onDispose { tileClient.close() }
-    }
+    val liveTiles = remember { mutableStateMapOf<Pair<Int, Int>, MapTile>() }
 
     suspend fun refetch() {
         if (canvasSize == IntSize.Zero) return
@@ -67,7 +70,7 @@ fun TransitMapView(isDarkTheme: Boolean, database: TileCacheDatabase, modifier: 
             tileZoomLevel = tileZoom
         }
 
-        val result = tileClient.fetchTilesAround(
+        val result = tileSource.fetchTilesAround(
             centerLat, centerLon, tileZoom, halfWidthMeters.toDouble(), halfHeightMeters.toDouble(), isDarkTheme,
         ) { tile -> liveTiles[tile.tileX to tile.tileY] = tile }
 
@@ -93,6 +96,7 @@ fun TransitMapView(isDarkTheme: Boolean, database: TileCacheDatabase, modifier: 
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
+                .clipToBounds()
                 .onSizeChanged { canvasSize = it }
                 .pointerInput(Unit) {
                     detectTransformGestures { _, pan, gestureZoom, _ ->
@@ -116,13 +120,35 @@ fun TransitMapView(isDarkTheme: Boolean, database: TileCacheDatabase, modifier: 
                     val offset = tileFractionToOffset(
                         tile.tileX.toDouble(), tile.tileY.toDouble(), liveFracX, liveFracY, scale,
                     )
-                    drawImage(
-                        image = tile.bitmap.asImageBitmap(),
-                        dstOffset = IntOffset(offset.x.roundToInt(), offset.y.roundToInt()),
-                        dstSize = IntSize(drawSizeInt, drawSizeInt),
-                    )
+                    with(tileSource) { drawTile(tile, offset, drawSizeInt) }
+                }
+
+                for (overlay in overlays) {
+                    when (overlay) {
+                        is MapOverlay.Polyline -> drawPolyline(overlay, tilesZoom, liveFracX, liveFracY, scale)
+                    }
                 }
             }
         }
     }
+}
+
+private fun DrawScope.drawPolyline(
+    polyline: MapOverlay.Polyline,
+    tilesZoom: Int,
+    liveFracX: Double,
+    liveFracY: Double,
+    scale: Float,
+) {
+    if (polyline.points.isEmpty()) return
+    val path = Path()
+    polyline.points.forEachIndexed { index, point ->
+        val offset = lonLatToOffset(point.lat, point.lon, tilesZoom, liveFracX, liveFracY, scale)
+        if (index == 0) path.moveTo(offset.x, offset.y) else path.lineTo(offset.x, offset.y)
+    }
+    drawPath(
+        path = path,
+        color = polyline.color,
+        style = Stroke(width = polyline.widthDp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round),
+    )
 }

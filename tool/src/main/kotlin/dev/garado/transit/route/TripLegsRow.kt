@@ -1,12 +1,9 @@
 package dev.garado.transit.route
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,10 +12,9 @@ import com.thelightphone.sdk.ui.LightIcon
 import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightText
 import com.thelightphone.sdk.ui.LightTextVariant
-import com.thelightphone.sdk.ui.LightThemeTokens
+import dev.garado.transit.LegIcon
 import dev.garado.transit.api.transit.models.TripLeg
 import dev.garado.transit.formatDuration
-import dev.garado.transit.parseHexColor
 
 @Composable
 fun TripLegsRow(legs: List<TripLeg>, modifier: Modifier = Modifier) {
@@ -41,27 +37,7 @@ fun TripLegsRow(legs: List<TripLeg>, modifier: Modifier = Modifier) {
 @Composable
 private fun LegChip(leg: TripLeg, modifier: Modifier = Modifier) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
-        when (leg) {
-            is TripLeg.Walk -> {
-                LightIcon(icon = LightIcons.DIRECTIONS_PEDESTRIAN, size = 1.25f)
-            }
-            is TripLeg.Transit -> {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            color = parseHexColor(leg.routeColor, fallback = LightThemeTokens.colors.content),
-                            shape = RoundedCornerShape(4.dp),
-                        )
-                        .padding(horizontal = 6.dp, vertical = 2.dp),
-                ) {
-                    LightText(
-                        text = leg.routeName,
-                        variant = LightTextVariant.Detail,
-                        color = parseHexColor(leg.routeTextColor, fallback = LightThemeTokens.colors.background),
-                    )
-                }
-            }
-        }
+        LegIcon(leg = leg)
         LightText(
             text = formatDuration(leg.duration),
             variant = LightTextVariant.Detail,

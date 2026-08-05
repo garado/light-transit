@@ -10,6 +10,11 @@ package dev.garado.transit.map
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
@@ -23,12 +28,10 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.math.roundToInt
 
-/** One fetched map tile and its integer tile coordinates at the map's zoom level */
-data class FetchedTile(val tileX: Int, val tileY: Int, val bitmap: Bitmap)
-
-/** Every tile around one center point, plus every (x, y) requested, including failures */
-data class MapTiles(val zoom: Int, val tiles: List<FetchedTile>, val requestedKeys: Set<Pair<Int, Int>>)
+/** A raster tile: a decoded bitmap at some integer tile coordinate */
+data class RasterMapTile(override val tileX: Int, override val tileY: Int, val bitmap: Bitmap) : MapTile
 
 /** LRU of decoded tile bitmaps, keyed by "style/z/x/y" */
 private object TileCache {
@@ -74,8 +77,8 @@ private class DiskTileCache(private val dao: TileDao) {
     }
 }
 
-/** Handles fetching raster tiles */
-class MapTileClient(database: TileCacheDatabase) {
+/** [MapTileSource] backed by raster tiles */
+class RasterTileSource(database: TileCacheDatabase) : MapTileSource {
     private val client = HttpClient(OkHttp) {
         install(HttpTimeout) {
             connectTimeoutMillis = CONNECT_TIMEOUT_MS
@@ -96,16 +99,15 @@ class MapTileClient(database: TileCacheDatabase) {
         private fun subdomainFor(x: Int, y: Int): Char = SUBDOMAINS[Math.floorMod(x + y, SUBDOMAINS.length)]
     }
 
-    /** Fetch tiles around a specific point */
-    suspend fun fetchTilesAround(
+    override suspend fun fetchTilesAround(
         lat: Double,
         lon: Double,
         zoom: Int,
         halfWidthMeters: Double,
         halfHeightMeters: Double,
         darkMode: Boolean,
-        onTileReady: (FetchedTile) -> Unit = {},
-    ): MapTiles = coroutineScope {
+        onTileReady: (MapTile) -> Unit,
+    ): MapTileBatch = coroutineScope {
         val (centerFracX, centerFracY) = lonLatToTileFraction(lat, lon, zoom)
         val metersPerPx = metersPerPixel(lat, zoom)
         val radiusTilesX = ceil((halfWidthMeters / metersPerPx * COVERAGE_MARGIN) / TILE_SIZE).toInt().coerceAtLeast(1)
@@ -127,13 +129,13 @@ class MapTileClient(database: TileCacheDatabase) {
             .map { (tileX, tileY) ->
                 async {
                     fetchTile(tileX, tileY, zoom, darkMode)
-                        ?.let { FetchedTile(tileX, tileY, it) }
+                        ?.let { RasterMapTile(tileX, tileY, it) }
                         ?.also { onTileReady(it) }
                 }
             }
             .mapNotNull { it.await() }
 
-        MapTiles(zoom, tiles, tileCoords.toSet())
+        MapTileBatch(zoom, tiles, tileCoords.toSet())
     }
 
     /** Fetch an individual tile; [x] is wrapped around the antimeridian before use */
@@ -164,12 +166,21 @@ class MapTileClient(database: TileCacheDatabase) {
             diskCache.put(key, bytes)
             bitmap
         } catch (e: Exception) {
-            Log.e("MapTileClient", "Tile fetch failed for $key", e)
+            Log.e("RasterTileSource", "Tile fetch failed for $key", e)
             null
         }
     }
 
-    fun close() {
+    override fun DrawScope.drawTile(tile: MapTile, offset: Offset, sizePx: Int) {
+        if (tile !is RasterMapTile) return
+        drawImage(
+            image = tile.bitmap.asImageBitmap(),
+            dstOffset = IntOffset(offset.x.roundToInt(), offset.y.roundToInt()),
+            dstSize = IntSize(sizePx, sizePx),
+        )
+    }
+
+    override fun close() {
         client.close()
     }
 }

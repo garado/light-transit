@@ -68,7 +68,9 @@ class RouteSelectScreen(
                         plans.forEachIndexed { index, plan ->
                             RouteOptionRow(
                                 plan = plan,
-                                onClick = { navigateTo({ activity -> RoutePreviewScreen(activity, plans, index) }) },
+                                onClick = {
+                                    navigateTo({ activity -> RoutePreviewScreen(activity, plans, index, toLocation) })
+                                },
                             )
                         }
                     }

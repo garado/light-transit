@@ -1,13 +1,13 @@
 package dev.garado.transit.route
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.SimpleLightScreen
+import com.thelightphone.sdk.buildDatabase
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightIcon
 import com.thelightphone.sdk.ui.LightIcons
@@ -32,11 +33,19 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.api.transit.models.TripPlan
+import dev.garado.transit.formatDuration
+import dev.garado.transit.formatTimeRange
+import dev.garado.transit.map.RasterTileSource
+import dev.garado.transit.map.TileCacheDatabase
+import dev.garado.transit.map.TransitMapView
+import dev.garado.transit.navigation.NavigationScreen
+import dev.garado.transit.search.LocationResult
 
 class RoutePreviewScreen(
     sealedActivity: SealedLightActivity,
     private val tripPlans: List<TripPlan>,
     private val initialIndex: Int,
+    private val toLocation: LocationResult,
 ) : SimpleLightScreen<Unit>(sealedActivity) {
 
     @Composable
@@ -44,7 +53,24 @@ class RoutePreviewScreen(
         val themeColors by LightThemeController.colors.collectAsState()
         var currentIndex by remember { mutableIntStateOf(initialIndex) }
 
+        val tileCacheDatabase = remember {
+            lightContext.buildDatabase(TileCacheDatabase::class.java, "tile_cache.db")
+        }
+        val tileSource = remember(tileCacheDatabase) { RasterTileSource(tileCacheDatabase) }
+        DisposableEffect(tileSource) {
+            onDispose {
+                tileSource.close()
+                tileCacheDatabase.close()
+            }
+        }
+
+        val plan = tripPlans[currentIndex]
+
         LightTheme(colors = themeColors) {
+            val walkLegColor = LightThemeTokens.colors.content
+            val overlays = remember(plan, walkLegColor) { plan.toOverlays(walkLegColor) }
+            val initialCenter = remember(overlays) { overlays.centroid() }
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -52,17 +78,25 @@ class RoutePreviewScreen(
             ) {
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
-                    center = LightTopBarCenter.Text("Route Selection"),
+                    center = LightTopBarCenter.TwoLineDetail(
+                        line1 = formatDuration(plan.duration),
+                        line2 = formatTimeRange(plan.startTime, plan.endTime),
+                    ),
                 )
 
-                // TODO: draw tripPlans[currentIndex] on TransitMapView
-                Box(modifier = Modifier.weight(1f).fillMaxSize())
+                TransitMapView(
+                    isDarkTheme = LightThemeController.isDarkTheme,
+                    tileSource = tileSource,
+                    initialCenter = initialCenter,
+                    overlays = overlays,
+                    modifier = Modifier.weight(1f).fillMaxSize(),
+                )
 
                 SelectBar(
                     showCycleButtons = tripPlans.size > 1,
                     onPrevious = { currentIndex = (currentIndex - 1 + tripPlans.size) % tripPlans.size },
                     onNext = { currentIndex = (currentIndex + 1) % tripPlans.size },
-                    onSelect = { /* TODO: proceed with tripPlans[currentIndex] */ },
+                    onSelect = { navigateTo({ activity -> NavigationScreen(activity, plan, toLocation) }) },
                 )
             }
         }
@@ -80,7 +114,8 @@ private fun SelectBar(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 32.dp, vertical = 16.dp),
+            .background(LightThemeTokens.colors.background)
+            .padding(start = 32.dp, end = 32.dp, top = 2.dp, bottom = 16.dp),
     ) {
         if (showCycleButtons) {
             LightIcon(
@@ -93,7 +128,8 @@ private fun SelectBar(
             text = "SELECT",
             variant = LightTextVariant.Button,
             align = TextAlign.Center,
-            modifier = Modifier.weight(1f).padding(horizontal = 16.dp).lightClickable(onClick = onSelect),
+            modifier = Modifier.weight(1f).padding(
+                horizontal = 32.dp, vertical = 8.dp).lightClickable(onClick = onSelect),
         )
 
         if (showCycleButtons) {

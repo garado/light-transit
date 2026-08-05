@@ -45,9 +45,21 @@ private fun LegDto.toTransitLeg(): TripLeg.Transit? {
         routeTextColor = route.routeTextColor,
         headsign = itinerary?.headsign,
         nextDepartureTime = departure.departureTime,
-        stops = itinerary?.stops?.map(StopDto::toTripStop) ?: emptyList(),
+        stops = itinerary?.riddenStops() ?: emptyList(),
         shape = itinerary?.planDetails?.planShape ?: itinerary?.shape,
     )
+}
+
+/** [ItineraryDto.stops] covers every single stop; slice only the ones we need */
+private fun ItineraryDto.riddenStops(): List<TripStop> {
+    val start = planDetails?.startStopOffset
+    val end = planDetails?.endStopOffset
+    val slice = if (start != null && end != null && start in stops.indices && end in stops.indices) {
+        stops.subList(start, end + 1)
+    } else {
+        stops
+    }
+    return slice.map(StopDto::toTripStop)
 }
 
 private fun StopDto.toTripStop() = TripStop(
