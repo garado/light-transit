@@ -174,7 +174,7 @@ private fun SavedLocationRow(saved: SavedLocation, isEditing: Boolean, onDeleteC
         Column {
             LightText(text = saved.displayName, variant = LightTextVariant.Copy)
             LightText(
-                text = saved.result.title,
+                text = saved.result.address,
                 variant = LightTextVariant.Detail,
                 lighten = true,
                 modifier = Modifier.padding(top = 2.dp),
