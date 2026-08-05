@@ -33,12 +33,18 @@ import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class LocationSearchScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<LocationResult>(sealedActivity) {
+class LocationSearchScreen(
+    sealedActivity: SealedLightActivity,
+    private val startInSearch: Boolean = false,
+) : SimpleLightScreen<LocationResult>(sealedActivity) {
 
     @Composable
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
-        var isEnteringQuery by remember { mutableStateOf(false) }
+        val store = remember { SavedLocationStore(SavedLocationDatabaseHolder.get(lightContext)) }
+        val savedLocations by store.all.collectAsState(initial = emptyList())
+
+        var isEnteringQuery by remember { mutableStateOf(startInSearch) }
         val fieldState = rememberTextFieldState("")
         val keyboardOptionsFlow = remember {
             MutableStateFlow(
@@ -111,14 +117,18 @@ private fun SearchNavigationRow(onClick: () -> Unit) {
 
 @Composable
 private fun SavedLocationRow(saved: SavedLocation, onClick: () -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .lightClickable(onClick = onClick)
             .padding(vertical = 12.dp),
     ) {
-        LightIcon(icon = saved.icon, modifier = Modifier.padding(end = 16.dp))
-        LightText(text = saved.label, variant = LightTextVariant.Copy)
+        LightText(text = saved.displayName, variant = LightTextVariant.Copy)
+        LightText(
+            text = saved.result.title,
+            variant = LightTextVariant.Detail,
+            lighten = true,
+            modifier = Modifier.padding(top = 2.dp),
+        )
     }
 }

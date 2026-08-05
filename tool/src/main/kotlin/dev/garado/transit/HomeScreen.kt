@@ -27,6 +27,7 @@ import dev.garado.transit.map.MapTabContent
 import dev.garado.transit.map.TileCacheDatabase
 import dev.garado.transit.search.LocationSearchScreen
 import dev.garado.transit.search.SearchTabContent
+import dev.garado.transit.settings.SavedLocationsScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 
 enum class HomeTab { SEARCH, MAP, SETTINGS }
@@ -132,6 +133,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                                 displayName = displayName,
                                 onToggle = viewModel::toggleSetting,
                                 onAboutClick = { navigateTo(::AboutScreen) },
+                                onSavedLocationsClick = { navigateTo(::SavedLocationsScreen) },
                                 onEditName = { viewModel.startEditingName() },
                             )
                         }
