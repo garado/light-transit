@@ -1,6 +1,7 @@
 package dev.garado.transit
 
 import com.thelightphone.sdk.LightViewModel
+import dev.garado.transit.search.LocationResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,11 +22,11 @@ class HomeScreenViewModel : LightViewModel<Unit>() {
     private val _displayName = MutableStateFlow("")
     val displayName: StateFlow<String> = _displayName.asStateFlow()
 
-    private val _fromLocation = MutableStateFlow("19th St BART Station")
-    val fromLocation: StateFlow<String> = _fromLocation.asStateFlow()
+    private val _fromLocation = MutableStateFlow<LocationResult?>(null)
+    val fromLocation: StateFlow<LocationResult?> = _fromLocation.asStateFlow()
 
-    private val _toLocation = MutableStateFlow("")
-    val toLocation: StateFlow<String> = _toLocation.asStateFlow()
+    private val _toLocation = MutableStateFlow<LocationResult?>(null)
+    val toLocation: StateFlow<LocationResult?> = _toLocation.asStateFlow()
 
     fun swapLocations() {
         val from = _fromLocation.value
@@ -33,11 +34,11 @@ class HomeScreenViewModel : LightViewModel<Unit>() {
         _toLocation.value = from
     }
 
-    fun setFromLocation(value: String) {
+    fun setFromLocation(value: LocationResult) {
         _fromLocation.value = value
     }
 
-    fun setToLocation(value: String) {
+    fun setToLocation(value: LocationResult) {
         _toLocation.value = value
     }
 

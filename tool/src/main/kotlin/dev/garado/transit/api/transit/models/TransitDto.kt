@@ -77,6 +77,8 @@ data class RouteDto(
     @SerialName("route_long_name") val routeLongName: String? = null,
     /** Route color as defined in GTFS */
     @SerialName("route_color") val routeColor: String? = null,
+    /** Route text color as defined in GTFS, meant to be legible against [routeColor] */
+    @SerialName("route_text_color") val routeTextColor: String? = null,
     /** Mode name for the given route. A human-readable string that more accurately represents what locals call the mode, e.g. "Métro" for Montreal's subway. */
     @SerialName("mode_name") val modeName: String? = null,
     val itineraries: List<ItineraryDto> = emptyList(),

@@ -26,6 +26,7 @@ sealed interface TripLeg {
         override val duration: Long,
         val routeName: String,
         val routeColor: String?,
+        val routeTextColor: String?,
         val headsign: String?,
         val nextDepartureTime: Long,
         val stops: List<TripStop>,
