@@ -24,7 +24,7 @@ import kotlinx.serialization.json.Json
 
 /** Map endpoints to their mocked responses */
 private enum class TransitEndpoint(val path: String, val mockAsset: String) {
-    PLAN("/v4/public/plan", "mock_transit_plan.json"),
+    PLAN("/v4/public/plan", "mocks/v4-public-plan.json"),
 }
 
 class TransitClient(private val lightContext: SealedLightContext) {
