@@ -13,7 +13,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.thelightphone.sdk.SealedLightActivity
@@ -21,7 +20,6 @@ import com.thelightphone.sdk.SimpleLightScreen
 import com.thelightphone.sdk.buildDatabase
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightBottomBar
-import com.thelightphone.sdk.ui.LightIcon
 import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightScrollView
 import com.thelightphone.sdk.ui.LightText
@@ -29,6 +27,7 @@ import com.thelightphone.sdk.ui.LightTextVariant
 import com.thelightphone.sdk.ui.LightTheme
 import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
+import dev.garado.transit.LegIcon
 import dev.garado.transit.StatusBar
 import dev.garado.transit.api.transit.models.TripLeg
 import dev.garado.transit.api.transit.models.TripPlan
@@ -75,6 +74,7 @@ class NavigationScreen(
             ) {
                 StatusBar(onCancel = { goBack() })
 
+                // Main content area
                 Box(modifier = Modifier.weight(1f).fillMaxSize()) {
                     when (viewMode) {
                         NavigationViewMode.DIRECTIONS -> DirectionsList(plan)
@@ -91,7 +91,7 @@ class NavigationScreen(
                 NavigationBottomBar(
                     viewMode = viewMode,
                     eta = formatClockTime(plan.endTime),
-                    onRecenter = { /* TODO: recenter to live GPS location */ },
+                    onRecenter = { /* TODO: recenter to live gps location */ },
                     onSwitchView = {
                         viewMode = when (viewMode) {
                             NavigationViewMode.DIRECTIONS -> NavigationViewMode.MAP
@@ -106,7 +106,7 @@ class NavigationScreen(
 
 @Composable
 private fun DirectionsList(plan: TripPlan) {
-    LightScrollView(modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp)) {
+    LightScrollView(modifier = Modifier.fillMaxSize().padding(start = 10.dp, end = 8.dp)) {
         DirectionsSummaryHeader(plan)
         plan.legs.forEach { leg -> DirectionsRow(leg) }
     }
@@ -133,32 +133,16 @@ private fun DirectionsSummaryHeader(plan: TripPlan) {
 
 @Composable
 private fun DirectionsRow(leg: TripLeg) {
-    when (leg) {
-        is TripLeg.Walk -> {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 8.dp),
-            ) {
-                LightIcon(icon = LightIcons.DIRECTIONS_PEDESTRIAN, size = 1.25f)
-                LightText(
-                    text = formatDuration(leg.duration),
-                    variant = LightTextVariant.Detail,
-                    modifier = Modifier.padding(start = 4.dp),
-                )
-            }
-        }
-        is TripLeg.Transit -> {
-            Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                LightText(
-                    text = listOfNotNull(leg.routeName, leg.headsign).joinToString(" · "),
-                    variant = LightTextVariant.Copy,
-                )
-                LightText(
+    Row(modifier = Modifier.padding(vertical = 8.dp)) {
+        LegIcon(leg = leg.shortened(), modifier = Modifier.padding(top = 2.dp), minWidth = 32.dp)
+        Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
+            when (leg) {
+                is TripLeg.Walk -> LightText(
                     text = formatDuration(leg.duration),
                     variant = LightTextVariant.Detail,
                     lighten = true,
-                    modifier = Modifier.padding(top = 2.dp),
                 )
+                is TripLeg.Transit -> TransitLegDetail(leg)
             }
         }
     }

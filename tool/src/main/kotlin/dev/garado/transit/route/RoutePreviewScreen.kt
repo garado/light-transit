@@ -39,11 +39,13 @@ import dev.garado.transit.map.RasterTileSource
 import dev.garado.transit.map.TileCacheDatabase
 import dev.garado.transit.map.TransitMapView
 import dev.garado.transit.navigation.NavigationScreen
+import dev.garado.transit.search.LocationResult
 
 class RoutePreviewScreen(
     sealedActivity: SealedLightActivity,
     private val tripPlans: List<TripPlan>,
     private val initialIndex: Int,
+    private val toLocation: LocationResult,
 ) : SimpleLightScreen<Unit>(sealedActivity) {
 
     @Composable
