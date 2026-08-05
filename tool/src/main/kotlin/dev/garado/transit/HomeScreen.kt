@@ -27,6 +27,7 @@ import dev.garado.transit.map.MapTabContent
 import dev.garado.transit.map.TileCacheDatabase
 import dev.garado.transit.search.LocationSearchScreen
 import dev.garado.transit.search.SearchTabContent
+import dev.garado.transit.settings.ApiSettingsScreen
 import dev.garado.transit.settings.SavedLocationsScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -134,6 +135,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                                 onToggle = viewModel::toggleSetting,
                                 onAboutClick = { navigateTo(::AboutScreen) },
                                 onSavedLocationsClick = { navigateTo(::SavedLocationsScreen) },
+                                onApiSettingsClick = { navigateTo(::ApiSettingsScreen) },
                                 onEditName = { viewModel.startEditingName() },
                             )
                         }

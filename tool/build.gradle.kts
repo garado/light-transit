@@ -7,8 +7,17 @@ plugins {
     alias(libs.plugins.light.sdk)
 }
 
+val localProperties = java.util.Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+
 android {
     compileSdk = rootProject.ext["compileSdk"] as Int
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     signingConfigs {
         create("lightsdkDev") {
@@ -26,6 +35,12 @@ android {
         targetSdk = rootProject.ext["targetSdk"] as Int
 
         manifestPlaceholders["sdkVersion"] = property("sdkVersion") as String
+
+        buildConfigField(
+            "String",
+            "TRANSIT_API_KEY",
+            "\"${localProperties.getProperty("TRANSIT_API_KEY", "")}\"",
+        )
     }
 
     buildTypes {
