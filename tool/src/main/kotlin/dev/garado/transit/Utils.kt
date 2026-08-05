@@ -1,5 +1,7 @@
 package dev.garado.transit
 
+import android.graphics.Color as AndroidColor
+import androidx.compose.ui.graphics.Color
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -29,3 +31,13 @@ fun formatClockTime(epochSeconds: Long): String =
 /** e.g. "3:45 PM - 4:58 PM" */
 fun formatTimeRange(startTimeSeconds: Long, endTimeSeconds: Long): String =
     "${formatClockTime(startTimeSeconds)} - ${formatClockTime(endTimeSeconds)}"
+
+/** parses GTFS-style hex color string (no leading '#') into a [Color], or [fallback] if missing/invalid */
+fun parseHexColor(hex: String?, fallback: Color): Color {
+    if (hex.isNullOrBlank()) return fallback
+    return try {
+        Color(AndroidColor.parseColor("#$hex"))
+    } catch (e: IllegalArgumentException) {
+        fallback
+    }
+}
