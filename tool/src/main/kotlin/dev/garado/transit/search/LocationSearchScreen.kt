@@ -92,7 +92,10 @@ class LocationSearchScreen(
                         SearchNavigationRow(onClick = { isEnteringQuery = true })
 
                         savedLocations.forEach { saved ->
-                            SavedLocationRow(saved = saved, onClick = { goBack(saved.result) })
+                            SavedLocationRow(
+                                saved = saved,
+                                onClick = { goBack(saved.result.copy(displayName = saved.displayName)) },
+                            )
                         }
                     }
                 }

@@ -80,8 +80,8 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                     Column(modifier = Modifier.weight(1f).tabContentPadding(selectedTab)) {
                         when (selectedTab) {
                             HomeTab.SEARCH -> SearchTabContent(
-                                fromLocation = fromLocation?.title ?: "",
-                                toLocation = toLocation?.title ?: "",
+                                fromLocation = fromLocation?.let { it.displayName ?: it.title } ?: "",
+                                toLocation = toLocation?.let { it.displayName ?: it.title } ?: "",
                                 onFromClick = {
                                     navigateTo(::LocationSearchScreen) { result ->
                                         viewModel.search.setFromLocation(result)
