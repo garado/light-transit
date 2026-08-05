@@ -17,6 +17,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
@@ -40,6 +45,7 @@ fun TransitMapView(
     isDarkTheme: Boolean,
     tileSource: MapTileSource,
     initialCenter: LatLon = DEFAULT_CENTER,
+    overlays: List<MapOverlay> = emptyList(),
     modifier: Modifier = Modifier,
 ) {
     var centerLat by remember(initialCenter) { mutableStateOf(initialCenter.lat) }
@@ -114,7 +120,33 @@ fun TransitMapView(
                     )
                     with(tileSource) { drawTile(tile, offset, drawSizeInt) }
                 }
+
+                for (overlay in overlays) {
+                    when (overlay) {
+                        is MapOverlay.Polyline -> drawPolyline(overlay, tilesZoom, liveFracX, liveFracY, scale)
+                    }
+                }
             }
         }
     }
+}
+
+private fun DrawScope.drawPolyline(
+    polyline: MapOverlay.Polyline,
+    tilesZoom: Int,
+    liveFracX: Double,
+    liveFracY: Double,
+    scale: Float,
+) {
+    if (polyline.points.isEmpty()) return
+    val path = Path()
+    polyline.points.forEachIndexed { index, point ->
+        val offset = lonLatToOffset(point.lat, point.lon, tilesZoom, liveFracX, liveFracY, scale)
+        if (index == 0) path.moveTo(offset.x, offset.y) else path.lineTo(offset.x, offset.y)
+    }
+    drawPath(
+        path = path,
+        color = polyline.color,
+        style = Stroke(width = polyline.widthDp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round),
+    )
 }
