@@ -33,13 +33,17 @@ private const val DEFAULT_ZOOM = 14f
 private const val REFETCH_DEBOUNCE_MS = 400L
 private const val METERS_PER_DEGREE_LAT = 111_320.0
 
-private const val DEFAULT_LAT = 40.7128 // NYC
-private const val DEFAULT_LON = -74.0060
+private val DEFAULT_CENTER = LatLon(lat = 40.7128, lon = -74.0060) // NYC
 
 @Composable
-fun TransitMapView(isDarkTheme: Boolean, tileSource: MapTileSource, modifier: Modifier = Modifier) {
-    var centerLat by remember { mutableStateOf(DEFAULT_LAT) }
-    var centerLon by remember { mutableStateOf(DEFAULT_LON) }
+fun TransitMapView(
+    isDarkTheme: Boolean,
+    tileSource: MapTileSource,
+    initialCenter: LatLon = DEFAULT_CENTER,
+    modifier: Modifier = Modifier,
+) {
+    var centerLat by remember(initialCenter) { mutableStateOf(initialCenter.lat) }
+    var centerLon by remember(initialCenter) { mutableStateOf(initialCenter.lon) }
     var zoom by remember { mutableStateOf(DEFAULT_ZOOM) }
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
     var tileZoomLevel by remember { mutableStateOf<Int?>(null) }
