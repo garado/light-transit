@@ -88,10 +88,18 @@ data class ItineraryDto(
     val headsign: String? = null,
     /** Direction id of the itinerary. In the majority of cases, the direction id will be the original one from the GTFS. */
     @SerialName("direction_id") val directionId: Int? = null,
-    /** Encoded polyline representing the geographic path of this itinerary. */
+    /** Encoded polyline for this itinerary's *entire* geometry, not just the segment ridden in this leg. Prefer [PlanDetailsDto.planShape] when present. */
     val shape: String? = null,
     /** List of stops of this itinerary. */
     val stops: List<StopDto> = emptyList(),
+    /** Only present inside the `plan` call's response. */
+    @SerialName("plan_details") val planDetails: PlanDetailsDto? = null,
+)
+
+@Serializable
+data class PlanDetailsDto(
+    /** Encoded polyline of just the segment of the itinerary between `start_stop_offset` and `end_stop_offset`, i.e. what was actually ridden in this leg. */
+    @SerialName("plan_shape") val planShape: String? = null,
 )
 
 @Serializable

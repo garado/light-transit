@@ -45,7 +45,7 @@ private fun LegDto.toTransitLeg(): TripLeg.Transit? {
         headsign = itinerary?.headsign,
         nextDepartureTime = departure.departureTime,
         stops = itinerary?.stops?.map(StopDto::toTripStop) ?: emptyList(),
-        shape = itinerary?.shape,
+        shape = itinerary?.planDetails?.planShape ?: itinerary?.shape,
     )
 }
 
