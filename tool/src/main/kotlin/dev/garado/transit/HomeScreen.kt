@@ -30,6 +30,7 @@ import dev.garado.transit.search.LocationSearchScreen
 import dev.garado.transit.search.SearchTabContent
 import dev.garado.transit.settings.ApiSettingsScreen
 import dev.garado.transit.settings.SavedLocationsScreen
+import dev.garado.transit.settings.SettingsTabContent
 import kotlinx.coroutines.flow.MutableStateFlow
 
 enum class HomeTab { SEARCH, MAP, SETTINGS }
@@ -47,12 +48,12 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
     @Composable
     override fun Content() {
         val selectedTab by viewModel.selectedTab.collectAsState()
-        val settingsOptions by viewModel.settingsOptions.collectAsState()
-        val displayName by viewModel.displayName.collectAsState()
+        val settingsOptions by viewModel.settings.settingsOptions.collectAsState()
+        val displayName by viewModel.settings.displayName.collectAsState()
         val fromLocation by viewModel.search.fromLocation.collectAsState()
         val toLocation by viewModel.search.toLocation.collectAsState()
-        val isEditingName by viewModel.isEditingName.collectAsState()
-        val editSessionId by viewModel.editSessionId.collectAsState()
+        val isEditingName by viewModel.settings.isEditingName.collectAsState()
+        val editSessionId by viewModel.settings.editSessionId.collectAsState()
         val themeColors by LightThemeController.colors.collectAsState()
         val tileCacheDatabase = remember {
             lightContext.buildDatabase(TileCacheDatabase::class.java, "tile_cache.db")
@@ -79,8 +80,8 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                 LightTextInputEditor(
                     title = "Display Name",
                     state = nameFieldState,
-                    onSubmit = { viewModel.submitName(it) },
-                    onBack = { viewModel.cancelEditingName() },
+                    onSubmit = { viewModel.settings.submitName(it) },
+                    onBack = { viewModel.settings.cancelEditingName() },
                     keyboardOptionsFlow = keyboardOptionsFlow,
                     singleLine = true,
                     editorKey = editSessionId,
@@ -139,11 +140,11 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                             HomeTab.SETTINGS -> SettingsTabContent(
                                 options = settingsOptions,
                                 displayName = displayName,
-                                onToggle = viewModel::toggleSetting,
+                                onToggle = viewModel.settings::toggleSetting,
                                 onAboutClick = { navigateTo(::AboutScreen) },
                                 onSavedLocationsClick = { navigateTo(::SavedLocationsScreen) },
                                 onApiSettingsClick = { navigateTo(::ApiSettingsScreen) },
-                                onEditName = { viewModel.startEditingName() },
+                                onEditName = { viewModel.settings.startEditingName() },
                             )
                         }
                     }

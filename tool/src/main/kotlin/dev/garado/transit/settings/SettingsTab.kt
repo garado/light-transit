@@ -1,4 +1,4 @@
-package dev.garado.transit
+package dev.garado.transit.settings
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
