@@ -24,6 +24,10 @@ class SavedLocationsViewModel(lightContext: SealedLightContext) : LightViewModel
         viewModelScope.launch { store.add(displayName, result) }
     }
 
+    fun delete(savedLocation: SavedLocation) {
+        viewModelScope.launch { store.delete(savedLocation) }
+    }
+
     override fun onCleared() {
         super.onCleared()
         database.close()
