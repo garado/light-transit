@@ -15,7 +15,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -33,16 +32,13 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
-import dev.garado.transit.api.transit.models.TripLeg
 import dev.garado.transit.api.transit.models.TripPlan
 import dev.garado.transit.formatDuration
 import dev.garado.transit.formatTimeRange
-import dev.garado.transit.map.LatLon
-import dev.garado.transit.map.MapOverlay
 import dev.garado.transit.map.RasterTileSource
 import dev.garado.transit.map.TileCacheDatabase
 import dev.garado.transit.map.TransitMapView
-import dev.garado.transit.parseHexColor
+// import dev.garado.transit.navigation.NavigationScreen
 
 class RoutePreviewScreen(
     sealedActivity: SealedLightActivity,
@@ -98,32 +94,12 @@ class RoutePreviewScreen(
                     showCycleButtons = tripPlans.size > 1,
                     onPrevious = { currentIndex = (currentIndex - 1 + tripPlans.size) % tripPlans.size },
                     onNext = { currentIndex = (currentIndex + 1) % tripPlans.size },
-                    onSelect = { /* TODO: proceed with tripPlans[currentIndex] */ },
+                    // onSelect = { navigateTo({ activity -> NavigationScreen(activity, plan) }) },
+                    onSelect = {},
                 )
             }
         }
     }
-}
-
-private fun TripPlan.toOverlays(walkLegColor: Color): List<MapOverlay.Polyline> = legs.mapNotNull { leg ->
-    when (leg) {
-        is TripLeg.Walk -> MapOverlay.Polyline(points = decodePolyline(leg.polyline), color = walkLegColor)
-        is TripLeg.Transit -> leg.shape?.let { shape ->
-            MapOverlay.Polyline(
-                points = decodePolyline(shape),
-                color = parseHexColor(leg.routeColor, fallback = walkLegColor),
-            )
-        }
-    }
-}
-
-private fun List<MapOverlay.Polyline>.centroid(): LatLon {
-    val allPoints = flatMap { it.points }
-    if (allPoints.isEmpty()) return LatLon(lat = 0.0, lon = 0.0)
-    return LatLon(
-        lat = allPoints.sumOf { it.lat } / allPoints.size,
-        lon = allPoints.sumOf { it.lon } / allPoints.size,
-    )
 }
 
 @Composable
