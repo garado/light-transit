@@ -37,7 +37,7 @@ class TransitClient(private val lightContext: SealedLightContext) {
         fromLon: Double,
         toLat: Double,
         toLon: Double,
-        leaveTime: Long,
+        leaveTime: Long = System.currentTimeMillis() / 1000,
     ): List<TripPlan> {
         val response: PlanApiResponse? = request(
             endpoint = TransitEndpoint.PLAN,
