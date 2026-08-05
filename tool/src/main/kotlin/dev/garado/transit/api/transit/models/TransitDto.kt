@@ -102,6 +102,10 @@ data class ItineraryDto(
 data class PlanDetailsDto(
     /** Encoded polyline of just the segment of the itinerary between `start_stop_offset` and `end_stop_offset`, i.e. what was actually ridden in this leg. */
     @SerialName("plan_shape") val planShape: String? = null,
+    /** Index into the itinerary's `stops` list where the leg starts (boarding stop). */
+    @SerialName("start_stop_offset") val startStopOffset: Int? = null,
+    /** Index into the itinerary's `stops` list where the leg ends (alighting stop). */
+    @SerialName("end_stop_offset") val endStopOffset: Int? = null,
 )
 
 @Serializable

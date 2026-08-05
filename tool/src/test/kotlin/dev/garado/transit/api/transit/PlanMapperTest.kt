@@ -94,6 +94,53 @@ class PlanMapperTest {
     }
 
     @Test
+    fun `slices stops to the ridden segment using start_stop_offset and end_stop_offset`() {
+        val allStops = listOf(
+            StopDto("1", "Origin Terminus", 0.0, 0.0),
+            StopDto("2", "Before Boarding", 0.0, 0.0),
+            StopDto("3", "Boarding Stop", 0.0, 0.0),
+            StopDto("4", "Middle Stop", 0.0, 0.0),
+            StopDto("5", "Alighting Stop", 0.0, 0.0),
+            StopDto("6", "After Alighting", 0.0, 0.0),
+            StopDto("7", "Destination Terminus", 0.0, 0.0),
+        )
+        val itinerary = ItineraryDto(
+            stops = allStops,
+            planDetails = PlanDetailsDto(startStopOffset = 2, endStopOffset = 4),
+        )
+        val leg = LegDto(
+            legMode = "transit",
+            startTime = 0,
+            endTime = 0,
+            duration = 0,
+            departures = listOf(departure()),
+            routes = listOf(route(itineraries = listOf(itinerary))),
+        )
+
+        val transitLeg = planResponseWithLegs(leg).toTripPlans().single().legs.single() as TripLeg.Transit
+
+        assertEquals(listOf("Boarding Stop", "Middle Stop", "Alighting Stop"), transitLeg.stops.map { it.name })
+    }
+
+    @Test
+    fun `falls back to the full stop list when offsets are absent`() {
+        val allStops = listOf(StopDto("1", "A", 0.0, 0.0), StopDto("2", "B", 0.0, 0.0))
+        val itinerary = ItineraryDto(stops = allStops, planDetails = PlanDetailsDto())
+        val leg = LegDto(
+            legMode = "transit",
+            startTime = 0,
+            endTime = 0,
+            duration = 0,
+            departures = listOf(departure()),
+            routes = listOf(route(itineraries = listOf(itinerary))),
+        )
+
+        val transitLeg = planResponseWithLegs(leg).toTripPlans().single().legs.single() as TripLeg.Transit
+
+        assertEquals(listOf("A", "B"), transitLeg.stops.map { it.name })
+    }
+
+    @Test
     fun `falls back from route_short_name to route_long_name to global_route_id for routeName`() {
         val onlyLongName = route(routeShortName = null, routeLongName = "Long Name", globalRouteId = "id-1")
         val onlyId = route(routeShortName = null, routeLongName = null, globalRouteId = "id-2")
