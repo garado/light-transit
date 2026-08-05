@@ -38,7 +38,7 @@ import dev.garado.transit.formatTimeRange
 import dev.garado.transit.map.RasterTileSource
 import dev.garado.transit.map.TileCacheDatabase
 import dev.garado.transit.map.TransitMapView
-// import dev.garado.transit.navigation.NavigationScreen
+import dev.garado.transit.navigation.NavigationScreen
 
 class RoutePreviewScreen(
     sealedActivity: SealedLightActivity,
@@ -94,8 +94,7 @@ class RoutePreviewScreen(
                     showCycleButtons = tripPlans.size > 1,
                     onPrevious = { currentIndex = (currentIndex - 1 + tripPlans.size) % tripPlans.size },
                     onNext = { currentIndex = (currentIndex + 1) % tripPlans.size },
-                    // onSelect = { navigateTo({ activity -> NavigationScreen(activity, plan) }) },
-                    onSelect = {},
+                    onSelect = { navigateTo({ activity -> NavigationScreen(activity, plan) }) },
                 )
             }
         }
