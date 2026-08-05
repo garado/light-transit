@@ -52,7 +52,7 @@ class RoutePreviewScreen(
             ) {
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
-                    center = LightTopBarCenter.Text("Select Route"),
+                    center = LightTopBarCenter.Text("Route Selection"),
                 )
 
                 // TODO: draw tripPlans[currentIndex] on TransitMapView
