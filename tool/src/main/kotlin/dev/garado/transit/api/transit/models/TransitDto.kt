@@ -1,4 +1,4 @@
-/** DTOs for Transit API, doc comments copied from transit-api.json */
+/** DTOs for Transit API based on transit-api.json */
 
 package dev.garado.transit.api.transit.models
 
