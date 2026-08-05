@@ -25,6 +25,7 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import dev.garado.transit.map.MapTabContent
 import dev.garado.transit.map.TileCacheDatabase
+import dev.garado.transit.route.RouteSelectScreen
 import dev.garado.transit.search.LocationSearchScreen
 import dev.garado.transit.search.SearchTabContent
 import dev.garado.transit.settings.ApiSettingsScreen
@@ -110,20 +111,26 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                     ) {
                         when (selectedTab) {
                             HomeTab.SEARCH -> SearchTabContent(
-                                fromLocation = fromLocation,
-                                toLocation = toLocation,
+                                fromLocation = fromLocation?.title ?: "",
+                                toLocation = toLocation?.title ?: "",
                                 onFromClick = {
                                     navigateTo(::LocationSearchScreen) { result ->
-                                        viewModel.setFromLocation(result.title)
+                                        viewModel.setFromLocation(result)
                                     }
                                 },
                                 onToClick = {
                                     navigateTo(::LocationSearchScreen) { result ->
-                                        viewModel.setToLocation(result.title)
+                                        viewModel.setToLocation(result)
                                     }
                                 },
                                 onSwapLocations = viewModel::swapLocations,
-                                onStartClick = { /* TODO: start directions */ },
+                                onStartClick = {
+                                    val from = fromLocation
+                                    val to = toLocation
+                                    if (from != null && to != null) {
+                                        navigateTo({ activity -> RouteSelectScreen(activity, from, to) })
+                                    }
+                                },
                             )
                             HomeTab.MAP -> MapTabContent(
                                 isDarkTheme = LightThemeController.isDarkTheme,
