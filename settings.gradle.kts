@@ -38,6 +38,40 @@ dependencyResolutionManagement {
 
 rootProject.name = "light-sdk-template"
 
+// Overlay local light-sdk-patch patches before light-sdk's build files/sources are read below.
+// git restore'd after build to keep light-sdk submodule clean
+val sdkPatchDir = file("light-sdk-patch")
+val sdkDir = file("light-sdk")
+if (sdkPatchDir.exists()) {
+    val patchedRelativePaths = sdkPatchDir.walkTopDown()
+        .filter { it.isFile && it.name != "README.md" }
+        .map { it.relativeTo(sdkPatchDir).path }
+        .toList()
+
+    for (relativePath in patchedRelativePaths) {
+        val target = sdkDir.resolve(relativePath)
+        target.parentFile.mkdirs()
+        sdkPatchDir.resolve(relativePath).copyTo(target, overwrite = true)
+    }
+
+    gradle.buildFinished {
+        for (relativePath in patchedRelativePaths) {
+            // tracked files: restore to their committed contents
+            ProcessBuilder("git", "checkout", "--", relativePath)
+                .directory(sdkDir)
+                .redirectErrorStream(true)
+                .start()
+                .waitFor()
+            // untracked/new files: remove them entirely
+            ProcessBuilder("git", "clean", "-f", "--", relativePath)
+                .directory(sdkDir)
+                .redirectErrorStream(true)
+                .start()
+                .waitFor()
+        }
+    }
+}
+
 includeBuild("light-sdk/plugin")
 
 include(":lint-rules")
