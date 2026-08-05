@@ -12,13 +12,18 @@ object TransitRateLimiter {
 
     /** Returns true if a call is allowed right now, and records it if so */
     @Synchronized
-    fun tryAcquire(): Boolean {
-        val now = System.currentTimeMillis()
-        while (callTimestamps.isNotEmpty() && now - callTimestamps.first() >= WINDOW_MILLIS) {
+    fun tryAcquire(nowMillis: Long = System.currentTimeMillis()): Boolean {
+        while (callTimestamps.isNotEmpty() && nowMillis - callTimestamps.first() >= WINDOW_MILLIS) {
             callTimestamps.removeFirst()
         }
         if (callTimestamps.size >= MAX_CALLS_PER_WINDOW) return false
-        callTimestamps.addLast(now)
+        callTimestamps.addLast(nowMillis)
         return true
+    }
+
+    /** Clears recorded calls */
+    @Synchronized
+    internal fun reset() {
+        callTimestamps.clear()
     }
 }
