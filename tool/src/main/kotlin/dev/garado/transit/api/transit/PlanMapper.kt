@@ -42,6 +42,7 @@ private fun LegDto.toTransitLeg(): TripLeg.Transit? {
         duration = duration,
         routeName = route.routeShortName ?: route.routeLongName ?: route.globalRouteId,
         routeColor = route.routeColor,
+        routeTextColor = route.routeTextColor,
         headsign = itinerary?.headsign,
         nextDepartureTime = departure.departureTime,
         stops = itinerary?.stops?.map(StopDto::toTripStop) ?: emptyList(),
