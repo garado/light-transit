@@ -33,12 +33,15 @@ import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class LocationSearchScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<LocationResult>(sealedActivity) {
+class LocationSearchScreen(
+    sealedActivity: SealedLightActivity,
+    private val startInSearch: Boolean = false,
+) : SimpleLightScreen<LocationResult>(sealedActivity) {
 
     @Composable
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
-        var isEnteringQuery by remember { mutableStateOf(false) }
+        var isEnteringQuery by remember { mutableStateOf(startInSearch) }
         val fieldState = rememberTextFieldState("")
         val keyboardOptionsFlow = remember {
             MutableStateFlow(

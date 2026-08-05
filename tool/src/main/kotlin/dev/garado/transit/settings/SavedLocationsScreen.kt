@@ -69,7 +69,7 @@ class SavedLocationsScreen(sealedActivity: SealedLightActivity) : SimpleLightScr
         }
 
         fun startAddFlow(displayName: String) {
-            navigateTo({ activity -> LocationSearchScreen(activity) }) { result ->
+            navigateTo({ activity -> LocationSearchScreen(activity, startInSearch = true) }) { result ->
                 coroutineScope.launch { store.add(displayName, result) }
             }
         }
