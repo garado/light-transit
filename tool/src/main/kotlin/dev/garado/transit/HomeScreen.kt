@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -12,12 +11,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.thelightphone.lp3Keyboard.ui.KeyboardOptions
 import com.thelightphone.sdk.InitialScreen
 import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.buildDatabase
-import com.thelightphone.sdk.ui.LightTextInputEditor
 import com.thelightphone.sdk.ui.LightTheme
 import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
@@ -29,9 +26,9 @@ import dev.garado.transit.route.RouteSelectScreen
 import dev.garado.transit.search.LocationSearchScreen
 import dev.garado.transit.search.SearchTabContent
 import dev.garado.transit.settings.ApiSettingsScreen
+import dev.garado.transit.settings.NameEditor
 import dev.garado.transit.settings.SavedLocationsScreen
 import dev.garado.transit.settings.SettingsTabContent
-import kotlinx.coroutines.flow.MutableStateFlow
 
 enum class HomeTab { SEARCH, MAP, SETTINGS }
 
@@ -64,27 +61,11 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
 
         LightTheme(colors = themeColors) {
             if (isEditingName) {
-                val nameFieldState = rememberTextFieldState(displayName)
-                val keyboardOptionsFlow = remember {
-                    MutableStateFlow(
-                        KeyboardOptions(
-                            emptyList(),
-                            true,
-                            false,
-                            true,
-                            swipeEnabled = false,
-                        )
-                    )
-                }
-
-                LightTextInputEditor(
-                    title = "Display Name",
-                    state = nameFieldState,
+                NameEditor(
+                    displayName = displayName,
+                    editSessionId = editSessionId,
                     onSubmit = { viewModel.settings.submitName(it) },
                     onBack = { viewModel.settings.cancelEditingName() },
-                    keyboardOptionsFlow = keyboardOptionsFlow,
-                    singleLine = true,
-                    editorKey = editSessionId,
                 )
             } else {
                 Column(
@@ -96,20 +77,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                         LightTopBar(center = LightTopBarCenter.Text("Settings"))
                     }
 
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .let {
-                                if (selectedTab == HomeTab.MAP) {
-                                    it
-                                } else {
-                                    it.padding(horizontal = 32.dp).padding(
-                                        top = if (selectedTab == HomeTab.SETTINGS) 0.dp else 16.dp,
-                                        bottom = 16.dp,
-                                    )
-                                }
-                            },
-                    ) {
+                    Column(modifier = Modifier.weight(1f).tabContentPadding(selectedTab)) {
                         when (selectedTab) {
                             HomeTab.SEARCH -> SearchTabContent(
                                 fromLocation = fromLocation?.title ?: "",
@@ -155,3 +123,13 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
         }
     }
 }
+
+private fun Modifier.tabContentPadding(selectedTab: HomeTab): Modifier =
+    if (selectedTab == HomeTab.MAP) {
+        this
+    } else {
+        this.padding(horizontal = 32.dp).padding(
+            top = if (selectedTab == HomeTab.SETTINGS) 0.dp else 16.dp,
+            bottom = 16.dp,
+        )
+    }
