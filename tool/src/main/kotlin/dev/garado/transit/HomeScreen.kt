@@ -23,6 +23,7 @@ import com.thelightphone.sdk.ui.LightTopBarCenter
 import dev.garado.transit.map.MapTabContent
 import dev.garado.transit.map.TileCacheDatabase
 import dev.garado.transit.route.RouteSelectScreen
+import dev.garado.transit.search.DepartureTimeScreen
 import dev.garado.transit.search.LocationSearchScreen
 import dev.garado.transit.search.SearchTabContent
 import dev.garado.transit.settings.ApiSettingsScreen
@@ -82,6 +83,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                             HomeTab.SEARCH -> SearchTabContent(
                                 fromLocation = fromLocation?.let { it.displayName ?: it.title } ?: "",
                                 toLocation = toLocation?.let { it.displayName ?: it.title } ?: "",
+                                departureTimeLabel = "Now",
                                 onFromClick = {
                                     navigateTo(::LocationSearchScreen) { result ->
                                         viewModel.search.setFromLocation(result)
@@ -93,6 +95,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                                     }
                                 },
                                 onSwapLocations = viewModel.search::swapLocations,
+                                onDepartureTimeClick = { navigateTo(::DepartureTimeScreen) },
                                 onStartClick = {
                                     val from = fromLocation
                                     val to = toLocation
