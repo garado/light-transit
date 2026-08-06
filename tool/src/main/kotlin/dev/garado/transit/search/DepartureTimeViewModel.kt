@@ -11,18 +11,20 @@ enum class DepartureMode(val label: String) {
     LEAVE_NOW("Leave now"),
 }
 
-class DepartureTimeViewModel : LightViewModel<Unit>() {
-    private val _mode = MutableStateFlow(DepartureMode.LEAVE_AT)
+class DepartureTimeViewModel(
+    initialSelection: DepartureSelection,
+    val initialTime: TimeSelection,
+) : LightViewModel<DepartureSelection>() {
+    private val _mode = MutableStateFlow(initialSelection.toMode())
     val mode: StateFlow<DepartureMode> = _mode.asStateFlow()
-
-    private val _selectedTime = MutableStateFlow<TimeSelection?>(null)
-    val selectedTime: StateFlow<TimeSelection?> = _selectedTime.asStateFlow()
 
     fun selectMode(value: DepartureMode) {
         _mode.value = value
     }
+}
 
-    fun setSelectedTime(value: TimeSelection) {
-        _selectedTime.value = value
-    }
+private fun DepartureSelection.toMode(): DepartureMode = when (this) {
+    DepartureSelection.Now -> DepartureMode.LEAVE_NOW
+    is DepartureSelection.LeaveAt -> DepartureMode.LEAVE_AT
+    is DepartureSelection.ArriveBy -> DepartureMode.ARRIVE_BY
 }

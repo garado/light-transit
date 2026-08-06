@@ -23,6 +23,7 @@ import com.thelightphone.sdk.ui.LightTopBarCenter
 import dev.garado.transit.map.MapTabContent
 import dev.garado.transit.map.TileCacheDatabase
 import dev.garado.transit.route.RouteSelectScreen
+import dev.garado.transit.search.DepartureSelection
 import dev.garado.transit.search.DepartureTimeScreen
 import dev.garado.transit.search.LocationSearchScreen
 import dev.garado.transit.search.SearchTabContent
@@ -50,6 +51,8 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
         val displayName by viewModel.settings.displayName.collectAsState()
         val fromLocation by viewModel.search.fromLocation.collectAsState()
         val toLocation by viewModel.search.toLocation.collectAsState()
+        val departureSelection by viewModel.search.departureSelection.collectAsState()
+        val departureTime by viewModel.search.departureTime.collectAsState()
         val isEditingName by viewModel.settings.isEditingName.collectAsState()
         val editSessionId by viewModel.settings.editSessionId.collectAsState()
         val themeColors by LightThemeController.colors.collectAsState()
@@ -83,7 +86,8 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                             HomeTab.SEARCH -> SearchTabContent(
                                 fromLocation = fromLocation?.let { it.displayName ?: it.title } ?: "",
                                 toLocation = toLocation?.let { it.displayName ?: it.title } ?: "",
-                                departureTimeLabel = "Now",
+                                departureFieldLabel = departureSelection.fieldLabel(),
+                                departureFieldValue = departureSelection.fieldValue(),
                                 onFromClick = {
                                     navigateTo(::LocationSearchScreen) { result ->
                                         viewModel.search.setFromLocation(result)
@@ -95,7 +99,13 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                                     }
                                 },
                                 onSwapLocations = viewModel.search::swapLocations,
-                                onDepartureTimeClick = { navigateTo(::DepartureTimeScreen) },
+                                onDepartureTimeClick = {
+                                    navigateTo(
+                                        { activity ->
+                                            DepartureTimeScreen(activity, departureSelection, departureTime)
+                                        },
+                                    ) { result -> viewModel.search.setDepartureSelection(result) }
+                                },
                                 onStartClick = {
                                     val from = fromLocation
                                     val to = toLocation
@@ -125,6 +135,18 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
             }
         }
     }
+}
+
+private fun DepartureSelection.fieldLabel(): String = when (this) {
+    is DepartureSelection.Now -> "Leave at"
+    is DepartureSelection.LeaveAt -> "Leave at"
+    is DepartureSelection.ArriveBy -> "Arrive by"
+}
+
+private fun DepartureSelection.fieldValue(): String = when (this) {
+    is DepartureSelection.Now -> "Now"
+    is DepartureSelection.LeaveAt -> formatClockTime(hour24, minute)
+    is DepartureSelection.ArriveBy -> formatClockTime(hour24, minute)
 }
 
 private fun Modifier.tabContentPadding(selectedTab: HomeTab): Modifier =

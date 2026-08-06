@@ -24,7 +24,8 @@ private val SWAP_ICON_GAP = 2.dp
 fun SearchTabContent(
     fromLocation: String,
     toLocation: String,
-    departureTimeLabel: String,
+    departureFieldLabel: String,
+    departureFieldValue: String,
     onFromClick: () -> Unit,
     onToClick: () -> Unit,
     onSwapLocations: () -> Unit,
@@ -65,8 +66,8 @@ fun SearchTabContent(
     }
 
     LightTextField(
-        label = "Leave at",
-        value = departureTimeLabel,
+        label = departureFieldLabel,
+        value = departureFieldValue,
         placeholder = "Now",
         onClick = onDepartureTimeClick,
         modifier = Modifier.fillMaxWidth().padding(top = 24.dp),

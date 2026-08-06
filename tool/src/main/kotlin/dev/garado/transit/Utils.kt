@@ -28,6 +28,17 @@ fun formatDurationLines(durationSeconds: Long): List<String> {
 fun formatClockTime(epochSeconds: Long): String =
     CLOCK_TIME_FORMAT.format(Instant.ofEpochSecond(epochSeconds).atZone(ZoneId.systemDefault()))
 
+/** e.g. "3:45 PM" from a 24h hour + minute pair */
+fun formatClockTime(hour24: Int, minute: Int): String {
+    val isPm = hour24 >= 12
+    val hour12 = when {
+        hour24 == 0 -> 12
+        hour24 > 12 -> hour24 - 12
+        else -> hour24
+    }
+    return "$hour12:${minute.toString().padStart(2, '0')} ${if (isPm) "PM" else "AM"}"
+}
+
 /** e.g. "3:45 PM - 4:58 PM" */
 fun formatTimeRange(startTimeSeconds: Long, endTimeSeconds: Long): String =
     "${formatClockTime(startTimeSeconds)} - ${formatClockTime(endTimeSeconds)}"

@@ -24,20 +24,24 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
+import dev.garado.transit.formatClockTime
 
 private val TAB_GAP = 32.dp
 
-class DepartureTimeScreen(sealedActivity: SealedLightActivity) :
-    LightScreen<Unit, DepartureTimeViewModel>(sealedActivity) {
+class DepartureTimeScreen(
+    sealedActivity: SealedLightActivity,
+    private val initialSelection: DepartureSelection,
+    private val initialTime: TimeSelection,
+) : LightScreen<DepartureSelection, DepartureTimeViewModel>(sealedActivity) {
 
     override val viewModelClass = DepartureTimeViewModel::class.java
-    override fun createViewModel() = DepartureTimeViewModel()
+    override fun createViewModel() = DepartureTimeViewModel(initialSelection, initialTime)
 
     @Composable
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
         val mode by viewModel.mode.collectAsState()
-        val selectedTime by viewModel.selectedTime.collectAsState()
+        val time = viewModel.initialTime
 
         LightTheme(colors = themeColors) {
             Column(
@@ -54,20 +58,37 @@ class DepartureTimeScreen(sealedActivity: SealedLightActivity) :
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxSize().padding(horizontal = 32.dp, vertical = 24.dp),
                 ) {
-                    DepartureModeTabs(selected = mode, onSelect = viewModel::selectMode)
+                    DepartureModeTabs(
+                        selected = mode,
+                        onSelect = { selected ->
+                            if (selected == DepartureMode.LEAVE_NOW) {
+                                goBack(DepartureSelection.Now)
+                            } else {
+                                viewModel.selectMode(selected)
+                            }
+                        },
+                    )
 
                     if (mode != DepartureMode.LEAVE_NOW) {
                         LightText(
-                            text = selectedTime?.let { formatTime(it.hour24, it.minute) } ?: "<Time>",
+                            text = formatClockTime(time.hour24, time.minute),
                             variant = LightTextVariant.Heading,
                             modifier = Modifier
                                 .padding(top = 48.dp)
                                 .lightClickable(onClick = {
                                     navigateTo(
-                                        { activity ->
-                                            TimePickerScreen(activity, selectedTime?.hour24, selectedTime?.minute)
-                                        },
-                                    ) { result -> viewModel.setSelectedTime(result) }
+                                        { activity -> TimePickerScreen(activity, time.hour24, time.minute) },
+                                    ) { result ->
+                                        goBack(
+                                            when (mode) {
+                                                DepartureMode.LEAVE_AT ->
+                                                    DepartureSelection.LeaveAt(result.hour24, result.minute)
+                                                DepartureMode.ARRIVE_BY ->
+                                                    DepartureSelection.ArriveBy(result.hour24, result.minute)
+                                                DepartureMode.LEAVE_NOW -> DepartureSelection.Now
+                                            },
+                                        )
+                                    }
                                 }),
                         )
                     }
@@ -75,16 +96,6 @@ class DepartureTimeScreen(sealedActivity: SealedLightActivity) :
             }
         }
     }
-}
-
-private fun formatTime(hour24: Int, minute: Int): String {
-    val isPm = hour24 >= 12
-    val hour12 = when {
-        hour24 == 0 -> 12
-        hour24 > 12 -> hour24 - 12
-        else -> hour24
-    }
-    return "$hour12:${minute.toString().padStart(2, '0')} ${if (isPm) "PM" else "AM"}"
 }
 
 @Composable
