@@ -24,7 +24,6 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
-import dev.garado.transit.StatusBar
 import dev.garado.transit.formatClockTime
 
 private val TAB_GAP = 32.dp
@@ -50,8 +49,6 @@ class DepartureTimeScreen(
                     .fillMaxSize()
                     .background(LightThemeTokens.colors.background),
             ) {
-                StatusBar()
-
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(
                         icon = LightIcons.BACK,
