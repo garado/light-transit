@@ -15,6 +15,8 @@ import com.thelightphone.sdk.InitialScreen
 import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.buildDatabase
+import com.thelightphone.sdk.ui.LightBarButton
+import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightTheme
 import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
@@ -51,6 +53,8 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
         val displayName by viewModel.settings.displayName.collectAsState()
         val fromLocation by viewModel.search.fromLocation.collectAsState()
         val toLocation by viewModel.search.toLocation.collectAsState()
+        val fromDisplay = fromLocation?.let { it.displayName ?: it.title } ?: ""
+        val toDisplay = toLocation?.let { it.displayName ?: it.title } ?: ""
         val departureSelection by viewModel.search.departureSelection.collectAsState()
         val departureTime by viewModel.search.departureTime.collectAsState()
         val isEditingName by viewModel.settings.isEditingName.collectAsState()
@@ -81,15 +85,23 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                         StatusBar()
                     }
 
-                    if (selectedTab == HomeTab.SETTINGS) {
-                        LightTopBar(center = LightTopBarCenter.Text("Settings"))
+                    if (selectedTab != HomeTab.SEARCH) {
+                        LightTopBar(
+                            leftButton = LightBarButton.LightIcon(
+                                icon = LightIcons.BACK,
+                                onClick = { viewModel.selectTab(HomeTab.SEARCH) },
+                            ),
+                            center = LightTopBarCenter.Text(
+                                if (selectedTab == HomeTab.SETTINGS) "Settings" else "Map",
+                            ),
+                        )
                     }
 
                     Column(modifier = Modifier.weight(1f).tabContentPadding(selectedTab)) {
                         when (selectedTab) {
                             HomeTab.SEARCH -> SearchTabContent(
-                                fromLocation = fromLocation?.let { it.displayName ?: it.title } ?: "",
-                                toLocation = toLocation?.let { it.displayName ?: it.title } ?: "",
+                                fromLocation = fromDisplay,
+                                toLocation = toDisplay,
                                 departureFieldLabel = departureSelection.fieldLabel(),
                                 departureFieldValue = departureSelection.fieldValue(),
                                 onFromClick = {
@@ -110,17 +122,6 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                                         },
                                     ) { result -> viewModel.search.setDepartureSelection(result) }
                                 },
-                                onStartClick = {
-                                    val from = fromLocation
-                                    val to = toLocation
-                                    if (from != null && to != null) {
-                                        navigateTo(
-                                            { activity ->
-                                                RouteSelectScreen(activity, from, to, departureSelection)
-                                            },
-                                        )
-                                    }
-                                },
                             )
                             HomeTab.MAP -> MapTabContent(
                                 isDarkTheme = LightThemeController.isDarkTheme,
@@ -138,7 +139,22 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                         }
                     }
 
-                    HomeBottomBar(onSelectTab = viewModel::selectTab)
+                    if (selectedTab == HomeTab.SEARCH) {
+                        HomeBottomBar(
+                            showStart = fromDisplay.isNotBlank() && toDisplay.isNotBlank(),
+                            onSettingsClick = { viewModel.selectTab(HomeTab.SETTINGS) },
+                            onStartClick = {
+                                val from = fromLocation
+                                val to = toLocation
+                                if (from != null && to != null) {
+                                    navigateTo(
+                                        { activity -> RouteSelectScreen(activity, from, to, departureSelection) },
+                                    )
+                                }
+                            },
+                            onMapClick = { viewModel.selectTab(HomeTab.MAP) },
+                        )
+                    }
                 }
             }
         }

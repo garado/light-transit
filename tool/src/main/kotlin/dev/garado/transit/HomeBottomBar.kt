@@ -9,24 +9,25 @@ import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightThemeTokens
 
 @Composable
-fun HomeBottomBar(onSelectTab: (HomeTab) -> Unit) {
+fun HomeBottomBar(
+    showStart: Boolean,
+    onSettingsClick: () -> Unit,
+    onStartClick: () -> Unit,
+    onMapClick: () -> Unit,
+) {
     LightBottomBar(
         modifier = Modifier.background(LightThemeTokens.colors.background),
         items = listOf(
             LightBarButton.LightIcon(
-                icon = LightIcons.SEARCH,
-                contentDescription = "Search",
-                onClick = { onSelectTab(HomeTab.SEARCH) },
+                icon = LightIcons.SETTINGS,
+                contentDescription = "Settings",
+                onClick = onSettingsClick,
             ),
+            if (showStart) LightBarButton.Text(text = "START", onClick = onStartClick) else null,
             LightBarButton.LightIcon(
                 icon = LightIcons.MAP,
                 contentDescription = "Map",
-                onClick = { onSelectTab(HomeTab.MAP) },
-            ),
-            LightBarButton.LightIcon(
-                icon = LightIcons.SETTINGS,
-                contentDescription = "Settings",
-                onClick = { onSelectTab(HomeTab.SETTINGS) },
+                onClick = onMapClick,
             ),
         ),
     )

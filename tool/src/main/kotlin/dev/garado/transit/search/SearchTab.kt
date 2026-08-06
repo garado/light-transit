@@ -8,13 +8,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.thelightphone.sdk.ui.LightIcon
 import com.thelightphone.sdk.ui.LightIcons
-import com.thelightphone.sdk.ui.LightText
 import com.thelightphone.sdk.ui.LightTextField
-import com.thelightphone.sdk.ui.LightTextVariant
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
 
@@ -30,7 +27,6 @@ fun SearchTabContent(
     onToClick: () -> Unit,
     onSwapLocations: () -> Unit,
     onDepartureTimeClick: () -> Unit,
-    onStartClick: () -> Unit,
 ) {
     val swapIconSize = 1.5f.gridUnitsAsDp()
 
@@ -72,16 +68,4 @@ fun SearchTabContent(
         onClick = onDepartureTimeClick,
         modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
     )
-
-    if (fromLocation.isNotBlank() && toLocation.isNotBlank()) {
-        LightText(
-            text = "START",
-            variant = LightTextVariant.Button,
-            align = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 32.dp)
-                .lightClickable(onClick = onStartClick),
-        )
-    }
 }
