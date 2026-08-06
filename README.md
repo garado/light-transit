@@ -11,16 +11,32 @@ This uses the [Transit API](https://transitapp.com/partners/apis), which offers 
 
 PicoTransit's focus is less on routing (at the time of writing), and it does not use an API; instead it implements support for transit agencies individually.
 
+## Prerequisites
+
+Currently, the APK must be compiled.
+
+Obtain a TransitAPI key, and in `local.properties`:
+
+```sh
+TRANSIT_API_KEY=YourKeyHere
+```
+
 ## Features
 
 ### Saved locations support
-<img width="896" height="508" alt="image" src="https://github.com/user-attachments/assets/86b08d29-6009-4662-86ba-5fbd57ed95bd" />
+<img height="508" alt="image" src="https://github.com/user-attachments/assets/86b08d29-6009-4662-86ba-5fbd57ed95bd" />
 
 ### Multimodal routing with route preview
-<img width="1486" height="433" alt="image" src="https://github.com/user-attachments/assets/348eb467-e855-45e6-bda1-ffac07360585" />
+<img height="508" alt="image" src="https://github.com/user-attachments/assets/348eb467-e855-45e6-bda1-ffac07360585" />
 
 ### Map- and list-based navigation
-<img width="1475" height="516" alt="image" src="https://github.com/user-attachments/assets/769cd377-7062-4db8-b0b6-347f227266e8" />
+<img height="508" alt="image" src="https://github.com/user-attachments/assets/769cd377-7062-4db8-b0b6-347f227266e8" />
 
 ### Custom arrival and departure times
-<img width="1299" height="493" alt="image" src="https://github.com/user-attachments/assets/8b458e4f-3738-49bf-9c84-430ec2518b26" />
+<img height="508" alt="image" src="https://github.com/user-attachments/assets/8b458e4f-3738-49bf-9c84-430ec2518b26" />
+
+## Future plans
+
+I plan to contact TransitAPI to at least get an idea of pricing and see if it is feasible.
+
+I also am considering adding support for the Transitland API (which has a more generous free tier) or self-hosting a Transitland instance, though I do not have much time or bandwidth.
