@@ -5,7 +5,9 @@ import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.api.transit.TransitClient
 import dev.garado.transit.api.transit.models.TripPlan
+import dev.garado.transit.search.DepartureSelection
 import dev.garado.transit.search.LocationResult
+import dev.garado.transit.search.toApiTimeParams
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,6 +21,7 @@ class RouteSelectViewModel(
     lightContext: SealedLightContext,
     from: LocationResult,
     to: LocationResult,
+    departureSelection: DepartureSelection,
 ) : LightViewModel<Unit>() {
     private val transitClient = TransitClient(lightContext)
 
@@ -28,11 +31,14 @@ class RouteSelectViewModel(
 
     init {
         viewModelScope.launch {
+            val (leaveTime, arrivalTime) = departureSelection.toApiTimeParams()
             _tripPlans.value = transitClient.plan(
                 fromLat = from.lat,
                 fromLon = from.lon,
                 toLat = to.lat,
                 toLon = to.lon,
+                leaveTime = leaveTime,
+                arrivalTime = arrivalTime,
             )
         }
     }

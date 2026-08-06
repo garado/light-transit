@@ -110,7 +110,11 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                                     val from = fromLocation
                                     val to = toLocation
                                     if (from != null && to != null) {
-                                        navigateTo({ activity -> RouteSelectScreen(activity, from, to) })
+                                        navigateTo(
+                                            { activity ->
+                                                RouteSelectScreen(activity, from, to, departureSelection)
+                                            },
+                                        )
                                     }
                                 },
                             )

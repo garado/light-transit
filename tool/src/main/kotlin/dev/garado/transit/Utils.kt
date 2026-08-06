@@ -4,6 +4,7 @@ import android.graphics.Color as AndroidColor
 import androidx.compose.ui.graphics.Color
 import java.time.Instant
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 private val CLOCK_TIME_FORMAT = DateTimeFormatter.ofPattern("h:mm a")
@@ -37,6 +38,14 @@ fun formatClockTime(hour24: Int, minute: Int): String {
         else -> hour24
     }
     return "$hour12:${minute.toString().padStart(2, '0')} ${if (isPm) "PM" else "AM"}"
+}
+
+/** The next occurrence (today, or tomorrow if that clock time has already passed) of [hour24]:[minute]. */
+fun nextEpochSecondsFor(hour24: Int, minute: Int): Long {
+    val now = ZonedDateTime.now()
+    var candidate = now.withHour(hour24).withMinute(minute).withSecond(0).withNano(0)
+    if (candidate.isBefore(now)) candidate = candidate.plusDays(1)
+    return candidate.toEpochSecond()
 }
 
 /** e.g. "3:45 PM - 4:58 PM" */

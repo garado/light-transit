@@ -31,14 +31,25 @@ class TransitClient(private val lightContext: SealedLightContext) {
     private val usageTracker = TransitApiUsageTracker(lightContext.dataStore)
     private val mockSettings = MockTransitApiSettings(lightContext.dataStore)
 
-    /** https://api-doc.transitapp.com/v4.html#GET/v4/public/plan */
+    /**
+     * https://api-doc.transitapp.com/v4.html#GET/v4/public/plan
+     *
+     * At most one of [leaveTime]/[arrivalTime] should be set (the API only honors [leaveTime] if
+     * both are provided). If neither is set, defaults to leaving now.
+     */
     suspend fun plan(
         fromLat: Double,
         fromLon: Double,
         toLat: Double,
         toLon: Double,
-        leaveTime: Long = System.currentTimeMillis() / 1000,
+        leaveTime: Long? = null,
+        arrivalTime: Long? = null,
     ): List<TripPlan> {
+        val timeParams = when {
+            leaveTime != null -> mapOf("leave_time" to leaveTime)
+            arrivalTime != null -> mapOf("arrival_time" to arrivalTime)
+            else -> mapOf("leave_time" to System.currentTimeMillis() / 1000)
+        }
         val response: PlanApiResponse? = request(
             endpoint = TransitEndpoint.PLAN,
             params = mapOf(
@@ -47,8 +58,7 @@ class TransitClient(private val lightContext: SealedLightContext) {
                 "to_lat" to toLat,
                 "to_lon" to toLon,
                 "mode" to "transit",
-                "leave_time" to leaveTime,
-            ),
+            ) + timeParams,
         )
         return response?.toTripPlans() ?: emptyList()
     }
