@@ -3,21 +3,17 @@ package dev.garado.transit.search
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.SealedLightActivity
-import com.thelightphone.sdk.SimpleLightScreen
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightText
@@ -29,21 +25,19 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 
-private enum class DepartureMode(val label: String) {
-    LEAVE_AT("Leave at"),
-    ARRIVE_BY("Arrive by"),
-    LEAVE_NOW("Leave now"),
-}
-
 private val TAB_GAP = 32.dp
 
-class DepartureTimeScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Unit>(sealedActivity) {
+class DepartureTimeScreen(sealedActivity: SealedLightActivity) :
+    LightScreen<Unit, DepartureTimeViewModel>(sealedActivity) {
+
+    override val viewModelClass = DepartureTimeViewModel::class.java
+    override fun createViewModel() = DepartureTimeViewModel()
 
     @Composable
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
-        var mode by remember { mutableStateOf(DepartureMode.LEAVE_AT) }
-        var selectedTime by remember { mutableStateOf<TimeSelection?>(null) }
+        val mode by viewModel.mode.collectAsState()
+        val selectedTime by viewModel.selectedTime.collectAsState()
 
         LightTheme(colors = themeColors) {
             Column(
@@ -60,19 +54,20 @@ class DepartureTimeScreen(sealedActivity: SealedLightActivity) : SimpleLightScre
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxSize().padding(horizontal = 32.dp, vertical = 24.dp),
                 ) {
-                    DepartureModeTabs(selected = mode, onSelect = { mode = it })
+                    DepartureModeTabs(selected = mode, onSelect = viewModel::selectMode)
 
                     if (mode != DepartureMode.LEAVE_NOW) {
-                        val time = selectedTime
                         LightText(
-                            text = time?.let { formatTime(it.hour24, it.minute) } ?: "<Time>",
+                            text = selectedTime?.let { formatTime(it.hour24, it.minute) } ?: "<Time>",
                             variant = LightTextVariant.Heading,
                             modifier = Modifier
                                 .padding(top = 48.dp)
                                 .lightClickable(onClick = {
                                     navigateTo(
-                                        { activity -> TimePickerScreen(activity, time?.hour24, time?.minute) },
-                                    ) { result -> selectedTime = result }
+                                        { activity ->
+                                            TimePickerScreen(activity, selectedTime?.hour24, selectedTime?.minute)
+                                        },
+                                    ) { result -> viewModel.setSelectedTime(result) }
                                 }),
                         )
                     }
