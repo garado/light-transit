@@ -34,6 +34,7 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.LegIcon
+import dev.garado.transit.MinuteTimer
 import dev.garado.transit.StatusBar
 import dev.garado.transit.api.transit.models.TripLeg
 import dev.garado.transit.api.transit.models.TripPlan
@@ -125,9 +126,8 @@ private fun DirectionsList(plan: TripPlan, toLocation: LocationResult) {
 
 @Composable
 private fun DirectionsSummaryHeader(plan: TripPlan) {
-    val minutesUntilDeparture = remember(plan) {
-        ((plan.startTime - System.currentTimeMillis() / 1000) / 60).coerceAtLeast(0)
-    }
+    val currentTimeSeconds by MinuteTimer.currentTimeSeconds.collectAsState()
+    val minutesUntilDeparture = ((plan.startTime - currentTimeSeconds) / 60).coerceAtLeast(0)
     Column(modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)) {
         LightText(
             text = "Leave at ${formatClockTime(plan.startTime)} (in $minutesUntilDeparture minutes)",
