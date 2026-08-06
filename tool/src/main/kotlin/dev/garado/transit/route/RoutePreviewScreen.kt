@@ -69,7 +69,12 @@ class RoutePreviewScreen(
         LightTheme(colors = themeColors) {
             val walkLegColor = LightThemeTokens.colors.content
             val overlays = remember(plan, walkLegColor) { plan.toOverlays(walkLegColor) }
-            val initialCenter = remember(overlays) { overlays.centroid() }
+
+            // autofit map to the largest route bounding box once on init
+            val fitBounds = remember(tripPlans, walkLegColor) {
+                tripPlans.flatMap { it.toOverlays(walkLegColor) }.boundingBox()
+            }
+            val initialCenter = remember(fitBounds) { fitBounds?.center ?: overlays.centroid() }
 
             Column(
                 modifier = Modifier
@@ -89,6 +94,7 @@ class RoutePreviewScreen(
                     tileSource = tileSource,
                     initialCenter = initialCenter,
                     overlays = overlays,
+                    fitBounds = fitBounds,
                     modifier = Modifier.weight(1f).fillMaxSize(),
                 )
 

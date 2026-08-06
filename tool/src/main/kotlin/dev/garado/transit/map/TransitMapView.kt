@@ -47,6 +47,7 @@ fun TransitMapView(
     tileSource: MapTileSource,
     initialCenter: LatLon = DEFAULT_CENTER,
     overlays: List<MapOverlay> = emptyList(),
+    fitBounds: LatLonBounds? = null,
     modifier: Modifier = Modifier,
 ) {
     var centerLat by remember(initialCenter) { mutableStateOf(initialCenter.lat) }
@@ -54,6 +55,14 @@ fun TransitMapView(
     var zoom by remember { mutableStateOf(DEFAULT_ZOOM) }
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
     var tileZoomLevel by remember { mutableStateOf<Int?>(null) }
+
+    // snap to fit bounds on init
+    LaunchedEffect(fitBounds, canvasSize) {
+        if (fitBounds == null || canvasSize == IntSize.Zero) return@LaunchedEffect
+        centerLat = fitBounds.center.lat
+        centerLon = fitBounds.center.lon
+        zoom = zoomToFit(fitBounds, canvasSize).toFloat().coerceIn(MIN_ZOOM, MAX_ZOOM)
+    }
 
     // currently displayed tiles
     val liveTiles = remember { mutableStateMapOf<Pair<Int, Int>, MapTile>() }

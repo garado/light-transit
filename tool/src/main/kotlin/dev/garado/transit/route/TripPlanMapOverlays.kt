@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import dev.garado.transit.api.transit.models.TripLeg
 import dev.garado.transit.api.transit.models.TripPlan
 import dev.garado.transit.map.LatLon
+import dev.garado.transit.map.LatLonBounds
 import dev.garado.transit.map.MapOverlay
 import dev.garado.transit.parseHexColor
 
@@ -20,12 +21,24 @@ fun TripPlan.toOverlays(walkLegColor: Color): List<MapOverlay.Polyline> = legs.m
     }
 }
 
-/** Simple average of every point across all overlays; good enough to center a map on a route. */
+/** Simple average of every point across all overlays (for centering a map on a route) */
 fun List<MapOverlay.Polyline>.centroid(): LatLon {
     val allPoints = flatMap { it.points }
     if (allPoints.isEmpty()) return LatLon(lat = 0.0, lon = 0.0)
     return LatLon(
         lat = allPoints.sumOf { it.lat } / allPoints.size,
         lon = allPoints.sumOf { it.lon } / allPoints.size,
+    )
+}
+
+/** Bounding box of every point across all overlays (used to zoom a map to fit the whole route) */
+fun List<MapOverlay.Polyline>.boundingBox(): LatLonBounds? {
+    val allPoints = flatMap { it.points }
+    if (allPoints.isEmpty()) return null
+    return LatLonBounds(
+        minLat = allPoints.minOf { it.lat },
+        maxLat = allPoints.maxOf { it.lat },
+        minLon = allPoints.minOf { it.lon },
+        maxLon = allPoints.maxOf { it.lon },
     )
 }
