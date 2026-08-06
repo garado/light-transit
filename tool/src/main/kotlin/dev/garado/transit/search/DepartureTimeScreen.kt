@@ -50,7 +50,10 @@ class DepartureTimeScreen(
                     .background(LightThemeTokens.colors.background),
             ) {
                 LightTopBar(
-                    leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
+                    leftButton = LightBarButton.LightIcon(
+                        icon = LightIcons.BACK,
+                        onClick = { goBack(mode.toSelection(time)) },
+                    ),
                     center = LightTopBarCenter.Text("Departure Settings"),
                 )
 
@@ -78,17 +81,7 @@ class DepartureTimeScreen(
                                 .lightClickable(onClick = {
                                     navigateTo(
                                         { activity -> TimePickerScreen(activity, time.hour24, time.minute) },
-                                    ) { result ->
-                                        goBack(
-                                            when (mode) {
-                                                DepartureMode.LEAVE_AT ->
-                                                    DepartureSelection.LeaveAt(result.hour24, result.minute)
-                                                DepartureMode.ARRIVE_BY ->
-                                                    DepartureSelection.ArriveBy(result.hour24, result.minute)
-                                                DepartureMode.LEAVE_NOW -> DepartureSelection.Now
-                                            },
-                                        )
-                                    }
+                                    ) { result -> goBack(mode.toSelection(result)) }
                                 }),
                         )
                     }
@@ -96,6 +89,12 @@ class DepartureTimeScreen(
             }
         }
     }
+}
+
+private fun DepartureMode.toSelection(time: TimeSelection): DepartureSelection = when (this) {
+    DepartureMode.LEAVE_AT -> DepartureSelection.LeaveAt(time.hour24, time.minute)
+    DepartureMode.ARRIVE_BY -> DepartureSelection.ArriveBy(time.hour24, time.minute)
+    DepartureMode.LEAVE_NOW -> DepartureSelection.Now
 }
 
 @Composable
