@@ -3,6 +3,8 @@
 
 A transit app for the Light Phone III.
 
+<img width="2572" height="925" alt="transit" src="https://github.com/user-attachments/assets/98f07502-f93c-449b-9b96-0bd80cb0c983" />
+
 ## What's the difference between this and PicoTransit?
 
 tl;dr you probably want [PicoTransit](https://github.com/CJFData/light-transit/tree/pico-transit). (It's great!)
