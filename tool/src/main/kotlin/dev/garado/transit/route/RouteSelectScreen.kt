@@ -31,6 +31,7 @@ import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.api.transit.models.TripPlan
 import dev.garado.transit.formatDurationLines
 import dev.garado.transit.formatTimeRange
+import dev.garado.transit.search.DepartureSelection
 import dev.garado.transit.search.LocationResult
 
 private val SUMMARY_COLUMN_WIDTH = 56.dp
@@ -39,10 +40,12 @@ class RouteSelectScreen(
     sealedActivity: SealedLightActivity,
     private val fromLocation: LocationResult,
     private val toLocation: LocationResult,
+    private val departureSelection: DepartureSelection,
 ) : LightScreen<Unit, RouteSelectViewModel>(sealedActivity) {
 
     override val viewModelClass = RouteSelectViewModel::class.java
-    override fun createViewModel() = RouteSelectViewModel(lightContext, fromLocation, toLocation)
+    override fun createViewModel() =
+        RouteSelectViewModel(lightContext, fromLocation, toLocation, departureSelection)
 
     @Composable
     override fun Content() {

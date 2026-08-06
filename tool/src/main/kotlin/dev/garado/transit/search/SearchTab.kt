@@ -24,9 +24,12 @@ private val SWAP_ICON_GAP = 2.dp
 fun SearchTabContent(
     fromLocation: String,
     toLocation: String,
+    departureFieldLabel: String,
+    departureFieldValue: String,
     onFromClick: () -> Unit,
     onToClick: () -> Unit,
     onSwapLocations: () -> Unit,
+    onDepartureTimeClick: () -> Unit,
     onStartClick: () -> Unit,
 ) {
     val swapIconSize = 1.5f.gridUnitsAsDp()
@@ -61,6 +64,14 @@ fun SearchTabContent(
         )
         Spacer(modifier = Modifier.padding(start = SWAP_ICON_GAP).size(swapIconSize))
     }
+
+    LightTextField(
+        label = departureFieldLabel,
+        value = departureFieldValue,
+        placeholder = "Now",
+        onClick = onDepartureTimeClick,
+        modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+    )
 
     if (fromLocation.isNotBlank() && toLocation.isNotBlank()) {
         LightText(
