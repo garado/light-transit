@@ -63,16 +63,6 @@ fun SettingsTabContent(
     onEditName: () -> Unit,
 ) {
     LazyColumn {
-        item {
-            LightTextField(
-                label = "Display Name",
-                value = displayName,
-                placeholder = "Enter your name",
-                onClick = onEditName,
-                modifier = Modifier.padding(bottom = 12.dp),
-            )
-        }
-
         items(options) { option ->
             SettingsToggleRow(
                 option = option,
