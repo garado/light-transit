@@ -77,6 +77,10 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                         .fillMaxSize()
                         .background(LightThemeTokens.colors.background),
                 ) {
+                    if (selectedTab == HomeTab.SEARCH) {
+                        StatusBar()
+                    }
+
                     if (selectedTab == HomeTab.SETTINGS) {
                         LightTopBar(center = LightTopBarCenter.Text("Settings"))
                     }
@@ -158,7 +162,7 @@ private fun Modifier.tabContentPadding(selectedTab: HomeTab): Modifier =
         this
     } else {
         this.padding(horizontal = 32.dp).padding(
-            top = if (selectedTab == HomeTab.SETTINGS) 0.dp else 16.dp,
+            top = if (selectedTab == HomeTab.SETTINGS) 0.dp else 12.dp,
             bottom = 16.dp,
         )
     }
