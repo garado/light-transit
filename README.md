@@ -11,7 +11,7 @@ tl;dr you probably want [PicoTransit](https://github.com/CJFData/light-transit/t
 
 This uses the [Transit API](https://transitapp.com/partners/apis), which offers neat features like advanced multimodal routing, bikeshare availability, live updates, and support for 1200+ cities out of the box. *However,* the API is not free for production use. A developer API key is free but only enough for one user, and it must be formally requested from Transit (see link above).
 
-PicoTransit's focus is less on routing (at the time of writing), and it does not use an API; instead it implements support for transit agencies individually.
+PicoTransit's focus is less on routing (at the time of writing), and it does not use an API; instead it implements support for transit agencies individually. As such it is significantly more accessible.
 
 ## Prerequisites
 
