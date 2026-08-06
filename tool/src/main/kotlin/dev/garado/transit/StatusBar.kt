@@ -9,6 +9,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.thelightphone.sdk.ui.LightIcon
@@ -19,9 +20,9 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.formatClockTime
 
-/** Status bar with system information (battery, clock) + cancel button */
+/** Status bar with system information (battery, clock) + optional cancel button */
 @Composable
-fun StatusBar(onCancel: () -> Unit, modifier: Modifier = Modifier) {
+fun StatusBar(modifier: Modifier = Modifier, onCancel: (() -> Unit)? = null) {
     val currentTimeSeconds by MinuteTimer.currentTimeSeconds.collectAsState()
 
     Row(
@@ -31,7 +32,13 @@ fun StatusBar(onCancel: () -> Unit, modifier: Modifier = Modifier) {
             .background(LightThemeTokens.colors.background)
             .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
-        LightIcon(icon = LightIcons.CLOSE, size = 1.2f, modifier = Modifier.lightClickable(onClick = onCancel))
+        LightIcon(
+            icon = LightIcons.CLOSE,
+            size = 1.2f,
+            modifier = Modifier
+                .alpha(if (onCancel != null) 1f else 0f)
+                .lightClickable(enabled = onCancel != null, onClick = { onCancel?.invoke() }),
+        )
         LightText(
             text = formatClockTime(currentTimeSeconds),
             variant = LightTextVariant.Detail,
