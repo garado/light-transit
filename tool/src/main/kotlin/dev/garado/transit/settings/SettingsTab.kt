@@ -84,12 +84,12 @@ fun SettingsTabContent(
             )
         }
 
-        item {
-            SettingsNavigationRow(
-                label = "About",
-                onClick = onAboutClick,
-            )
-        }
+        // item {
+        //     SettingsNavigationRow(
+        //         label = "About",
+        //         onClick = onAboutClick,
+        //     )
+        // }
     }
 }
 
