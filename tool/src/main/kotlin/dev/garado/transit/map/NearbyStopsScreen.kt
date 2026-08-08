@@ -15,6 +15,7 @@ import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.buildDatabase
 import com.thelightphone.sdk.ui.LightBarButton
+import com.thelightphone.sdk.ui.LightBottomBar
 import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightScrollView
 import com.thelightphone.sdk.ui.LightText
@@ -26,6 +27,7 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.api.models.TripStop
+import dev.garado.transit.search.LocationSearchScreen
 
 class NearbyStopsScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, NearbyStopsViewModel>(sealedActivity) {
 
@@ -37,6 +39,8 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit,
         val themeColors by LightThemeController.colors.collectAsState()
         val stops by viewModel.stops.collectAsState()
         val viewMode by viewModel.viewMode.collectAsState()
+        val searchedCenter by viewModel.searchedCenter.collectAsState()
+        val hasSearched by viewModel.hasSearched.collectAsState()
 
         val tileCacheDatabase = remember {
             lightContext.buildDatabase(TileCacheDatabase::class.java, "tile_cache.db")
@@ -74,23 +78,19 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit,
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, sizeUnits = 1.5f, onClick = { goBack() }),
                     center = LightTopBarCenter.Text("Nearby Stops"),
-                    rightButton = LightBarButton.LightIcon(
-                        icon = if (viewMode == NearbyStopsViewMode.MAP) LightIcons.LIST else LightIcons.MAP,
-                        sizeUnits = 1.5f,
-                        onClick = { viewModel.toggleViewMode() },
-                    ),
                 )
 
                 when (viewMode) {
                     NearbyStopsViewMode.MAP -> TransitMapView(
                         isDarkTheme = LightThemeController.isDarkTheme,
                         tileSource = tileSource,
-                        initialCenter = fitBounds?.center ?: DEMO_LOCATION,
+                        initialCenter = searchedCenter ?: DEMO_LOCATION,
                         overlays = markers,
                         fitBounds = fitBounds,
                         onMarkerClick = { marker ->
                             stops.find { it.globalStopId == marker.id }?.let(::onStopSelected)
                         },
+                        onCenterChanged = viewModel::onMapCenterChanged,
                         modifier = Modifier.weight(1f).fillMaxSize(),
                     )
                     NearbyStopsViewMode.LIST -> NearbyStopsList(
@@ -99,13 +99,67 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit,
                         onStopClick = ::onStopSelected,
                     )
                 }
+
+                NearbyStopsBottomBar(
+                    viewMode = viewMode,
+                    showToggle = hasSearched,
+                    onSearchIconClick = {
+                        navigateTo(::LocationSearchScreen) { result ->
+                            viewModel.jumpTo(LatLon(lat = result.lat, lon = result.lon))
+                        }
+                    },
+                    onSearchClick = { viewModel.search() },
+                    onToggleClick = { viewModel.toggleViewMode() },
+                )
             }
         }
     }
 }
 
 @Composable
+private fun NearbyStopsBottomBar(
+    viewMode: NearbyStopsViewMode,
+    showToggle: Boolean,
+    onSearchIconClick: () -> Unit,
+    onSearchClick: () -> Unit,
+    onToggleClick: () -> Unit,
+) {
+    LightBottomBar(
+        items = listOf(
+            LightBarButton.LightIcon(
+                icon = LightIcons.SEARCH,
+                contentDescription = "Search location",
+                onClick = onSearchIconClick,
+            ),
+            if (viewMode == NearbyStopsViewMode.MAP) {
+                LightBarButton.Text(text = "SEARCH", onClick = onSearchClick)
+            } else {
+                null
+            },
+            if (showToggle) {
+                LightBarButton.LightIcon(
+                    icon = if (viewMode == NearbyStopsViewMode.MAP) LightIcons.LIST else LightIcons.MAP,
+                    contentDescription = "Toggle view",
+                    onClick = onToggleClick,
+                )
+            } else {
+                null
+            },
+        ),
+    )
+}
+
+@Composable
 private fun NearbyStopsList(stops: List<TripStop>, modifier: Modifier = Modifier, onStopClick: (TripStop) -> Unit) {
+    if (stops.isEmpty()) {
+        LightText(
+            text = "Tap SEARCH to find stops here",
+            variant = LightTextVariant.Detail,
+            lighten = true,
+            modifier = modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+        )
+        return
+    }
     LightScrollView(modifier = modifier.padding(horizontal = 8.dp)) {
         stops.forEach { stop ->
             LightText(

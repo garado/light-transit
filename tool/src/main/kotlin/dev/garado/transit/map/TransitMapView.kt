@@ -54,6 +54,7 @@ fun TransitMapView(
     overlays: List<MapOverlay> = emptyList(),
     fitBounds: LatLonBounds? = null,
     onMarkerClick: ((MapOverlay.Marker) -> Unit)? = null,
+    onCenterChanged: ((LatLon) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     var centerLat by remember(initialCenter) { mutableStateOf(initialCenter.lat) }
@@ -61,6 +62,14 @@ fun TransitMapView(
     var zoom by remember { mutableStateOf(DEFAULT_ZOOM) }
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
     var tileZoomLevel by remember { mutableStateOf<Int?>(null) }
+
+    // Report map's current center position
+    LaunchedEffect(onCenterChanged) {
+        if (onCenterChanged == null) return@LaunchedEffect
+        snapshotFlow { LatLon(lat = centerLat, lon = centerLon) }
+            .debounce(REFETCH_DEBOUNCE_MS)
+            .collect { onCenterChanged(it) }
+    }
 
     // snap to fit bounds on init
     LaunchedEffect(fitBounds, canvasSize) {

@@ -23,24 +23,52 @@ class NearbyStopsViewModel(
     private val _stops = MutableStateFlow<List<TripStop>>(emptyList())
     val stops: StateFlow<List<TripStop>> = _stops.asStateFlow()
 
+    /** Whether [search] has completed at least once */
+    private val _hasSearched = MutableStateFlow(false)
+    val hasSearched: StateFlow<Boolean> = _hasSearched.asStateFlow()
+
     private val _departuresByStop = MutableStateFlow<Map<String, List<StopDeparture>>>(emptyMap())
     val departuresByStop: StateFlow<Map<String, List<StopDeparture>>> = _departuresByStop.asStateFlow()
 
     private val _viewMode = MutableStateFlow(NearbyStopsViewMode.MAP)
     val viewMode: StateFlow<NearbyStopsViewMode> = _viewMode.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            val nearby = transitApiProvider.nearbyStops(DEMO_LOCATION.lat, DEMO_LOCATION.lon)
-            _stops.value = nearby
-            _departuresByStop.value = transitApiProvider.departures(nearby.map { it.globalStopId })
-        }
-    }
+    /** Where the map is actually centered right now */
+    private val _liveCenter = MutableStateFlow(DEMO_LOCATION)
+    val liveCenter: StateFlow<LatLon> = _liveCenter.asStateFlow()
+
+    /** Set only when the header's search icon should move the map somewhere */
+    private val _searchedCenter = MutableStateFlow<LatLon?>(null)
+    val searchedCenter: StateFlow<LatLon?> = _searchedCenter.asStateFlow()
 
     fun toggleViewMode() {
         _viewMode.value = when (_viewMode.value) {
             NearbyStopsViewMode.MAP -> NearbyStopsViewMode.LIST
             NearbyStopsViewMode.LIST -> NearbyStopsViewMode.MAP
+        }
+    }
+
+    fun onMapCenterChanged(location: LatLon) {
+        _liveCenter.value = location
+    }
+
+    fun jumpTo(location: LatLon) {
+        _searchedCenter.value = location
+        _liveCenter.value = location
+        _viewMode.value = NearbyStopsViewMode.MAP
+        _stops.value = emptyList()
+        _departuresByStop.value = emptyMap()
+        _hasSearched.value = false
+    }
+
+    /** Fetch NearbyStops and StopDepartures centered on wherever the map is now */
+    fun search() {
+        val location = _liveCenter.value
+        viewModelScope.launch {
+            val nearby = transitApiProvider.nearbyStops(location.lat, location.lon)
+            _stops.value = nearby
+            _departuresByStop.value = transitApiProvider.departures(nearby.map { it.globalStopId })
+            _hasSearched.value = true
         }
     }
 

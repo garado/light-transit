@@ -81,7 +81,7 @@ class LocationResultsScreen(
                 when {
                     currentResults == null -> StatusMessage("Searching...")
                     currentResults.isEmpty() -> StatusMessage("No results found")
-                    else -> LightScrollView(modifier = Modifier.padding(horizontal = 32.dp)) {
+                    else -> LightScrollView {
                         currentResults.forEach { result ->
                             LocationResultRow(result = result, onClick = { goBack(result) })
                         }
