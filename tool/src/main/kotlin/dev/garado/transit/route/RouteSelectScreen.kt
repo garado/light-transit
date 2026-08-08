@@ -104,7 +104,7 @@ private fun RouteOptionRow(plan: TripPlan, onClick: () -> Unit) {
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.width(SUMMARY_COLUMN_WIDTH),
+            modifier = Modifier.width(SUMMARY_COLUMN_WIDTH).padding(end = 6.dp),
         ) {
             formatDurationLines(plan.duration).forEach { line ->
                 LightText(text = line, variant = LightTextVariant.Copy, align = TextAlign.Center)
