@@ -32,7 +32,7 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
-import dev.garado.transit.api.transit.models.TripPlan
+import dev.garado.transit.api.models.TripPlan
 import dev.garado.transit.formatDuration
 import dev.garado.transit.formatTimeRange
 import dev.garado.transit.map.RasterTileSource

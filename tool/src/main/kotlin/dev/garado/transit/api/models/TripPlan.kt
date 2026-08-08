@@ -1,4 +1,4 @@
-package dev.garado.transit.api.transit.models
+package dev.garado.transit.api.models
 
 data class TripPlan(
     val startTime: Long,

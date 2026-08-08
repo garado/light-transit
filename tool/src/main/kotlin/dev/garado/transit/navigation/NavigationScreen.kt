@@ -36,8 +36,8 @@ import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.LegIcon
 import dev.garado.transit.MinuteTimer
 import dev.garado.transit.StatusBar
-import dev.garado.transit.api.transit.models.TripLeg
-import dev.garado.transit.api.transit.models.TripPlan
+import dev.garado.transit.api.models.TripLeg
+import dev.garado.transit.api.models.TripPlan
 import dev.garado.transit.formatClockTime
 import dev.garado.transit.formatDuration
 import dev.garado.transit.map.RasterTileSource

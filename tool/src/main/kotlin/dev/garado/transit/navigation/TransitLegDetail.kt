@@ -26,7 +26,7 @@ import com.thelightphone.sdk.ui.LightText
 import com.thelightphone.sdk.ui.LightTextVariant
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.lightClickable
-import dev.garado.transit.api.transit.models.TripLeg
+import dev.garado.transit.api.models.TripLeg
 import dev.garado.transit.formatClockTime
 
 /**

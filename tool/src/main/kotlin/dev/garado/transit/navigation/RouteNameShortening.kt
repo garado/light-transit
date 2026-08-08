@@ -1,6 +1,6 @@
 package dev.garado.transit.navigation
 
-import dev.garado.transit.api.transit.models.TripLeg
+import dev.garado.transit.api.models.TripLeg
 
 /**
  * Transit's API has no text shorthand for color-named lines (e.g. BART's "Blue" line) — the

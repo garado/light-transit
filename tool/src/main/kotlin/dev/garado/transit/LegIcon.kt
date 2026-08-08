@@ -15,7 +15,7 @@ import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightText
 import com.thelightphone.sdk.ui.LightTextVariant
 import com.thelightphone.sdk.ui.LightThemeTokens
-import dev.garado.transit.api.transit.models.TripLeg
+import dev.garado.transit.api.models.TripLeg
 
 /**
  * Left-side icon/badge for a leg (pedestrian icon for walk, colored route badge for transit).

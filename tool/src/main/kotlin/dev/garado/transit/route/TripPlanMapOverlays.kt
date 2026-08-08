@@ -1,8 +1,8 @@
 package dev.garado.transit.route
 
 import androidx.compose.ui.graphics.Color
-import dev.garado.transit.api.transit.models.TripLeg
-import dev.garado.transit.api.transit.models.TripPlan
+import dev.garado.transit.api.models.TripLeg
+import dev.garado.transit.api.models.TripPlan
 import dev.garado.transit.map.LatLon
 import dev.garado.transit.map.LatLonBounds
 import dev.garado.transit.map.MapOverlay
