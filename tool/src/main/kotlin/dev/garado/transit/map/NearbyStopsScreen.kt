@@ -27,6 +27,8 @@ import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
+import com.thelightphone.sdk.ui.lightClickable
+import dev.garado.transit.api.models.StopDeparture
 import dev.garado.transit.api.models.TripStop
 import dev.garado.transit.api.transit.TransitApiPlanProvider
 
@@ -40,8 +42,9 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen
     @Composable
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
-        val nearbyStopsProvider = remember { TransitApiPlanProvider(lightContext) }
+        val transitApiProvider = remember { TransitApiPlanProvider(lightContext) }
         var stops by remember { mutableStateOf<List<TripStop>>(emptyList()) }
+        var departuresByStop by remember { mutableStateOf<Map<String, List<StopDeparture>>>(emptyMap()) }
         var viewMode by remember { mutableStateOf(NearbyStopsViewMode.MAP) }
 
         val tileCacheDatabase = remember {
@@ -56,7 +59,9 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen
         }
 
         LaunchedEffect(Unit) {
-            stops = nearbyStopsProvider.nearbyStops(DEMO_LOCATION.lat, DEMO_LOCATION.lon)
+            val nearby = transitApiProvider.nearbyStops(DEMO_LOCATION.lat, DEMO_LOCATION.lon)
+            stops = nearby
+            departuresByStop = transitApiProvider.departures(nearby.map { it.globalStopId })
         }
 
         val markerColor = LightThemeTokens.colors.content
@@ -95,7 +100,15 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen
                         fitBounds = fitBounds,
                         modifier = Modifier.weight(1f).fillMaxSize(),
                     )
-                    NearbyStopsViewMode.LIST -> NearbyStopsList(stops = stops, modifier = Modifier.weight(1f))
+                    NearbyStopsViewMode.LIST -> NearbyStopsList(
+                        stops = stops,
+                        modifier = Modifier.weight(1f),
+                        onStopClick = { stop ->
+                            navigateTo({ activity ->
+                                StopDeparturesScreen(activity, stop.name, departuresByStop[stop.globalStopId] ?: emptyList())
+                            })
+                        },
+                    )
                 }
             }
         }
@@ -103,13 +116,15 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen
 }
 
 @Composable
-private fun NearbyStopsList(stops: List<TripStop>, modifier: Modifier = Modifier) {
-    LightScrollView(modifier = Modifier.padding(horizontal = 8.dp)) {
+private fun NearbyStopsList(stops: List<TripStop>, modifier: Modifier = Modifier, onStopClick: (TripStop) -> Unit) {
+    LightScrollView(modifier = modifier.padding(horizontal = 8.dp)) {
         stops.forEach { stop ->
             LightText(
                 text = stop.name,
                 variant = LightTextVariant.Copy,
-                modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
+                modifier = Modifier
+                    .lightClickable(onClick = { onStopClick(stop) })
+                    .padding(vertical = 12.dp, horizontal = 16.dp),
             )
         }
     }
