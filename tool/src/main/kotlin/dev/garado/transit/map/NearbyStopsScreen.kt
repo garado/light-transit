@@ -1,6 +1,7 @@
 package dev.garado.transit.map
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -9,6 +10,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.thelightphone.sdk.LightScreen
@@ -152,12 +154,13 @@ private fun NearbyStopsBottomBar(
 @Composable
 private fun NearbyStopsList(stops: List<TripStop>, modifier: Modifier = Modifier, onStopClick: (TripStop) -> Unit) {
     if (stops.isEmpty()) {
-        LightText(
-            text = "Tap SEARCH to find stops here",
-            variant = LightTextVariant.Detail,
-            lighten = true,
-            modifier = modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-        )
+        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            LightText(
+                text = "No stops found nearby",
+                variant = LightTextVariant.Paragraph,
+                modifier = Modifier.padding(horizontal = 16.dp),
+            )
+        }
         return
     }
     LightScrollView(modifier = modifier.padding(horizontal = 8.dp)) {
