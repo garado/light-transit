@@ -13,7 +13,7 @@ fun HomeBottomBar(
     showStart: Boolean,
     onSettingsClick: () -> Unit,
     onStartClick: () -> Unit,
-    onMapClick: () -> Unit,
+    onMenuClick: () -> Unit,
 ) {
     LightBottomBar(
         modifier = Modifier.background(LightThemeTokens.colors.background),
@@ -25,9 +25,9 @@ fun HomeBottomBar(
             ),
             if (showStart) LightBarButton.Text(text = "START", onClick = onStartClick) else null,
             LightBarButton.LightIcon(
-                icon = LightIcons.MAP,
-                contentDescription = "Map",
-                onClick = onMapClick,
+                icon = LightIcons.ELLIPSES,
+                contentDescription = "Map Menu",
+                onClick = onMenuClick,
             ),
         ),
     )

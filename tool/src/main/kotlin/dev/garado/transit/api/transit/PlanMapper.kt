@@ -1,5 +1,6 @@
 package dev.garado.transit.api.transit
 
+import dev.garado.transit.api.models.StopDeparture
 import dev.garado.transit.api.models.TripLeg
 import dev.garado.transit.api.models.TripPlan
 import dev.garado.transit.api.models.TripStop
@@ -8,7 +9,9 @@ import dev.garado.transit.api.transit.models.ItineraryDto
 import dev.garado.transit.api.transit.models.LegDto
 import dev.garado.transit.api.transit.models.PlanApiResponse
 import dev.garado.transit.api.transit.models.PlanResultDto
+import dev.garado.transit.api.transit.models.RouteDepartureDto
 import dev.garado.transit.api.transit.models.RouteDto
+import dev.garado.transit.api.transit.models.StopDeparturesApiResponse
 import dev.garado.transit.api.transit.models.StopDto
 
 fun PlanApiResponse.toTripPlans(): List<TripPlan> = results.map(PlanResultDto::toTripPlan)
@@ -63,9 +66,31 @@ private fun ItineraryDto.riddenStops(): List<TripStop> {
     return slice.map(StopDto::toTripStop)
 }
 
-private fun StopDto.toTripStop() = TripStop(
+internal fun StopDto.toTripStop() = TripStop(
     globalStopId = globalStopId,
     name = stopName,
     lat = stopLat,
     lon = stopLon,
 )
+
+fun StopDeparturesApiResponse.toStopDepartures(): Map<String, List<StopDeparture>> = routeDepartures
+    .flatMap { it.toStopDepartures() }
+    .groupBy { it.globalStopId }
+    .mapValues { (_, departures) -> departures.sortedBy { it.departureTime } }
+
+private fun RouteDepartureDto.toStopDepartures(): List<StopDeparture> = mergedItineraries.flatMap { itinerary ->
+    val headsign = itinerary.itineraries.firstOrNull()?.let { it.mergedHeadsign ?: it.headsign }
+    itinerary.scheduleItems
+        .filterNot { it.isCancelled }
+        .map { item ->
+            StopDeparture(
+                globalStopId = globalStopId,
+                routeName = routeShortName ?: routeLongName ?: globalRouteId,
+                routeColor = routeColor,
+                routeTextColor = routeTextColor,
+                headsign = headsign,
+                departureTime = item.departureTime,
+                isRealTime = item.isRealTime,
+            )
+        }
+}
