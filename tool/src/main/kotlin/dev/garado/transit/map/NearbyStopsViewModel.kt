@@ -27,6 +27,10 @@ class NearbyStopsViewModel(
     private val _hasSearched = MutableStateFlow(false)
     val hasSearched: StateFlow<Boolean> = _hasSearched.asStateFlow()
 
+    /** Whether a [search] call is currently in flight */
+    private val _isSearching = MutableStateFlow(false)
+    val isSearching: StateFlow<Boolean> = _isSearching.asStateFlow()
+
     private val _departuresByStop = MutableStateFlow<Map<String, List<StopDeparture>>>(emptyMap())
     val departuresByStop: StateFlow<Map<String, List<StopDeparture>>> = _departuresByStop.asStateFlow()
 
@@ -63,12 +67,18 @@ class NearbyStopsViewModel(
 
     /** Fetch NearbyStops and StopDepartures centered on wherever the map is now */
     fun search() {
+        if (_isSearching.value) return
         val location = _liveCenter.value
         viewModelScope.launch {
-            val nearby = transitApiProvider.nearbyStops(location.lat, location.lon)
-            _stops.value = nearby
-            _departuresByStop.value = transitApiProvider.departures(nearby.map { it.globalStopId })
-            _hasSearched.value = true
+            _isSearching.value = true
+            try {
+                val nearby = transitApiProvider.nearbyStops(location.lat, location.lon)
+                _stops.value = nearby
+                _departuresByStop.value = transitApiProvider.departures(nearby.map { it.globalStopId })
+                _hasSearched.value = true
+            } finally {
+                _isSearching.value = false
+            }
         }
     }
 

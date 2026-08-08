@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.SealedLightActivity
@@ -43,6 +44,7 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit,
         val viewMode by viewModel.viewMode.collectAsState()
         val searchedCenter by viewModel.searchedCenter.collectAsState()
         val hasSearched by viewModel.hasSearched.collectAsState()
+        val isSearching by viewModel.isSearching.collectAsState()
 
         val tileCacheDatabase = remember {
             lightContext.buildDatabase(TileCacheDatabase::class.java, "tile_cache.db")
@@ -82,37 +84,41 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit,
                     center = LightTopBarCenter.Text("Nearby Stops"),
                 )
 
-                when (viewMode) {
-                    NearbyStopsViewMode.MAP -> TransitMapView(
-                        isDarkTheme = LightThemeController.isDarkTheme,
-                        tileSource = tileSource,
-                        initialCenter = searchedCenter ?: DEMO_LOCATION,
-                        overlays = markers,
-                        fitBounds = fitBounds,
-                        onMarkerClick = { marker ->
-                            stops.find { it.globalStopId == marker.id }?.let(::onStopSelected)
+                if (isSearching) {
+                    SearchingOverlay(modifier = Modifier.weight(1f))
+                } else {
+                    when (viewMode) {
+                        NearbyStopsViewMode.MAP -> TransitMapView(
+                            isDarkTheme = LightThemeController.isDarkTheme,
+                            tileSource = tileSource,
+                            initialCenter = searchedCenter ?: DEMO_LOCATION,
+                            overlays = markers,
+                            fitBounds = fitBounds,
+                            onMarkerClick = { marker ->
+                                stops.find { it.globalStopId == marker.id }?.let(::onStopSelected)
+                            },
+                            onCenterChanged = viewModel::onMapCenterChanged,
+                            modifier = Modifier.weight(1f).fillMaxSize(),
+                        )
+                        NearbyStopsViewMode.LIST -> NearbyStopsList(
+                            stops = stops,
+                            modifier = Modifier.weight(1f),
+                            onStopClick = ::onStopSelected,
+                        )
+                    }
+
+                    NearbyStopsBottomBar(
+                        viewMode = viewMode,
+                        showToggle = hasSearched,
+                        onSearchIconClick = {
+                            navigateTo(::LocationSearchScreen) { result ->
+                                viewModel.jumpTo(LatLon(lat = result.lat, lon = result.lon))
+                            }
                         },
-                        onCenterChanged = viewModel::onMapCenterChanged,
-                        modifier = Modifier.weight(1f).fillMaxSize(),
-                    )
-                    NearbyStopsViewMode.LIST -> NearbyStopsList(
-                        stops = stops,
-                        modifier = Modifier.weight(1f),
-                        onStopClick = ::onStopSelected,
+                        onSearchClick = { viewModel.search() },
+                        onToggleClick = { viewModel.toggleViewMode() },
                     )
                 }
-
-                NearbyStopsBottomBar(
-                    viewMode = viewMode,
-                    showToggle = hasSearched,
-                    onSearchIconClick = {
-                        navigateTo(::LocationSearchScreen) { result ->
-                            viewModel.jumpTo(LatLon(lat = result.lat, lon = result.lon))
-                        }
-                    },
-                    onSearchClick = { viewModel.search() },
-                    onToggleClick = { viewModel.toggleViewMode() },
-                )
             }
         }
     }
@@ -149,6 +155,16 @@ private fun NearbyStopsBottomBar(
             },
         ),
     )
+}
+
+@Composable
+private fun SearchingOverlay(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier.fillMaxSize().background(Color.Black),
+        contentAlignment = Alignment.Center,
+    ) {
+        LightText(text = "Searching...", variant = LightTextVariant.Paragraph, color = Color.White)
+    }
 }
 
 @Composable
