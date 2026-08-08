@@ -17,6 +17,43 @@ data class NearbyStopsApiResponse(
 )
 
 @Serializable
+data class StopDeparturesApiResponse(
+    @SerialName("route_departures") val routeDepartures: List<RouteDepartureDto> = emptyList(),
+)
+
+@Serializable
+data class RouteDepartureDto(
+    /** Which of the queried stops this entry's schedule items belong to. */
+    @SerialName("global_stop_id") val globalStopId: String,
+    @SerialName("global_route_id") val globalRouteId: String,
+    @SerialName("route_short_name") val routeShortName: String? = null,
+    @SerialName("route_long_name") val routeLongName: String? = null,
+    @SerialName("route_color") val routeColor: String? = null,
+    @SerialName("route_text_color") val routeTextColor: String? = null,
+    @SerialName("merged_itineraries") val mergedItineraries: List<MergedItineraryDto> = emptyList(),
+)
+
+@Serializable
+data class MergedItineraryDto(
+    /** Every itinerary merged into this group shares the same headsign; take the first. */
+    val itineraries: List<MergedSubItineraryDto> = emptyList(),
+    @SerialName("schedule_items") val scheduleItems: List<ScheduleItemDto> = emptyList(),
+)
+
+@Serializable
+data class MergedSubItineraryDto(
+    @SerialName("merged_headsign") val mergedHeadsign: String? = null,
+    val headsign: String? = null,
+)
+
+@Serializable
+data class ScheduleItemDto(
+    @SerialName("departure_time") val departureTime: Long,
+    @SerialName("is_cancelled") val isCancelled: Boolean = false,
+    @SerialName("is_real_time") val isRealTime: Boolean = false,
+)
+
+@Serializable
 data class PlanResultDto(
     /** The expected start time in unix time */
     @SerialName("start_time") val startTime: Long,

@@ -10,10 +10,13 @@ import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.BuildConfig
 import dev.garado.transit.api.NearbyStopsProvider
 import dev.garado.transit.api.PlanProvider
+import dev.garado.transit.api.StopDeparturesProvider
+import dev.garado.transit.api.models.StopDeparture
 import dev.garado.transit.api.models.TripPlan
 import dev.garado.transit.api.models.TripStop
 import dev.garado.transit.api.transit.models.NearbyStopsApiResponse
 import dev.garado.transit.api.transit.models.PlanApiResponse
+import dev.garado.transit.api.transit.models.StopDeparturesApiResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
@@ -30,9 +33,11 @@ import kotlinx.serialization.json.Json
 private enum class TransitEndpoint(val path: String, val mockAsset: String) {
     PLAN("/v4/public/plan", "mocks/v4-public-plan.json"),
     NEARBY_STOPS("/v4/public/nearby_stops", "mocks/v4-public-nearby-stops.json"),
+    STOP_DEPARTURES("/v4/public/stop_departures", "mocks/v4-public-stop-departures.json"),
 }
 
-class TransitApiPlanProvider(private val lightContext: SealedLightContext) : PlanProvider, NearbyStopsProvider {
+class TransitApiPlanProvider(private val lightContext: SealedLightContext) :
+    PlanProvider, NearbyStopsProvider, StopDeparturesProvider {
     private val usageTracker = TransitApiUsageTracker(lightContext.dataStore)
     private val mockSettings = MockTransitApiSettings(lightContext.dataStore)
 
@@ -74,6 +79,21 @@ class TransitApiPlanProvider(private val lightContext: SealedLightContext) : Pla
             params = mapOf("lat" to lat, "lon" to lon),
         )
         return response?.stops?.map { it.toTripStop() } ?: emptyList()
+    }
+
+    /** https://api-doc.transitapp.com/v4.html#GET/v4/public/stop_departures */
+    override suspend fun departures(globalStopIds: List<String>, maxDepartures: Int): Map<String, List<StopDeparture>> {
+        if (globalStopIds.isEmpty()) return emptyMap()
+        val response: StopDeparturesApiResponse? = request(
+            endpoint = TransitEndpoint.STOP_DEPARTURES,
+            params = mapOf(
+                "global_stop_ids" to globalStopIds.joinToString(","),
+                "max_num_departures" to maxDepartures.coerceIn(1, 10),
+                "merge_platform_stops" to true,
+                "exclude_terminal_arrivals" to true,
+            ),
+        )
+        return response?.toStopDepartures() ?: emptyMap()
     }
 
     private suspend inline fun <reified T> request(endpoint: TransitEndpoint, params: Map<String, Any?>): T? =
