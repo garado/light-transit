@@ -47,7 +47,7 @@ class MapMenuScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Uni
                     // TODO: wire up once the underlying screens/features exist
                     MapMenuRow(label = "Search on map", onClick = {})
                     MapMenuRow(label = "Bikeshare", onClick = {})
-                    MapMenuRow(label = "Nearby stops", onClick = {})
+                    MapMenuRow(label = "Nearby stops", onClick = { navigateTo(::NearbyStopsScreen) })
                     MapMenuRow(label = "Saved routes", onClick = {})
                 }
             }
