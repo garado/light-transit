@@ -2,7 +2,6 @@ package dev.garado.transit.search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,14 +12,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.thelightphone.lp3Keyboard.ui.KeyboardOptions
 import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.SimpleLightScreen
 import com.thelightphone.sdk.ui.LightBarButton
-import com.thelightphone.sdk.ui.LightIcon
 import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightScrollView
 import com.thelightphone.sdk.ui.LightText
@@ -84,9 +81,15 @@ class LocationSearchScreen(
                     LightTopBar(
                         leftButton = LightBarButton.LightIcon(
                             icon = LightIcons.BACK,
+                            sizeUnits = 1.5f,
                             onClick = { goBack() },
                         ),
                         center = LightTopBarCenter.Text("Search Location"),
+                        rightButton = LightBarButton.LightIcon(
+                            icon = LightIcons.SEARCH,
+                            sizeUnits = 1.5f,
+                            onClick = { isEnteringQuery = true },
+                        ),
                     )
 
                     LightScrollView(
@@ -94,8 +97,6 @@ class LocationSearchScreen(
                             .weight(1f)
                             .padding(horizontal = 12.dp, vertical = 8.dp),
                     ) {
-                        SearchNavigationRow(onClick = { isEnteringQuery = true })
-
                         savedLocations.forEach { saved ->
                             SavedLocationRow(
                                 saved = saved,
@@ -106,20 +107,6 @@ class LocationSearchScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun SearchNavigationRow(onClick: () -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .lightClickable(onClick = onClick)
-            .padding(vertical = 12.dp),
-    ) {
-        LightText(text = "Search", variant = LightTextVariant.Copy, modifier = Modifier.weight(1f))
-        LightIcon(icon = LightIcons.ARROW_RIGHT)
     }
 }
 
