@@ -135,6 +135,7 @@ fun TransitMapView(
                 for (overlay in overlays) {
                     when (overlay) {
                         is MapOverlay.Polyline -> drawPolyline(overlay, tilesZoom, liveFracX, liveFracY, scale)
+                        is MapOverlay.Marker -> drawMarker(overlay, tilesZoom, liveFracX, liveFracY, scale)
                     }
                 }
             }
@@ -160,4 +161,15 @@ private fun DrawScope.drawPolyline(
         color = polyline.color,
         style = Stroke(width = polyline.widthDp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round),
     )
+}
+
+private fun DrawScope.drawMarker(
+    marker: MapOverlay.Marker,
+    tilesZoom: Int,
+    liveFracX: Double,
+    liveFracY: Double,
+    scale: Float,
+) {
+    val offset = lonLatToOffset(marker.point.lat, marker.point.lon, tilesZoom, liveFracX, liveFracY, scale)
+    drawCircle(color = marker.color, radius = marker.radiusDp.toPx(), center = offset)
 }

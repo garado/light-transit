@@ -45,6 +45,7 @@ import dev.garado.transit.map.RasterTileSource
 import dev.garado.transit.map.TileCacheDatabase
 import dev.garado.transit.map.TransitMapView
 import dev.garado.transit.route.centroid
+import dev.garado.transit.route.stopMarkers
 import dev.garado.transit.route.toOverlays
 import dev.garado.transit.search.LocationResult
 
@@ -76,8 +77,10 @@ class NavigationScreen(
 
         LightTheme(colors = themeColors) {
             val walkLegColor = LightThemeTokens.colors.content
-            val overlays = remember(plan, walkLegColor) { plan.toOverlays(walkLegColor) }
-            val initialCenter = remember(overlays) { overlays.centroid() }
+            val polylineOverlays = remember(plan, walkLegColor) { plan.toOverlays(walkLegColor) }
+            val stopMarkers = remember(plan, walkLegColor) { plan.stopMarkers(walkLegColor) }
+            val overlays = remember(polylineOverlays, stopMarkers) { polylineOverlays + stopMarkers }
+            val initialCenter = remember(polylineOverlays) { polylineOverlays.centroid() }
 
             Column(
                 modifier = Modifier

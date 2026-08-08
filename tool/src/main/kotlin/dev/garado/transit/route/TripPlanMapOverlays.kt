@@ -21,6 +21,13 @@ fun TripPlan.toOverlays(walkLegColor: Color): List<MapOverlay.Polyline> = legs.m
     }
 }
 
+/** One marker per stop for the whole trip */
+fun TripPlan.stopMarkers(color: Color): List<MapOverlay.Marker> = legs
+    .filterIsInstance<TripLeg.Transit>()
+    .flatMap { it.stops }
+    .distinctBy { it.globalStopId }
+    .map { stop -> MapOverlay.Marker(point = LatLon(lat = stop.lat, lon = stop.lon), color = color) }
+
 /** Simple average of every point across all overlays (for centering a map on a route) */
 fun List<MapOverlay.Polyline>.centroid(): LatLon {
     val allPoints = flatMap { it.points }
