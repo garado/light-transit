@@ -33,7 +33,7 @@ import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
-import dev.garado.transit.LegIcon
+import dev.garado.transit.LegModeIcon
 import dev.garado.transit.MinuteTimer
 import dev.garado.transit.StatusBar
 import dev.garado.transit.api.models.TripLeg
@@ -145,7 +145,7 @@ private fun DirectionsSummaryHeader(plan: TripPlan) {
 @Composable
 private fun DirectionsRow(leg: TripLeg) {
     Row(modifier = Modifier.padding(vertical = 8.dp)) {
-        LegIcon(leg = leg.shortened(), modifier = Modifier.padding(top = 2.dp), minWidth = LEG_ICON_MIN_WIDTH)
+        LegModeIcon(leg = leg, modifier = Modifier.padding(top = 2.dp), minWidth = LEG_ICON_MIN_WIDTH)
         Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
             when (leg) {
                 is TripLeg.Walk -> LightText(

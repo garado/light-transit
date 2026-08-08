@@ -43,6 +43,7 @@ private fun LegDto.toTransitLeg(): TripLeg.Transit? {
         routeName = route.routeShortName ?: route.routeLongName ?: route.globalRouteId,
         routeColor = route.routeColor,
         routeTextColor = route.routeTextColor,
+        modeName = route.modeName,
         headsign = itinerary?.headsign,
         nextDepartureTime = departure.departureTime,
         stops = itinerary?.riddenStops() ?: emptyList(),

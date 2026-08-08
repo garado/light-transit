@@ -17,12 +17,7 @@ import com.thelightphone.sdk.ui.LightTextVariant
 import com.thelightphone.sdk.ui.LightThemeTokens
 import dev.garado.transit.api.models.TripLeg
 
-/**
- * Left-side icon/badge for a leg (pedestrian icon for walk, colored route badge for transit).
- * Pass [minWidth] to reserve the same width across every leg (used by the navigation screen's
- * list, where descriptions need to line up); left at its default, sizing is purely content-based
- * (used by [dev.garado.transit.route.TripLegsRow]'s chip strip).
- */
+/** Colored route badge showing the name of the route */
 @Composable
 fun LegIcon(leg: TripLeg, modifier: Modifier = Modifier, minWidth: Dp = Dp.Unspecified) {
     Box(
@@ -48,4 +43,30 @@ fun LegIcon(leg: TripLeg, modifier: Modifier = Modifier, minWidth: Dp = Dp.Unspe
             }
         }
     }
+}
+
+/** Bus/train/boat/etc icon indicating the trip leg type */
+@Composable
+fun LegModeIcon(leg: TripLeg, modifier: Modifier = Modifier, minWidth: Dp = Dp.Unspecified) {
+    Box(
+        modifier = modifier.widthIn(min = minWidth),
+        contentAlignment = Alignment.Center,
+    ) {
+        when (leg) {
+            is TripLeg.Walk -> LightIcon(icon = LightIcons.DIRECTIONS_PEDESTRIAN, size = 1.25f)
+            is TripLeg.Transit -> LightIcon(icon = transitModeIcon(leg.modeName), size = 1.25f)
+        }
+    }
+}
+
+private fun transitModeIcon(modeName: String?) = when {
+    modeName == null -> LightIcons.DIRECTIONS_BUS
+    modeName.contains("train", ignoreCase = true) ||
+        modeName.contains("rail", ignoreCase = true) ||
+        modeName.contains("subway", ignoreCase = true) ||
+        modeName.contains("metro", ignoreCase = true) ||
+        modeName.contains("tram", ignoreCase = true) -> LightIcons.DIRECTIONS_TRAIN
+    modeName.contains("ferry", ignoreCase = true) ||
+        modeName.contains("boat", ignoreCase = true) -> LightIcons.DIRECTIONS_FERRY
+    else -> LightIcons.DIRECTIONS_BUS
 }

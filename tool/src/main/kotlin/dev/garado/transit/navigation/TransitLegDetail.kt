@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,6 +29,7 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.api.models.TripLeg
 import dev.garado.transit.formatClockTime
+import dev.garado.transit.parseHexColor
 
 /**
  * Information on a single transit leg
@@ -45,6 +47,8 @@ fun TransitLegDetail(leg: TripLeg.Transit) {
     val intermediateStops = leg.stops.drop(1).dropLast(1)
 
     Column {
+        RouteBadge(leg = leg, modifier = Modifier.padding(bottom = 8.dp))
+
         // first stop
         StopHeaderRow(name = boardingStop?.name ?: leg.routeName, time = formatClockTime(leg.startTime))
 
@@ -97,6 +101,24 @@ fun TransitLegDetail(leg: TripLeg.Transit) {
         if (alightingStop != null) {
             StopHeaderRow(name = alightingStop.name, time = formatClockTime(leg.endTime))
         }
+    }
+}
+
+@Composable
+private fun RouteBadge(leg: TripLeg.Transit, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .background(
+                color = parseHexColor(leg.routeColor, fallback = LightThemeTokens.colors.content),
+                shape = RoundedCornerShape(4.dp),
+            )
+            .padding(horizontal = 6.dp, vertical = 2.dp),
+    ) {
+        LightText(
+            text = leg.routeName,
+            variant = LightTextVariant.Detail,
+            color = parseHexColor(leg.routeTextColor, fallback = LightThemeTokens.colors.background),
+        )
     }
 }
 

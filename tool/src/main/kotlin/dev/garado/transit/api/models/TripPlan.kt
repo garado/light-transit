@@ -27,6 +27,7 @@ sealed interface TripLeg {
         val routeName: String,
         val routeColor: String?,
         val routeTextColor: String?,
+        val modeName: String?,
         val headsign: String?,
         val nextDepartureTime: Long,
         val stops: List<TripStop>,
