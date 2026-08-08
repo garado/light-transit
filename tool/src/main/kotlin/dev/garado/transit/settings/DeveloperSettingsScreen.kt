@@ -41,6 +41,7 @@ class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLight
 
         val mockSettings = remember { MockTransitApiSettings(lightContext.dataStore) }
         val useMockedResponses by mockSettings.useMockedResponses.collectAsState(initial = false)
+        val simulateApiFailure by mockSettings.simulateApiFailure.collectAsState(initial = false)
 
         LightTheme(colors = themeColors) {
             Column(
@@ -54,11 +55,20 @@ class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLight
                 )
 
                 Column(modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp)) {
-                    MockResponsesToggleRow(
+                    DevToggleRow(
+                        label = "Mock API responses",
                         enabled = useMockedResponses,
                         onClick = {
                             coroutineScope.launch { mockSettings.setUseMockedResponses(!useMockedResponses) }
                         },
+                    )
+                    DevToggleRow(
+                        label = "Simulate API failures",
+                        enabled = simulateApiFailure,
+                        onClick = {
+                            coroutineScope.launch { mockSettings.setSimulateApiFailure(!simulateApiFailure) }
+                        },
+                        modifier = Modifier.padding(top = 12.dp),
                     )
                 }
             }
@@ -67,7 +77,7 @@ class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLight
 }
 
 @Composable
-private fun MockResponsesToggleRow(enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun DevToggleRow(label: String, enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -78,6 +88,6 @@ private fun MockResponsesToggleRow(enabled: Boolean, onClick: () -> Unit, modifi
             icon = if (enabled) LightIcons.TOGGLE_STATE_ON else LightIcons.TOGGLE_STATE_OFF,
             modifier = Modifier.padding(end = 16.dp),
         )
-        LightText(text = "Mock API responses", variant = LightTextVariant.Copy)
+        LightText(text = label, variant = LightTextVariant.Copy)
     }
 }

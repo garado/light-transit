@@ -102,12 +102,17 @@ class TransitApiPlanProvider(private val lightContext: SealedLightContext) :
         return response?.toStopDepartures() ?: emptyMap()
     }
 
-    private suspend inline fun <reified T> request(endpoint: TransitEndpoint, params: Map<String, Any?>): T? =
-        if (mockSettings.useMockedResponses.first()) {
+    private suspend inline fun <reified T> request(endpoint: TransitEndpoint, params: Map<String, Any?>): T? {
+        if (mockSettings.simulateApiFailure.first()) {
+            Log.w(TAG, "Simulating API failure for ${endpoint.path} (dev setting)")
+            return null
+        }
+        return if (mockSettings.useMockedResponses.first()) {
             mockResponse(endpoint)
         } else {
             realResponse(endpoint, params)
         }
+    }
 
     private inline fun <reified T> mockResponse(endpoint: TransitEndpoint): T? = try {
         val bytes = lightContext.readAsset(endpoint.mockAsset)

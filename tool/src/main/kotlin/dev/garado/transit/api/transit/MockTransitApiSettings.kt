@@ -16,7 +16,15 @@ class MockTransitApiSettings(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { prefs -> prefs[USE_MOCKED_RESPONSES_KEY] = enabled }
     }
 
+    /** Force every API call to fail immediately without being sent (mock or real) */
+    val simulateApiFailure: Flow<Boolean> = dataStore.data.map { prefs -> prefs[SIMULATE_API_FAILURE_KEY] ?: false }
+
+    suspend fun setSimulateApiFailure(enabled: Boolean) {
+        dataStore.edit { prefs -> prefs[SIMULATE_API_FAILURE_KEY] = enabled }
+    }
+
     private companion object {
         val USE_MOCKED_RESPONSES_KEY = booleanPreferencesKey("use_mocked_transit_api_responses")
+        val SIMULATE_API_FAILURE_KEY = booleanPreferencesKey("simulate_transit_api_failure")
     }
 }
