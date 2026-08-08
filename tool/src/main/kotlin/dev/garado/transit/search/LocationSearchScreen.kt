@@ -22,6 +22,7 @@ import com.thelightphone.sdk.SimpleLightScreen
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightIcon
 import com.thelightphone.sdk.ui.LightIcons
+import com.thelightphone.sdk.ui.LightScrollView
 import com.thelightphone.sdk.ui.LightText
 import com.thelightphone.sdk.ui.LightTextInputEditor
 import com.thelightphone.sdk.ui.LightTextVariant
@@ -88,7 +89,11 @@ class LocationSearchScreen(
                         center = LightTopBarCenter.Text("Search Location"),
                     )
 
-                    Column(modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp)) {
+                    LightScrollView(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                    ) {
                         SearchNavigationRow(onClick = { isEnteringQuery = true })
 
                         savedLocations.forEach { saved ->
