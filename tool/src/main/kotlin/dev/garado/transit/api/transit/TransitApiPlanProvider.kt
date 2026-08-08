@@ -8,8 +8,11 @@ package dev.garado.transit.api.transit
 import android.util.Log
 import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.BuildConfig
+import dev.garado.transit.api.NearbyStopsProvider
 import dev.garado.transit.api.PlanProvider
 import dev.garado.transit.api.models.TripPlan
+import dev.garado.transit.api.models.TripStop
+import dev.garado.transit.api.transit.models.NearbyStopsApiResponse
 import dev.garado.transit.api.transit.models.PlanApiResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -26,9 +29,10 @@ import kotlinx.serialization.json.Json
 /** Map endpoints to their mocked responses */
 private enum class TransitEndpoint(val path: String, val mockAsset: String) {
     PLAN("/v4/public/plan", "mocks/v4-public-plan.json"),
+    NEARBY_STOPS("/v4/public/nearby_stops", "mocks/v4-public-nearby-stops.json"),
 }
 
-class TransitApiPlanProvider(private val lightContext: SealedLightContext) : PlanProvider {
+class TransitApiPlanProvider(private val lightContext: SealedLightContext) : PlanProvider, NearbyStopsProvider {
     private val usageTracker = TransitApiUsageTracker(lightContext.dataStore)
     private val mockSettings = MockTransitApiSettings(lightContext.dataStore)
 
@@ -61,6 +65,15 @@ class TransitApiPlanProvider(private val lightContext: SealedLightContext) : Pla
             ) + timeParams,
         )
         return response?.toTripPlans() ?: emptyList()
+    }
+
+    /** https://api-doc.transitapp.com/v4.html#GET/v4/public/nearby_stops */
+    override suspend fun nearbyStops(lat: Double, lon: Double): List<TripStop> {
+        val response: NearbyStopsApiResponse? = request(
+            endpoint = TransitEndpoint.NEARBY_STOPS,
+            params = mapOf("lat" to lat, "lon" to lon),
+        )
+        return response?.stops?.map { it.toTripStop() } ?: emptyList()
     }
 
     private suspend inline fun <reified T> request(endpoint: TransitEndpoint, params: Map<String, Any?>): T? =

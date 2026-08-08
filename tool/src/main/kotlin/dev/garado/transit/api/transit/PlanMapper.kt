@@ -63,7 +63,7 @@ private fun ItineraryDto.riddenStops(): List<TripStop> {
     return slice.map(StopDto::toTripStop)
 }
 
-private fun StopDto.toTripStop() = TripStop(
+internal fun StopDto.toTripStop() = TripStop(
     globalStopId = globalStopId,
     name = stopName,
     lat = stopLat,

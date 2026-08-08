@@ -12,6 +12,11 @@ data class PlanApiResponse(
 )
 
 @Serializable
+data class NearbyStopsApiResponse(
+    val stops: List<StopDto> = emptyList(),
+)
+
+@Serializable
 data class PlanResultDto(
     /** The expected start time in unix time */
     @SerialName("start_time") val startTime: Long,
