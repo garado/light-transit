@@ -1,5 +1,6 @@
 package dev.garado.transit.api.transit
 
+import dev.garado.transit.api.models.TripLeg
 import dev.garado.transit.api.transit.models.DepartureDto
 import dev.garado.transit.api.transit.models.ItineraryDto
 import dev.garado.transit.api.transit.models.LegDto
@@ -8,7 +9,6 @@ import dev.garado.transit.api.transit.models.PlanDetailsDto
 import dev.garado.transit.api.transit.models.PlanResultDto
 import dev.garado.transit.api.transit.models.RouteDto
 import dev.garado.transit.api.transit.models.StopDto
-import dev.garado.transit.api.transit.models.TripLeg
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

@@ -8,8 +8,9 @@ package dev.garado.transit.api.transit
 import android.util.Log
 import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.BuildConfig
+import dev.garado.transit.api.PlanProvider
+import dev.garado.transit.api.models.TripPlan
 import dev.garado.transit.api.transit.models.PlanApiResponse
-import dev.garado.transit.api.transit.models.TripPlan
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
@@ -27,23 +28,22 @@ private enum class TransitEndpoint(val path: String, val mockAsset: String) {
     PLAN("/v4/public/plan", "mocks/v4-public-plan.json"),
 }
 
-class TransitClient(private val lightContext: SealedLightContext) {
+class TransitApiPlanProvider(private val lightContext: SealedLightContext) : PlanProvider {
     private val usageTracker = TransitApiUsageTracker(lightContext.dataStore)
     private val mockSettings = MockTransitApiSettings(lightContext.dataStore)
 
     /**
      * https://api-doc.transitapp.com/v4.html#GET/v4/public/plan
      *
-     * At most one of [leaveTime]/[arrivalTime] should be set (the API only honors [leaveTime] if
-     * both are provided). If neither is set, defaults to leaving now.
+     * The API only honors [leaveTime] if both [leaveTime] and [arrivalTime] are provided.
      */
-    suspend fun plan(
+    override suspend fun plan(
         fromLat: Double,
         fromLon: Double,
         toLat: Double,
         toLon: Double,
-        leaveTime: Long? = null,
-        arrivalTime: Long? = null,
+        leaveTime: Long?,
+        arrivalTime: Long?,
     ): List<TripPlan> {
         val timeParams = when {
             leaveTime != null -> mapOf("leave_time" to leaveTime)
@@ -102,7 +102,7 @@ class TransitClient(private val lightContext: SealedLightContext) {
     }
 
     private companion object {
-        const val TAG = "TransitClient"
+        const val TAG = "TransitApiPlanProvider"
         const val BASE_URL = "https://external.transitapp.com"
         const val CONNECT_TIMEOUT_MS = 5_000L
         const val REQUEST_TIMEOUT_MS = 10_000L
