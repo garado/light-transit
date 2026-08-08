@@ -8,8 +8,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -117,10 +118,12 @@ class NavigationScreen(
 
 @Composable
 private fun DirectionsList(plan: TripPlan, toLocation: LocationResult) {
-    LightScrollView(modifier = Modifier.fillMaxSize().padding(start = 10.dp, end = 8.dp)) {
-        DirectionsSummaryHeader(plan)
-        plan.legs.forEach { leg -> DirectionsRow(leg) }
-        DestinationRow(toLocation, eta = formatClockTime(plan.endTime))
+    LightScrollView(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.padding(start = 16.dp, end = 8.dp)) {
+            DirectionsSummaryHeader(plan)
+            plan.legs.forEach { leg -> DirectionsRow(leg) }
+            DestinationRow(toLocation, eta = formatClockTime(plan.endTime))
+        }
     }
 }
 
@@ -145,8 +148,8 @@ private fun DirectionsSummaryHeader(plan: TripPlan) {
 @Composable
 private fun DirectionsRow(leg: TripLeg) {
     Row(modifier = Modifier.padding(vertical = 8.dp)) {
-        LegModeIcon(leg = leg, modifier = Modifier.padding(top = 2.dp), minWidth = LEG_ICON_MIN_WIDTH)
-        Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
+        LegModeIcon(leg = leg, modifier = Modifier.padding(top = 2.dp), width = LEG_ICON_MIN_WIDTH)
+        Column(modifier = Modifier.weight(1f)) {
             when (leg) {
                 is TripLeg.Walk -> LightText(
                     text = formatDuration(leg.duration),
@@ -162,8 +165,8 @@ private fun DirectionsRow(leg: TripLeg) {
 @Composable
 private fun DestinationRow(toLocation: LocationResult, eta: String) {
     Row(modifier = Modifier.padding(vertical = 8.dp)) {
-        Box(modifier = Modifier.widthIn(min = LEG_ICON_MIN_WIDTH), contentAlignment = Alignment.Center) {
-            LightIcon(icon = LightIcons.DIRECTIONS_ARRIVAL, size = 1.25f)
+        Box(modifier = Modifier.width(LEG_ICON_MIN_WIDTH), contentAlignment = Alignment.CenterStart) {
+            LightIcon(icon = LightIcons.DIRECTIONS_ARRIVAL, size = 1.25f, modifier = Modifier.offset(x = (-3).dp))
         }
         Column(modifier = Modifier.weight(1f)) {
             LightText(text = toLocation.title, variant = LightTextVariant.Paragraph)
