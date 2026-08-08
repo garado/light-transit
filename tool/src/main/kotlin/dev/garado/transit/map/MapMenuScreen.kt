@@ -43,8 +43,7 @@ class MapMenuScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Uni
                     center = LightTopBarCenter.Text("Map"),
                 )
 
-                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)) {
-                    // TODO: wire up once the underlying screens/features exist
+                Column(modifier = Modifier.padding(horizontal = 16.dp).padding(top = 12.dp)) {
                     MapMenuRow(label = "Search on map", onClick = {})
                     MapMenuRow(label = "Bikeshare", onClick = {})
                     MapMenuRow(label = "Nearby stops", onClick = { navigateTo(::NearbyStopsScreen) })
@@ -62,7 +61,7 @@ private fun MapMenuRow(label: String, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .lightClickable(onClick = onClick)
-            .padding(vertical = 12.dp),
+            .padding(bottom = 24.dp),
     ) {
         LightText(text = label, variant = LightTextVariant.Copy, modifier = Modifier.weight(1f))
         LightIcon(icon = LightIcons.ARROW_RIGHT, size = 1.5f)
