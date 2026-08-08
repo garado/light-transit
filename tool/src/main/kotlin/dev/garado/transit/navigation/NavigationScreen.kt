@@ -39,8 +39,10 @@ import dev.garado.transit.MinuteTimer
 import dev.garado.transit.StatusBar
 import dev.garado.transit.api.models.TripLeg
 import dev.garado.transit.api.models.TripPlan
+import dev.garado.transit.api.models.TripStop
 import dev.garado.transit.formatClockTime
 import dev.garado.transit.formatDuration
+import dev.garado.transit.map.LatLon
 import dev.garado.transit.map.RasterTileSource
 import dev.garado.transit.map.TileCacheDatabase
 import dev.garado.transit.map.TransitMapView
@@ -63,6 +65,7 @@ class NavigationScreen(
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
         var viewMode by remember { mutableStateOf(NavigationViewMode.DIRECTIONS) }
+        var focusedStop by remember { mutableStateOf<TripStop?>(null) }
 
         val tileCacheDatabase = remember {
             lightContext.buildDatabase(TileCacheDatabase::class.java, "tile_cache.db")
@@ -78,9 +81,12 @@ class NavigationScreen(
         LightTheme(colors = themeColors) {
             val walkLegColor = LightThemeTokens.colors.content
             val polylineOverlays = remember(plan, walkLegColor) { plan.toOverlays(walkLegColor) }
-            val stopMarkers = remember(plan, walkLegColor) { plan.stopMarkers(walkLegColor) }
+            val stopMarkers = remember(plan, walkLegColor, focusedStop) {
+                plan.stopMarkers(walkLegColor, highlightedStopId = focusedStop?.globalStopId)
+            }
             val overlays = remember(polylineOverlays, stopMarkers) { polylineOverlays + stopMarkers }
-            val initialCenter = remember(polylineOverlays) { polylineOverlays.centroid() }
+            val routeCenter = remember(polylineOverlays) { polylineOverlays.centroid() }
+            val mapCenter = focusedStop?.let { LatLon(lat = it.lat, lon = it.lon) } ?: routeCenter
 
             Column(
                 modifier = Modifier
@@ -92,11 +98,18 @@ class NavigationScreen(
                 // Main content area
                 Box(modifier = Modifier.weight(1f).fillMaxSize()) {
                     when (viewMode) {
-                        NavigationViewMode.DIRECTIONS -> DirectionsList(plan, toLocation)
+                        NavigationViewMode.DIRECTIONS -> DirectionsList(
+                            plan = plan,
+                            toLocation = toLocation,
+                            onStopClick = { stop ->
+                                focusedStop = stop
+                                viewMode = NavigationViewMode.MAP
+                            },
+                        )
                         NavigationViewMode.MAP -> TransitMapView(
                             isDarkTheme = LightThemeController.isDarkTheme,
                             tileSource = tileSource,
-                            initialCenter = initialCenter,
+                            initialCenter = mapCenter,
                             overlays = overlays,
                             modifier = Modifier.fillMaxSize(),
                         )
@@ -110,7 +123,10 @@ class NavigationScreen(
                     onSwitchView = {
                         viewMode = when (viewMode) {
                             NavigationViewMode.DIRECTIONS -> NavigationViewMode.MAP
-                            NavigationViewMode.MAP -> NavigationViewMode.DIRECTIONS
+                            NavigationViewMode.MAP -> {
+                                focusedStop = null
+                                NavigationViewMode.DIRECTIONS
+                            }
                         }
                     },
                 )
@@ -120,11 +136,11 @@ class NavigationScreen(
 }
 
 @Composable
-private fun DirectionsList(plan: TripPlan, toLocation: LocationResult) {
+private fun DirectionsList(plan: TripPlan, toLocation: LocationResult, onStopClick: (TripStop) -> Unit) {
     LightScrollView(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.padding(start = 16.dp, end = 8.dp)) {
             DirectionsSummaryHeader(plan)
-            plan.legs.forEach { leg -> DirectionsRow(leg) }
+            plan.legs.forEach { leg -> DirectionsRow(leg, onStopClick = onStopClick) }
             DestinationRow(toLocation, eta = formatClockTime(plan.endTime))
         }
     }
@@ -149,7 +165,7 @@ private fun DirectionsSummaryHeader(plan: TripPlan) {
 }
 
 @Composable
-private fun DirectionsRow(leg: TripLeg) {
+private fun DirectionsRow(leg: TripLeg, onStopClick: (TripStop) -> Unit) {
     Row(modifier = Modifier.padding(vertical = 8.dp)) {
         LegModeIcon(leg = leg, modifier = Modifier.padding(top = 2.dp), width = LEG_ICON_MIN_WIDTH)
         Column(modifier = Modifier.weight(1f)) {
@@ -159,7 +175,7 @@ private fun DirectionsRow(leg: TripLeg) {
                     variant = LightTextVariant.Detail,
                     lighten = true,
                 )
-                is TripLeg.Transit -> TransitLegDetail(leg)
+                is TripLeg.Transit -> TransitLegDetail(leg, onStopClick = onStopClick)
             }
         }
     }

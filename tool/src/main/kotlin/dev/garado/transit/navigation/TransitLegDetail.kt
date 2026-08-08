@@ -28,6 +28,7 @@ import com.thelightphone.sdk.ui.LightTextVariant
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.api.models.TripLeg
+import dev.garado.transit.api.models.TripStop
 import dev.garado.transit.formatClockTime
 import dev.garado.transit.parseHexColor
 
@@ -40,7 +41,7 @@ import dev.garado.transit.parseHexColor
  * - alighting stop + time
  */
 @Composable
-fun TransitLegDetail(leg: TripLeg.Transit) {
+fun TransitLegDetail(leg: TripLeg.Transit, onStopClick: (TripStop) -> Unit) {
     var expanded by remember(leg) { mutableStateOf(false) }
     val boardingStop = leg.stops.firstOrNull()
     val alightingStop = leg.stops.lastOrNull()
@@ -50,7 +51,11 @@ fun TransitLegDetail(leg: TripLeg.Transit) {
         RouteBadge(leg = leg, modifier = Modifier.padding(bottom = 8.dp))
 
         // first stop
-        StopHeaderRow(name = boardingStop?.name ?: leg.routeName, time = formatClockTime(leg.startTime))
+        StopHeaderRow(
+            name = boardingStop?.name ?: leg.routeName,
+            time = formatClockTime(leg.startTime),
+            onClick = boardingStop?.let { stop -> { onStopClick(stop) } },
+        )
 
         if (intermediateStops.isNotEmpty()) {
             Row(modifier = Modifier.height(IntrinsicSize.Min).padding(start = 4.dp)) {
@@ -89,7 +94,9 @@ fun TransitLegDetail(leg: TripLeg.Transit) {
                             LightText(
                                 text = stop.name,
                                 variant = LightTextVariant.Detail,
-                                modifier = Modifier.padding(vertical = 6.dp),
+                                modifier = Modifier
+                                    .lightClickable(onClick = { onStopClick(stop) })
+                                    .padding(vertical = 6.dp),
                             )
                         }
                     }
@@ -99,7 +106,11 @@ fun TransitLegDetail(leg: TripLeg.Transit) {
 
         // final stop
         if (alightingStop != null) {
-            StopHeaderRow(name = alightingStop.name, time = formatClockTime(leg.endTime))
+            StopHeaderRow(
+                name = alightingStop.name,
+                time = formatClockTime(leg.endTime),
+                onClick = { onStopClick(alightingStop) },
+            )
         }
     }
 }
@@ -123,10 +134,12 @@ private fun RouteBadge(leg: TripLeg.Transit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun StopHeaderRow(name: String, time: String) {
+private fun StopHeaderRow(name: String, time: String, onClick: (() -> Unit)? = null) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .let { if (onClick != null) it.lightClickable(onClick = onClick) else it },
     ) {
         LightText(
             text = name,
