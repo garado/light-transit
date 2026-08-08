@@ -158,4 +158,11 @@ data class StopDto(
     @SerialName("stop_name") val stopName: String,
     @SerialName("stop_lat") val stopLat: Double,
     @SerialName("stop_lon") val stopLon: Double,
+    /** The station this stop (platform/entrance) belongs to, if any. */
+    @SerialName("parent_station") val parentStation: ParentStationDto? = null,
+)
+
+@Serializable
+data class ParentStationDto(
+    @SerialName("global_stop_id") val globalStopId: String,
 )

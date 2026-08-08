@@ -72,13 +72,19 @@ class TransitApiPlanProvider(private val lightContext: SealedLightContext) :
         return response?.toTripPlans() ?: emptyList()
     }
 
-    /** https://api-doc.transitapp.com/v4.html#GET/v4/public/nearby_stops */
+    /**
+     * https://api-doc.transitapp.com/v4.html#GET/v4/public/nearby_stops
+     * Stations with multiple platforms are grouped under the parent station
+     */
     override suspend fun nearbyStops(lat: Double, lon: Double): List<TripStop> {
         val response: NearbyStopsApiResponse? = request(
             endpoint = TransitEndpoint.NEARBY_STOPS,
             params = mapOf("lat" to lat, "lon" to lon),
         )
-        return response?.stops?.map { it.toTripStop() } ?: emptyList()
+        return response?.stops
+            ?.distinctBy { it.parentStation?.globalStopId ?: it.globalStopId }
+            ?.map { it.toTripStop() }
+            ?: emptyList()
     }
 
     /** https://api-doc.transitapp.com/v4.html#GET/v4/public/stop_departures */
