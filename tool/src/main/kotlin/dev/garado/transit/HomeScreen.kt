@@ -22,6 +22,7 @@ import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
+import dev.garado.transit.map.MapMenuScreen
 import dev.garado.transit.map.MapTabContent
 import dev.garado.transit.map.TileCacheDatabase
 import dev.garado.transit.route.RouteSelectScreen
@@ -94,6 +95,14 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                             center = LightTopBarCenter.Text(
                                 if (selectedTab == HomeTab.SETTINGS) "Settings" else "Map",
                             ),
+                            rightButton = if (selectedTab == HomeTab.MAP) {
+                                LightBarButton.LightIcon(
+                                    icon = LightIcons.ELLIPSES,
+                                    onClick = { navigateTo(::MapMenuScreen) },
+                                )
+                            } else {
+                                null
+                            },
                         )
                     }
 
