@@ -5,6 +5,7 @@
 package dev.garado.transit.map
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -26,7 +28,9 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.debounce
 import kotlin.math.cos
 import kotlin.math.ln
@@ -38,6 +42,7 @@ private const val MAX_ZOOM = 19f
 private const val DEFAULT_ZOOM = 14f
 private const val REFETCH_DEBOUNCE_MS = 400L
 private const val METERS_PER_DEGREE_LAT = 111_320.0
+private val MARKER_TOUCH_TARGET_RADIUS = 24.dp
 
 private val DEFAULT_CENTER = LatLon(lat = 40.7128, lon = -74.0060) // NYC
 
@@ -48,6 +53,7 @@ fun TransitMapView(
     initialCenter: LatLon = DEFAULT_CENTER,
     overlays: List<MapOverlay> = emptyList(),
     fitBounds: LatLonBounds? = null,
+    onMarkerClick: ((MapOverlay.Marker) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     var centerLat by remember(initialCenter) { mutableStateOf(initialCenter.lat) }
@@ -101,6 +107,16 @@ fun TransitMapView(
             .collect { refetch() }
     }
 
+    fun screenOffsetFor(lat: Double, lon: Double): Offset? {
+        val tilesZoom = tileZoomLevel ?: return null
+        val (liveFracX, liveFracY) = lonLatToTileFraction(centerLat, centerLon, tilesZoom)
+        val scale = 2.0.pow((zoom - tilesZoom).toDouble()).toFloat()
+        val relative = lonLatToOffset(lat, lon, tilesZoom, liveFracX, liveFracY, scale)
+        return Offset(relative.x + canvasSize.width / 2f, relative.y + canvasSize.height / 2f)
+    }
+
+    val touchTargetPx = with(LocalDensity.current) { MARKER_TOUCH_TARGET_RADIUS.toPx() }
+
     Box(modifier = modifier.fillMaxSize()) {
         Canvas(
             modifier = Modifier
@@ -115,6 +131,16 @@ fun TransitMapView(
                         if (gestureZoom != 1f) {
                             zoom = (zoom + (ln(gestureZoom.toDouble()) / ln(2.0)).toFloat()).coerceIn(MIN_ZOOM, MAX_ZOOM)
                         }
+                    }
+                }
+                .pointerInput(onMarkerClick, overlays, touchTargetPx) {
+                    if (onMarkerClick == null) return@pointerInput
+                    detectTapGestures { tapOffset ->
+                        overlays.filterIsInstance<MapOverlay.Marker>()
+                            .mapNotNull { marker -> screenOffsetFor(marker.point.lat, marker.point.lon)?.let { marker to (it - tapOffset).getDistance() } }
+                            .minByOrNull { (_, distance) -> distance }
+                            ?.takeIf { (_, distance) -> distance <= touchTargetPx }
+                            ?.let { (marker, _) -> onMarkerClick(marker) }
                     }
                 },
         ) {

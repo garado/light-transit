@@ -66,9 +66,21 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen
 
         val markerColor = LightThemeTokens.colors.content
         val markers = remember(stops, markerColor) {
-            stops.map { stop -> MapOverlay.Marker(point = LatLon(lat = stop.lat, lon = stop.lon), color = markerColor) }
+            stops.map { stop ->
+                MapOverlay.Marker(
+                    point = LatLon(lat = stop.lat, lon = stop.lon),
+                    color = markerColor,
+                    id = stop.globalStopId
+                )
+            }
         }
         val fitBounds = remember(stops) { stops.map { LatLon(lat = it.lat, lon = it.lon) }.boundingBox() }
+
+        fun onStopSelected(stop: TripStop) {
+            navigateTo({ activity ->
+                StopDeparturesScreen(activity, stop.name, departuresByStop[stop.globalStopId] ?: emptyList())
+            })
+        }
 
         LightTheme(colors = themeColors) {
             Column(
@@ -98,16 +110,15 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen
                         initialCenter = fitBounds?.center ?: DEMO_LOCATION,
                         overlays = markers,
                         fitBounds = fitBounds,
+                        onMarkerClick = { marker ->
+                            stops.find { it.globalStopId == marker.id }?.let(::onStopSelected)
+                        },
                         modifier = Modifier.weight(1f).fillMaxSize(),
                     )
                     NearbyStopsViewMode.LIST -> NearbyStopsList(
                         stops = stops,
                         modifier = Modifier.weight(1f),
-                        onStopClick = { stop ->
-                            navigateTo({ activity ->
-                                StopDeparturesScreen(activity, stop.name, departuresByStop[stop.globalStopId] ?: emptyList())
-                            })
-                        },
+                        onStopClick = ::onStopSelected,
                     )
                 }
             }
