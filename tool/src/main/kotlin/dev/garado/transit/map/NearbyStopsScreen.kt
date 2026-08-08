@@ -6,16 +6,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.SealedLightActivity
-import com.thelightphone.sdk.SimpleLightScreen
 import com.thelightphone.sdk.buildDatabase
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightIcons
@@ -28,24 +25,18 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
-import dev.garado.transit.api.models.StopDeparture
 import dev.garado.transit.api.models.TripStop
-import dev.garado.transit.api.transit.TransitApiPlanProvider
 
-// TODO
-private val DEMO_LOCATION = LatLon(lat = 37.8288, lon = -122.2673)
+class NearbyStopsScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, NearbyStopsViewModel>(sealedActivity) {
 
-private enum class NearbyStopsViewMode { MAP, LIST }
-
-class NearbyStopsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Unit>(sealedActivity) {
+    override val viewModelClass = NearbyStopsViewModel::class.java
+    override fun createViewModel() = NearbyStopsViewModel(lightContext)
 
     @Composable
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
-        val transitApiProvider = remember { TransitApiPlanProvider(lightContext) }
-        var stops by remember { mutableStateOf<List<TripStop>>(emptyList()) }
-        var departuresByStop by remember { mutableStateOf<Map<String, List<StopDeparture>>>(emptyMap()) }
-        var viewMode by remember { mutableStateOf(NearbyStopsViewMode.MAP) }
+        val stops by viewModel.stops.collectAsState()
+        val viewMode by viewModel.viewMode.collectAsState()
 
         val tileCacheDatabase = remember {
             lightContext.buildDatabase(TileCacheDatabase::class.java, "tile_cache.db")
@@ -58,28 +49,20 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen
             }
         }
 
-        LaunchedEffect(Unit) {
-            val nearby = transitApiProvider.nearbyStops(DEMO_LOCATION.lat, DEMO_LOCATION.lon)
-            stops = nearby
-            departuresByStop = transitApiProvider.departures(nearby.map { it.globalStopId })
-        }
-
         val markerColor = LightThemeTokens.colors.content
         val markers = remember(stops, markerColor) {
             stops.map { stop ->
                 MapOverlay.Marker(
                     point = LatLon(lat = stop.lat, lon = stop.lon),
                     color = markerColor,
-                    id = stop.globalStopId
+                    id = stop.globalStopId,
                 )
             }
         }
         val fitBounds = remember(stops) { stops.map { LatLon(lat = it.lat, lon = it.lon) }.boundingBox() }
 
         fun onStopSelected(stop: TripStop) {
-            navigateTo({ activity ->
-                StopDeparturesScreen(activity, stop.name, departuresByStop[stop.globalStopId] ?: emptyList())
-            })
+            navigateTo({ activity -> StopDeparturesScreen(activity, stop.name, viewModel.departuresFor(stop)) })
         }
 
         LightTheme(colors = themeColors) {
@@ -94,12 +77,7 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen
                     rightButton = LightBarButton.LightIcon(
                         icon = if (viewMode == NearbyStopsViewMode.MAP) LightIcons.LIST else LightIcons.MAP,
                         sizeUnits = 1.5f,
-                        onClick = {
-                            viewMode = when (viewMode) {
-                                NearbyStopsViewMode.MAP -> NearbyStopsViewMode.LIST
-                                NearbyStopsViewMode.LIST -> NearbyStopsViewMode.MAP
-                            }
-                        },
+                        onClick = { viewModel.toggleViewMode() },
                     ),
                 )
 
