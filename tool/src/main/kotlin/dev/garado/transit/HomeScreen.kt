@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.thelightphone.sdk.InitialScreen
@@ -26,11 +29,14 @@ import dev.garado.transit.search.DepartureTimeScreen
 import dev.garado.transit.search.LocationSearchScreen
 import dev.garado.transit.search.SearchTabContent
 import dev.garado.transit.settings.ApiSettingsScreen
+import dev.garado.transit.settings.DeveloperSettingsScreen
 import dev.garado.transit.settings.NameEditor
 import dev.garado.transit.settings.SavedLocationsScreen
 import dev.garado.transit.settings.SettingsTabContent
 
 enum class HomeTab { SEARCH, SETTINGS }
+
+private const val DEVELOPER_SETTINGS_TAP_THRESHOLD = 3
 
 @InitialScreen
 class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeScreenViewModel>(sealedActivity) {
@@ -56,6 +62,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
         val isEditingName by viewModel.settings.isEditingName.collectAsState()
         val editSessionId by viewModel.settings.editSessionId.collectAsState()
         val themeColors by LightThemeController.colors.collectAsState()
+        var settingsTapCount by remember { mutableStateOf(0) }
 
         LightTheme(colors = themeColors) {
             if (isEditingName) {
@@ -81,7 +88,16 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                                 icon = LightIcons.BACK,
                                 onClick = { viewModel.selectTab(HomeTab.SEARCH) },
                             ),
-                            center = LightTopBarCenter.Text("Settings"),
+                            center = LightTopBarCenter.Text(
+                                text = "Settings",
+                                onClick = {
+                                    settingsTapCount++
+                                    if (settingsTapCount >= DEVELOPER_SETTINGS_TAP_THRESHOLD) {
+                                        settingsTapCount = 0
+                                        navigateTo(::DeveloperSettingsScreen)
+                                    }
+                                },
+                            ),
                         )
                     }
 
