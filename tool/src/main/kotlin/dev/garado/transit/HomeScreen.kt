@@ -22,6 +22,7 @@ import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
+import dev.garado.transit.gtfs.GtfsManagerScreen
 import dev.garado.transit.map.MapMenuScreen
 import dev.garado.transit.route.RouteSelectScreen
 import dev.garado.transit.search.DepartureSelection
@@ -134,6 +135,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                                 onAboutClick = { navigateTo(::AboutScreen) },
                                 onSavedLocationsClick = { navigateTo(::SavedLocationsScreen) },
                                 onApiSettingsClick = { navigateTo(::ApiSettingsScreen) },
+                                onGtfsManagerClick = { navigateTo(::GtfsManagerScreen) },
                                 onEditName = { viewModel.settings.startEditingName() },
                             )
                         }

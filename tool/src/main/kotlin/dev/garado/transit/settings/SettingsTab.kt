@@ -60,6 +60,7 @@ fun SettingsTabContent(
     onAboutClick: () -> Unit,
     onSavedLocationsClick: () -> Unit,
     onApiSettingsClick: () -> Unit,
+    onGtfsManagerClick: () -> Unit,
     onEditName: () -> Unit,
 ) {
     LazyColumn {
@@ -81,6 +82,13 @@ fun SettingsTabContent(
             SettingsNavigationRow(
                 label = "API Settings",
                 onClick = onApiSettingsClick,
+            )
+        }
+
+        item {
+            SettingsNavigationRow(
+                label = "Download route data",
+                onClick = onGtfsManagerClick,
             )
         }
 
