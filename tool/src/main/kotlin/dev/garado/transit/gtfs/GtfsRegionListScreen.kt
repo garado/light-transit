@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.SealedLightActivity
@@ -48,33 +49,15 @@ class GtfsRegionListScreen(sealedActivity: SealedLightActivity) :
                     .fillMaxSize()
                     .background(LightThemeTokens.colors.background),
             ) {
-                Box {
-                    LightTopBar(
-                        leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
-                        center = LightTopBarCenter.Text(if (isRefreshing) "Refreshing..." else "Browse Sources"),
-                    )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.align(Alignment.CenterEnd).padding(end = 8.dp),
-                    ) {
-                        LightIcon(
-                            icon = LightIcons.REFRESH,
-                            size = 1.25f,
-                            modifier = Modifier.lightClickable(onClick = { viewModel.refresh() }),
-                        )
-                        LightIcon(
-                            icon = LightIcons.DOWNLOAD_ARROW,
-                            size = 1.25f,
-                            modifier = Modifier
-                                .padding(start = 12.dp)
-                                .lightClickable(onClick = {
-                                    navigateTo({ activity ->
-                                        GtfsBulkAddConfirmScreen(activity, allVisible)
-                                    }) { datasets -> goBack(datasets) }
-                                }),
-                        )
-                    }
-                }
+                LightTopBar(
+                    leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
+                    center = LightTopBarCenter.Text(if (isRefreshing) "Refreshing..." else "Browse Sources"),
+                    rightButton = LightBarButton.LightIcon(
+                        icon = LightIcons.REFRESH,
+                        onClick = { viewModel.refresh() },
+                        sizeUnits = 1.25f,
+                    ),
+                )
 
                 when {
                     isLoading -> CenteredMessage(text = "Loading...", modifier = Modifier.weight(1f))
@@ -82,18 +65,34 @@ class GtfsRegionListScreen(sealedActivity: SealedLightActivity) :
                         text = "Failed to load sources",
                         modifier = Modifier.weight(1f),
                     )
-                    else -> LightScrollView(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
-                        datasetsByRegion.forEach { (regionCode, datasets) ->
-                            RegionRow(
-                                regionCode = regionCode,
-                                count = datasets.size,
-                                onClick = {
-                                    navigateTo({ activity ->
-                                        GtfsDatasetListScreen(activity, regionCode, datasets)
-                                    }) { picked -> goBack(picked) }
-                                },
-                            )
+                    else -> {
+                        LightScrollView(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
+                            datasetsByRegion.forEach { (regionCode, datasets) ->
+                                RegionRow(
+                                    regionCode = regionCode,
+                                    count = datasets.size,
+                                    onClick = {
+                                        navigateTo({ activity ->
+                                            GtfsDatasetListScreen(activity, regionCode, datasets)
+                                        }) { picked -> goBack(picked) }
+                                    },
+                                )
+                            }
                         }
+
+                        LightText(
+                            text = "ADD SHOWN",
+                            variant = LightTextVariant.Button,
+                            align = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 32.dp, vertical = 16.dp)
+                                .lightClickable(onClick = {
+                                    navigateTo({ activity ->
+                                        GtfsBulkAddConfirmScreen(activity, allVisible)
+                                    }) { datasets -> goBack(datasets) }
+                                }),
+                        )
                     }
                 }
             }

@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.SimpleLightScreen
@@ -43,15 +44,6 @@ class GtfsDatasetListScreen(
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
                     center = LightTopBarCenter.Text(regionCode.uppercase()),
-                    rightButton = LightBarButton.LightIcon(
-                        icon = LightIcons.DOWNLOAD_ARROW,
-                        sizeUnits = 1.25f,
-                        onClick = {
-                            navigateTo({ activity ->
-                                GtfsBulkAddConfirmScreen(activity, datasets)
-                            }) { picked -> goBack(picked) }
-                        },
-                    ),
                 )
 
                 LightScrollView(modifier = Modifier.weight(1f).padding(horizontal = 16.dp)) {
@@ -74,6 +66,20 @@ class GtfsDatasetListScreen(
                         }
                     }
                 }
+
+                LightText(
+                    text = "ADD SHOWN",
+                    variant = LightTextVariant.Button,
+                    align = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp, vertical = 16.dp)
+                        .lightClickable(onClick = {
+                            navigateTo({ activity ->
+                                GtfsBulkAddConfirmScreen(activity, datasets)
+                            }) { picked -> goBack(picked) }
+                        }),
+                )
             }
         }
     }
