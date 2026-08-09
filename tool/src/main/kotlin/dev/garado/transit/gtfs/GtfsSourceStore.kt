@@ -18,6 +18,10 @@ internal class GtfsSourceStore(database: GtfsSourceDatabase) {
     suspend fun delete(source: GtfsSource) {
         dao.deleteById(source.id)
     }
+
+    suspend fun deleteAll(sources: List<GtfsSource>) {
+        dao.deleteByIds(sources.map { it.id })
+    }
 }
 
 private fun GtfsSourceEntity.toGtfsSource() = GtfsSource(id = id, key = key, regionCode = regionCode, path = path)

@@ -18,7 +18,7 @@ class GtfsManagerViewModel(lightContext: SealedLightContext) : LightViewModel<Un
         viewModelScope.launch { datasets.forEach { store.add(it) } }
     }
 
-    fun delete(source: GtfsSource) {
-        viewModelScope.launch { store.delete(source) }
+    fun deleteAll(sources: List<GtfsSource>) {
+        viewModelScope.launch { store.deleteAll(sources) }
     }
 }

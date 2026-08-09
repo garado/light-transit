@@ -32,6 +32,9 @@ internal interface GtfsSourceDao {
 
     @Query("DELETE FROM gtfs_sources WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("DELETE FROM gtfs_sources WHERE id IN (:ids)")
+    suspend fun deleteByIds(ids: List<Long>)
 }
 
 @Database(entities = [GtfsSourceEntity::class], version = 1, exportSchema = false)

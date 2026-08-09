@@ -13,13 +13,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.SealedLightActivity
+import com.thelightphone.sdk.SimpleLightScreen
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightIcon
 import com.thelightphone.sdk.ui.LightIcons
@@ -33,25 +34,29 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
+import kotlinx.coroutines.launch
 
-class GtfsManagerScreen(sealedActivity: SealedLightActivity) :
-    LightScreen<Unit, GtfsManagerViewModel>(sealedActivity) {
-
-    override val viewModelClass = GtfsManagerViewModel::class.java
-    override fun createViewModel() = GtfsManagerViewModel(lightContext)
+/** Sub-regions of saved sources within one country, mirrors GtfsRegionListScreen. */
+class GtfsManagerRegionListScreen(
+    sealedActivity: SealedLightActivity,
+    private val countryCode: String,
+) : SimpleLightScreen<Unit>(sealedActivity) {
 
     @Composable
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
-        val sources by viewModel.sources.collectAsState()
+        val store = remember { GtfsSourceStore(GtfsSourceDatabaseHolder.get(lightContext)) }
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
+        val scope = rememberCoroutineScope()
+        val sources by store.all.collectAsState(initial = emptyList())
         var isEditing by remember { mutableStateOf(false) }
 
-        val byCountry = remember(sources) {
+        val byRegion = remember(sources) {
             sources
-                .groupBy { it.regionCode.substringBefore("-") }
+                .filter { it.regionCode.substringBefore("-") == countryCode }
+                .groupBy { it.regionCode }
                 .toList()
-                .sortedBy { (countryCode, _) -> displayNames.countryName(countryCode) }
+                .sortedBy { (regionCode, _) -> displayNames.regionName(regionCode) }
         }
 
         LightTheme(colors = themeColors) {
@@ -62,48 +67,26 @@ class GtfsManagerScreen(sealedActivity: SealedLightActivity) :
             ) {
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
-                    center = LightTopBarCenter.Text("Route data"),
-                    rightButton = LightBarButton.LightIcon(
-                        icon = LightIcons.ADD,
-                        onClick = {
-                            navigateTo(::GtfsCountryListScreen) { datasets -> viewModel.addAll(datasets) }
-                        },
-                        sizeUnits = 1.5f,
-                    ),
+                    center = LightTopBarCenter.Text(displayNames.countryName(countryCode)),
                 )
 
-                if (byCountry.isEmpty()) {
-                    Box(modifier = Modifier.weight(1f).fillMaxSize(), contentAlignment = Alignment.Center) {
-                        LightText(
-                            text = "No sources added",
-                            variant = LightTextVariant.Paragraph,
-                            lighten = true,
+                LightScrollView(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
+                    byRegion.forEach { (regionCode, srcs) ->
+                        RegionRow(
+                            regionName = displayNames.regionName(regionCode),
+                            count = srcs.size,
+                            isEditing = isEditing,
+                            onDeleteClick = { scope.launch { store.deleteAll(srcs) } },
+                            onClick = {
+                                navigateTo({ activity ->
+                                    GtfsManagerSourceListScreen(activity, countryCode, regionCode)
+                                })
+                            },
                         )
                     }
-                } else {
-                    LightScrollView(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
-                        byCountry.forEach { (countryCode, srcs) ->
-                            val regionCodes = srcs.map { it.regionCode }.distinct()
-                            CountryRow(
-                                countryName = displayNames.countryName(countryCode),
-                                count = srcs.size,
-                                isEditing = isEditing,
-                                onDeleteClick = { viewModel.deleteAll(srcs) },
-                                onClick = {
-                                    if (regionCodes.size == 1) {
-                                        navigateTo({ activity ->
-                                            GtfsManagerSourceListScreen(activity, countryCode, regionCodes.first())
-                                        })
-                                    } else {
-                                        navigateTo({ activity ->
-                                            GtfsManagerRegionListScreen(activity, countryCode)
-                                        })
-                                    }
-                                },
-                            )
-                        }
-                    }
+                }
 
+                if (byRegion.isNotEmpty()) {
                     LightText(
                         text = if (isEditing) "DONE" else "EDIT",
                         variant = LightTextVariant.Button,
@@ -123,8 +106,8 @@ private val DELETE_ICON_SIZE_UNITS = 1.25f
 private val DELETE_ICON_GAP = 8.dp
 
 @Composable
-private fun CountryRow(
-    countryName: String,
+private fun RegionRow(
+    regionName: String,
     count: Int,
     isEditing: Boolean,
     onDeleteClick: () -> Unit,
@@ -150,7 +133,7 @@ private fun CountryRow(
             }
         }
         Column(modifier = Modifier.weight(1f)) {
-            LightText(text = countryName, variant = LightTextVariant.Copy)
+            LightText(text = regionName, variant = LightTextVariant.Copy)
             LightText(
                 text = "$count source${if (count == 1) "" else "s"}",
                 variant = LightTextVariant.Detail,
