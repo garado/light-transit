@@ -43,11 +43,13 @@ class GtfsCountryListScreen(sealedActivity: SealedLightActivity) :
         val isLoading by viewModel.isLoading.collectAsState()
         val isRefreshing by viewModel.isRefreshing.collectAsState()
 
+        val displayNames = remember { GtfsDisplayNames.get(lightContext) }
         val regionsByCountry = remember(datasetsByRegion) {
             datasetsByRegion.entries
                 .groupBy({ it.key.substringBefore("-") }, { it.key to it.value })
                 .mapValues { (_, pairs) -> pairs.toMap() }
-                .toSortedMap()
+                .toList()
+                .sortedBy { (countryCode, _) -> displayNames.countryName(countryCode) }
         }
         val allVisible = datasetsByRegion.values.flatten()
 
@@ -78,6 +80,7 @@ class GtfsCountryListScreen(sealedActivity: SealedLightActivity) :
                             regionsByCountry.forEach { (countryCode, regions) ->
                                 CountryRow(
                                     countryCode = countryCode,
+                                    countryName = displayNames.countryName(countryCode),
                                     count = regions.values.sumOf { it.size },
                                     onClick = {
                                         if (regions.size == 1) {
@@ -123,7 +126,7 @@ private fun CenteredMessage(text: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun CountryRow(countryCode: String, count: Int, onClick: () -> Unit) {
+private fun CountryRow(countryCode: String, countryName: String, count: Int, onClick: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -132,7 +135,7 @@ private fun CountryRow(countryCode: String, count: Int, onClick: () -> Unit) {
             .padding(vertical = 12.dp, horizontal = 16.dp),
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            LightText(text = countryCode.uppercase(), variant = LightTextVariant.Copy)
+            LightText(text = countryName, variant = LightTextVariant.Copy)
             LightText(
                 text = "$count source${if (count == 1) "" else "s"}",
                 variant = LightTextVariant.Detail,

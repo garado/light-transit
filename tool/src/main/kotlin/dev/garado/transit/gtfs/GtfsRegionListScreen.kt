@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -38,6 +39,7 @@ class GtfsRegionListScreen(
     @Composable
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
+        val displayNames = remember { GtfsDisplayNames.get(lightContext) }
         val allVisible = regions.values.flatten()
 
         LightTheme(colors = themeColors) {
@@ -48,13 +50,13 @@ class GtfsRegionListScreen(
             ) {
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
-                    center = LightTopBarCenter.Text(countryCode.uppercase()),
+                    center = LightTopBarCenter.Text(displayNames.countryName(countryCode)),
                 )
 
                 LightScrollView(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
-                    regions.forEach { (regionCode, datasets) ->
+                    regions.entries.sortedBy { (regionCode, _) -> displayNames.regionName(regionCode) }.forEach { (regionCode, datasets) ->
                         RegionRow(
-                            regionCode = regionCode,
+                            regionName = displayNames.regionName(regionCode),
                             count = datasets.size,
                             onClick = {
                                 navigateTo({ activity ->
@@ -84,7 +86,7 @@ class GtfsRegionListScreen(
 }
 
 @Composable
-private fun RegionRow(regionCode: String, count: Int, onClick: () -> Unit) {
+private fun RegionRow(regionName: String, count: Int, onClick: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -93,7 +95,7 @@ private fun RegionRow(regionCode: String, count: Int, onClick: () -> Unit) {
             .padding(vertical = 12.dp, horizontal = 16.dp),
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            LightText(text = regionCode.uppercase(), variant = LightTextVariant.Copy)
+            LightText(text = regionName, variant = LightTextVariant.Copy)
             LightText(
                 text = "$count source${if (count == 1) "" else "s"}",
                 variant = LightTextVariant.Detail,
