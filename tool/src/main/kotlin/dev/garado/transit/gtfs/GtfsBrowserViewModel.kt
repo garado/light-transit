@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 class GtfsBrowserViewModel(
     lightContext: SealedLightContext,
     private val fetcher: TransitousFeedFetcher = TransitousFeedFetcher(),
-) : LightViewModel<GtfsDataset>() {
+) : LightViewModel<List<GtfsDataset>>() {
     private val cache = TransitousCatalogCache(lightContext.dataStore)
 
     private val _datasetsByRegion = MutableStateFlow<Map<String, List<GtfsDataset>>>(emptyMap())
@@ -28,9 +28,10 @@ class GtfsBrowserViewModel(
 
     init {
         viewModelScope.launch {
-            val cached = cache.cachedYaml.first()
+            val cached = cache.cached.first()
             if (cached != null) {
-                applyYaml(cached)
+                val (yaml, index) = cached
+                applyYaml(yaml, index)
                 _isLoading.value = false
             } else {
                 refresh()
@@ -42,16 +43,17 @@ class GtfsBrowserViewModel(
         viewModelScope.launch {
             _isRefreshing.value = true
             val yaml = fetcher.fetchRawConfig()
-            if (yaml != null) {
-                applyYaml(yaml)
-                cache.save(yaml)
+            val index = fetcher.fetchRawIndex()
+            if (yaml != null && index != null) {
+                applyYaml(yaml, index)
+                cache.save(yaml, index)
             }
             _isLoading.value = false
             _isRefreshing.value = false
         }
     }
 
-    private fun applyYaml(yaml: String) {
-        _datasetsByRegion.value = fetcher.parseDatasets(yaml).groupBy { it.regionCode }.toSortedMap()
+    private fun applyYaml(yaml: String, index: String) {
+        _datasetsByRegion.value = fetcher.parseDatasets(yaml, index).groupBy { it.regionCode }.toSortedMap()
     }
 }

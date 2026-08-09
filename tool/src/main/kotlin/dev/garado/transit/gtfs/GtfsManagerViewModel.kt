@@ -14,8 +14,8 @@ class GtfsManagerViewModel(lightContext: SealedLightContext) : LightViewModel<Un
     val sources: StateFlow<List<GtfsSource>> =
         store.all.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    fun add(dataset: GtfsDataset) {
-        viewModelScope.launch { store.add(dataset) }
+    fun addAll(datasets: List<GtfsDataset>) {
+        viewModelScope.launch { datasets.forEach { store.add(it) } }
     }
 
     fun delete(source: GtfsSource) {

@@ -29,7 +29,7 @@ import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 
 class GtfsRegionListScreen(sealedActivity: SealedLightActivity) :
-    LightScreen<GtfsDataset, GtfsBrowserViewModel>(sealedActivity) {
+    LightScreen<List<GtfsDataset>, GtfsBrowserViewModel>(sealedActivity) {
 
     override val viewModelClass = GtfsBrowserViewModel::class.java
     override fun createViewModel() = GtfsBrowserViewModel(lightContext)
@@ -40,6 +40,7 @@ class GtfsRegionListScreen(sealedActivity: SealedLightActivity) :
         val datasetsByRegion by viewModel.datasetsByRegion.collectAsState()
         val isLoading by viewModel.isLoading.collectAsState()
         val isRefreshing by viewModel.isRefreshing.collectAsState()
+        val allVisible = datasetsByRegion.values.flatten()
 
         LightTheme(colors = themeColors) {
             Column(
@@ -47,15 +48,33 @@ class GtfsRegionListScreen(sealedActivity: SealedLightActivity) :
                     .fillMaxSize()
                     .background(LightThemeTokens.colors.background),
             ) {
-                LightTopBar(
-                    leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
-                    center = LightTopBarCenter.Text(if (isRefreshing) "Refreshing..." else "Browse Sources"),
-                    rightButton = LightBarButton.LightIcon(
-                        icon = LightIcons.REFRESH,
-                        onClick = { viewModel.refresh() },
-                        sizeUnits = 1.25f,
-                    ),
-                )
+                Box {
+                    LightTopBar(
+                        leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
+                        center = LightTopBarCenter.Text(if (isRefreshing) "Refreshing..." else "Browse Sources"),
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.align(Alignment.CenterEnd).padding(end = 8.dp),
+                    ) {
+                        LightIcon(
+                            icon = LightIcons.REFRESH,
+                            size = 1.25f,
+                            modifier = Modifier.lightClickable(onClick = { viewModel.refresh() }),
+                        )
+                        LightIcon(
+                            icon = LightIcons.DOWNLOAD_ARROW,
+                            size = 1.25f,
+                            modifier = Modifier
+                                .padding(start = 12.dp)
+                                .lightClickable(onClick = {
+                                    navigateTo({ activity ->
+                                        GtfsBulkAddConfirmScreen(activity, allVisible)
+                                    }) { datasets -> goBack(datasets) }
+                                }),
+                        )
+                    }
+                }
 
                 when {
                     isLoading -> CenteredMessage(text = "Loading...", modifier = Modifier.weight(1f))
@@ -71,7 +90,7 @@ class GtfsRegionListScreen(sealedActivity: SealedLightActivity) :
                                 onClick = {
                                     navigateTo({ activity ->
                                         GtfsDatasetListScreen(activity, regionCode, datasets)
-                                    }) { dataset -> goBack(dataset) }
+                                    }) { picked -> goBack(picked) }
                                 },
                             )
                         }

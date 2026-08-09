@@ -53,7 +53,7 @@ class GtfsManagerScreen(sealedActivity: SealedLightActivity) :
                 onBack = { goBack() },
                 onEditClick = { isEditing = !isEditing },
                 onAddClick = {
-                    navigateTo(::GtfsRegionListScreen) { dataset -> viewModel.add(dataset) }
+                    navigateTo(::GtfsRegionListScreen) { datasets -> viewModel.addAll(datasets) }
                 },
                 onDeleteClick = { source -> viewModel.delete(source) },
             )
