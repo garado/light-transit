@@ -82,6 +82,7 @@ dependencies {
     implementation(libs.ktor.serialization.json)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation("org.yaml:snakeyaml:2.2")
     testImplementation(libs.kotlin.test)
     ksp(libs.androidx.room.compiler)
 }
