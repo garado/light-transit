@@ -1,7 +1,6 @@
 package dev.garado.transit.gtfs
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,8 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.SealedLightActivity
+import com.thelightphone.sdk.SimpleLightScreen
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightIcon
 import com.thelightphone.sdk.ui.LightIcons
@@ -29,19 +28,17 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 
-class GtfsRegionListScreen(sealedActivity: SealedLightActivity) :
-    LightScreen<List<GtfsDataset>, GtfsBrowserViewModel>(sealedActivity) {
-
-    override val viewModelClass = GtfsBrowserViewModel::class.java
-    override fun createViewModel() = GtfsBrowserViewModel(lightContext)
+/** Sub-regions within one country (only shown when that country has more than one region code). */
+class GtfsRegionListScreen(
+    sealedActivity: SealedLightActivity,
+    private val countryCode: String,
+    private val regions: Map<String, List<GtfsDataset>>,
+) : SimpleLightScreen<List<GtfsDataset>>(sealedActivity) {
 
     @Composable
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
-        val datasetsByRegion by viewModel.datasetsByRegion.collectAsState()
-        val isLoading by viewModel.isLoading.collectAsState()
-        val isRefreshing by viewModel.isRefreshing.collectAsState()
-        val allVisible = datasetsByRegion.values.flatten()
+        val allVisible = regions.values.flatten()
 
         LightTheme(colors = themeColors) {
             Column(
@@ -51,59 +48,38 @@ class GtfsRegionListScreen(sealedActivity: SealedLightActivity) :
             ) {
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
-                    center = LightTopBarCenter.Text(if (isRefreshing) "Refreshing..." else "Browse Sources"),
-                    rightButton = LightBarButton.LightIcon(
-                        icon = LightIcons.REFRESH,
-                        onClick = { viewModel.refresh() },
-                        sizeUnits = 1.25f,
-                    ),
+                    center = LightTopBarCenter.Text(countryCode.uppercase()),
                 )
 
-                when {
-                    isLoading -> CenteredMessage(text = "Loading...", modifier = Modifier.weight(1f))
-                    datasetsByRegion.isEmpty() -> CenteredMessage(
-                        text = "Failed to load sources",
-                        modifier = Modifier.weight(1f),
-                    )
-                    else -> {
-                        LightScrollView(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
-                            datasetsByRegion.forEach { (regionCode, datasets) ->
-                                RegionRow(
-                                    regionCode = regionCode,
-                                    count = datasets.size,
-                                    onClick = {
-                                        navigateTo({ activity ->
-                                            GtfsDatasetListScreen(activity, regionCode, datasets)
-                                        }) { picked -> goBack(picked) }
-                                    },
-                                )
-                            }
-                        }
-
-                        LightText(
-                            text = "ADD SHOWN",
-                            variant = LightTextVariant.Button,
-                            align = TextAlign.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 32.dp, vertical = 16.dp)
-                                .lightClickable(onClick = {
-                                    navigateTo({ activity ->
-                                        GtfsBulkAddConfirmScreen(activity, allVisible)
-                                    }) { datasets -> goBack(datasets) }
-                                }),
+                LightScrollView(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
+                    regions.forEach { (regionCode, datasets) ->
+                        RegionRow(
+                            regionCode = regionCode,
+                            count = datasets.size,
+                            onClick = {
+                                navigateTo({ activity ->
+                                    GtfsDatasetListScreen(activity, regionCode, datasets)
+                                }) { picked -> goBack(picked) }
+                            },
                         )
                     }
                 }
+
+                LightText(
+                    text = "ADD SHOWN",
+                    variant = LightTextVariant.Button,
+                    align = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp, vertical = 16.dp)
+                        .lightClickable(onClick = {
+                            navigateTo({ activity ->
+                                GtfsBulkAddConfirmScreen(activity, allVisible)
+                            }) { datasets -> goBack(datasets) }
+                        }),
+                )
             }
         }
-    }
-}
-
-@Composable
-private fun CenteredMessage(text: String, modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.Center) {
-        LightText(text = text, variant = LightTextVariant.Paragraph, lighten = true)
     }
 }
 
