@@ -30,6 +30,8 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.api.transit.MockTransitApiSettings
+import dev.garado.transit.gtfs.GtfsClearCacheConfirmScreen
+import dev.garado.transit.gtfs.clearGtfsDownloadCache
 import kotlinx.coroutines.launch
 
 class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Unit>(sealedActivity) {
@@ -70,6 +72,17 @@ class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLight
                         },
                         modifier = Modifier.padding(top = 12.dp),
                     )
+                    DevActionRow(
+                        label = "Clear GTFS cache and downloads",
+                        onClick = {
+                            navigateTo(::GtfsClearCacheConfirmScreen) { confirmed ->
+                                if (confirmed) {
+                                    coroutineScope.launch { clearGtfsDownloadCache(lightContext) }
+                                }
+                            }
+                        },
+                        modifier = Modifier.padding(top = 12.dp),
+                    )
                 }
             }
         }
@@ -88,6 +101,18 @@ private fun DevToggleRow(label: String, enabled: Boolean, onClick: () -> Unit, m
             icon = if (enabled) LightIcons.TOGGLE_STATE_ON else LightIcons.TOGGLE_STATE_OFF,
             modifier = Modifier.padding(end = 16.dp),
         )
+        LightText(text = label, variant = LightTextVariant.Copy)
+    }
+}
+
+@Composable
+private fun DevActionRow(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .lightClickable(onClick = onClick),
+    ) {
         LightText(text = label, variant = LightTextVariant.Copy)
     }
 }

@@ -9,12 +9,13 @@ enum class GtfsSourceDownloadState {
     /** What to show next to a source in this state, or null to show nothing */
     val statusLabel: String?
         get() = when (this) {
-            NOT_DOWNLOADED, DOWNLOADED -> null
+            NOT_DOWNLOADED -> "Not downloaded - tap to download"
+            DOWNLOADED -> null
             DOWNLOADING -> "Downloading..."
-            FAILED -> "Download failed — tap to retry"
+            FAILED -> "Download failed - tap to retry"
         }
 
-    val isRetryable: Boolean get() = this == FAILED
+    val isRetryable: Boolean get() = this == FAILED || this == NOT_DOWNLOADED
 }
 
 data class GtfsSource(

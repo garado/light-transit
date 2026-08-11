@@ -39,6 +39,9 @@ internal interface GtfsSourceDao {
 
     @Query("UPDATE gtfs_sources SET download_state = :state WHERE id = :id")
     suspend fun updateDownloadState(id: Long, state: String)
+
+    @Query("UPDATE gtfs_sources SET download_state = :state")
+    suspend fun resetAllDownloadStates(state: String)
 }
 
 @Database(entities = [GtfsSourceEntity::class], version = 2, exportSchema = false)
