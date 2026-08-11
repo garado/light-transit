@@ -81,6 +81,7 @@ class GtfsManagerSourceListScreen(
                         sources.forEach { source ->
                             GtfsSourceRow(
                                 source = source,
+                                displayName = displayNames.agencyName(source.key),
                                 isEditing = isEditing,
                                 onDeleteClick = { scope.launch { store.delete(source) } },
                             )
@@ -106,7 +107,7 @@ private val DELETE_ICON_SIZE_UNITS = 1.25f
 private val DELETE_ICON_GAP = 8.dp
 
 @Composable
-private fun GtfsSourceRow(source: GtfsSource, isEditing: Boolean, onDeleteClick: () -> Unit) {
+private fun GtfsSourceRow(source: GtfsSource, displayName: String, isEditing: Boolean, onDeleteClick: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
@@ -123,6 +124,6 @@ private fun GtfsSourceRow(source: GtfsSource, isEditing: Boolean, onDeleteClick:
                 )
             }
         }
-        LightText(text = source.key, variant = LightTextVariant.Copy)
+        LightText(text = displayName, variant = LightTextVariant.Copy)
     }
 }

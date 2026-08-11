@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,7 @@ class GtfsDatasetListScreen(
     @Composable
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
+        val displayNames = remember { GtfsDisplayNames.get(lightContext) }
 
         LightTheme(colors = themeColors) {
             Column(
@@ -43,7 +45,7 @@ class GtfsDatasetListScreen(
             ) {
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
-                    center = LightTopBarCenter.Text(regionCode.uppercase()),
+                    center = LightTopBarCenter.Text(displayNames.regionName(regionCode)),
                 )
 
                 LightScrollView(modifier = Modifier.weight(1f).padding(horizontal = 16.dp)) {
@@ -54,7 +56,7 @@ class GtfsDatasetListScreen(
                                 .lightClickable(onClick = { goBack(listOf(dataset)) })
                                 .padding(vertical = 12.dp),
                         ) {
-                            LightText(text = dataset.key, variant = LightTextVariant.Copy)
+                            LightText(text = displayNames.agencyName(dataset.key), variant = LightTextVariant.Copy)
                             if (dataset.sizeBytes != null) {
                                 LightText(
                                     text = formatFileSize(dataset.sizeBytes),

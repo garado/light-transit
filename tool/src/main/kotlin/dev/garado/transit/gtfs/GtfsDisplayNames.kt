@@ -10,10 +10,13 @@ private const val ASSET_PATH = "gtfs-to-human-readable.yaml"
 class GtfsDisplayNames private constructor(
     private val countryNames: Map<String, String>,
     private val regionNames: Map<String, String>,
+    private val agencyNames: Map<String, String>,
 ) {
     fun countryName(code: String): String = countryNames[code.uppercase()] ?: code.uppercase()
 
     fun regionName(code: String): String = regionNames[code.lowercase()] ?: code.uppercase()
+
+    fun agencyName(key: String): String = agencyNames[key] ?: key
 
     companion object {
         @Volatile
@@ -34,7 +37,8 @@ class GtfsDisplayNames private constructor(
             }
             val country = (yaml?.get("country") as? Map<String, String>).orEmpty()
             val region = (yaml?.get("region") as? Map<String, String>).orEmpty()
-            return GtfsDisplayNames(country, region)
+            val agency = (yaml?.get("agency") as? Map<String, String>).orEmpty()
+            return GtfsDisplayNames(country, region, agency)
         }
     }
 }

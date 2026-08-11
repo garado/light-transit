@@ -302,3 +302,13 @@ region:
   "us-wv": "West Virginia"
   "us-wi": "Wisconsin"
   "us-wy": "Wyoming"
+
+agency:
+  # US - CA
+  "us-ca-Capitolcorridor": "Capitol Corridor"
+  "us-ca-SF-bayarea": "SF Bay Area"
+  "us-ca-Goldengatetransit": "Golden Gate Transit"
+  "us-ca-Caltrain": "Caltrain"
+  "us-ca-Santa-Cruz-Metro": "Santa Cruz Metro"
+  "us-ca-": ""
+  "us-ca-": ""
