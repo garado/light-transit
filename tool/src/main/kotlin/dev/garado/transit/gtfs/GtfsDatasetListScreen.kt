@@ -56,7 +56,10 @@ class GtfsDatasetListScreen(
                                 .lightClickable(onClick = { goBack(listOf(dataset)) })
                                 .padding(vertical = 12.dp),
                         ) {
-                            LightText(text = displayNames.agencyName(dataset.key), variant = LightTextVariant.Copy)
+                            LightText(
+                                text = displayNames.agencyName(dataset.key, dataset.regionCode),
+                                variant = LightTextVariant.Copy,
+                            )
                             if (dataset.sizeBytes != null) {
                                 LightText(
                                     text = formatFileSize(dataset.sizeBytes),

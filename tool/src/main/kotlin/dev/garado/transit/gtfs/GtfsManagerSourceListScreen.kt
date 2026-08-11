@@ -81,7 +81,7 @@ class GtfsManagerSourceListScreen(
                         sources.forEach { source ->
                             GtfsSourceRow(
                                 source = source,
-                                displayName = displayNames.agencyName(source.key),
+                                displayName = displayNames.agencyName(source.key, source.regionCode),
                                 isEditing = isEditing,
                                 onDeleteClick = { scope.launch { store.delete(source) } },
                             )

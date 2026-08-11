@@ -1,4 +1,4 @@
-/** Loads human-readable country/region names from a bundled YAML asset. */
+/** Loads human-readable country/region names from a bundled YAML asset */
 
 package dev.garado.transit.gtfs
 
@@ -16,7 +16,20 @@ class GtfsDisplayNames private constructor(
 
     fun regionName(code: String): String = regionNames[code.lowercase()] ?: code.uppercase()
 
-    fun agencyName(key: String): String = agencyNames[key] ?: key
+    /** fall back to a prettified version of key if not defined in yaml */
+    fun agencyName(key: String, regionCode: String? = null): String {
+        agencyNames[key]?.let { return it }
+        val stripped = if (regionCode != null && key.startsWith("$regionCode-", ignoreCase = true)) {
+            key.substring(regionCode.length + 1)
+        } else {
+            key
+        }
+        return stripped
+            .split('-', '_')
+            .filter { it.isNotBlank() }
+            .joinToString(" ") { word -> word.replaceFirstChar { it.uppercase() } }
+            .ifBlank { key }
+    }
 
     companion object {
         @Volatile
