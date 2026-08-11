@@ -3,16 +3,24 @@ package dev.garado.transit.gtfs
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class GtfsManagerViewModel(lightContext: SealedLightContext) : LightViewModel<Unit>() {
     private val store = GtfsSourceStore(GtfsSourceDatabaseHolder.get(lightContext))
 
-    val sources: StateFlow<List<GtfsSource>> =
-        store.all.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    /** True only until sources below has produced its first result. */
+    private val _hasLoaded = MutableStateFlow(false)
+    val hasLoaded: StateFlow<Boolean> = _hasLoaded.asStateFlow()
+
+    val sources: StateFlow<List<GtfsSource>> = store.all
+        .onEach { _hasLoaded.value = true }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     fun addAll(datasets: List<GtfsDataset>) {
         viewModelScope.launch { datasets.forEach { store.add(it) } }

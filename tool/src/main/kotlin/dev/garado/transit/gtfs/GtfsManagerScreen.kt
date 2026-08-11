@@ -44,6 +44,7 @@ class GtfsManagerScreen(sealedActivity: SealedLightActivity) :
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
         val sources by viewModel.sources.collectAsState()
+        val hasLoaded by viewModel.hasLoaded.collectAsState()
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
         var isEditing by remember { mutableStateOf(false) }
 
@@ -74,11 +75,13 @@ class GtfsManagerScreen(sealedActivity: SealedLightActivity) :
 
                 if (byCountry.isEmpty()) {
                     Box(modifier = Modifier.weight(1f).fillMaxSize(), contentAlignment = Alignment.Center) {
-                        LightText(
-                            text = "No sources added",
-                            variant = LightTextVariant.Paragraph,
-                            lighten = true,
-                        )
+                        if (hasLoaded) {
+                            LightText(
+                                text = "No sources added",
+                                variant = LightTextVariant.Paragraph,
+                                lighten = true,
+                            )
+                        }
                     }
                 } else {
                     LightScrollView(modifier = Modifier.weight(1f).padding(start = 8.dp)) {

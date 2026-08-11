@@ -48,11 +48,11 @@ class GtfsManagerSourceListScreen(
         val store = remember { GtfsSourceStore(GtfsSourceDatabaseHolder.get(lightContext)) }
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
         val scope = rememberCoroutineScope()
-        val allSources by store.all.collectAsState(initial = emptyList())
+        val allSources by store.all.collectAsState(initial = null)
         var isEditing by remember { mutableStateOf(false) }
 
         val sources = remember(allSources) {
-            allSources.filter { it.regionCode == regionCode }
+            allSources?.filter { it.regionCode == regionCode }
         }
 
         LightTheme(colors = themeColors) {
@@ -66,13 +66,15 @@ class GtfsManagerSourceListScreen(
                     center = LightTopBarCenter.Text(displayNames.regionName(regionCode)),
                 )
 
-                if (sources.isEmpty()) {
+                if (sources.isNullOrEmpty()) {
                     Box(modifier = Modifier.weight(1f).fillMaxSize(), contentAlignment = Alignment.Center) {
-                        LightText(
-                            text = "No sources added",
-                            variant = LightTextVariant.Paragraph,
-                            lighten = true,
-                        )
+                        if (sources != null) {
+                            LightText(
+                                text = "No sources added",
+                                variant = LightTextVariant.Paragraph,
+                                lighten = true,
+                            )
+                        }
                     }
                 } else {
                     LightScrollView(modifier = Modifier.weight(1f).padding(start = 8.dp)) {

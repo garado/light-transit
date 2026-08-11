@@ -70,7 +70,8 @@ class GtfsCountryListScreen(sealedActivity: SealedLightActivity) :
                 )
 
                 when {
-                    isLoading -> CenteredMessage(text = "Loading...", modifier = Modifier.weight(1f))
+                    isLoading || (isRefreshing && regionsByCountry.isEmpty()) ->
+                        CenteredMessage(text = "Loading...", modifier = Modifier.weight(1f))
                     regionsByCountry.isEmpty() -> CenteredMessage(
                         text = "Failed to load sources",
                         modifier = Modifier.weight(1f),

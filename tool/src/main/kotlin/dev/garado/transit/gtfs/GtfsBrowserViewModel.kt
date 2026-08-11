@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -21,20 +22,23 @@ class GtfsBrowserViewModel(
 ) : LightViewModel<List<GtfsDataset>>() {
     private val dao = GtfsCatalogDatabaseHolder.get(lightContext).gtfsCatalogDao()
 
+    /** True only until datasetsByRegion below has produced its first (possibly empty) result. */
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
     /**
      * The GTFS source structure is fetched from Transitous as a YAML file.
-     * It's given as a flat list. Parsing it takes a while, so on fetch, this is
+     * It is given as a flat list. Parsing it takes a while, so on fetch, this is
      * parsed and reorganized into a db where feeds are sorted by country -> region.
-     * Future calls read from the DB, unless a refresh is explicitly requested by
-     * the user.
+     * Future calls read from the DB (unless a refresh is explicitly requested by
+     * the user).
+     *
+     * Query db as soon as ViewModel is constructed to (hopefully) load faster.
      */
     val datasetsByRegion: StateFlow<Map<String, List<GtfsDataset>>> = dao.getAll()
         .map { entities -> entities.map { it.toGtfsDataset() }.groupBy { it.regionCode }.toSortedMap() }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
-
-    /** True only while the catalog has never been populated at all. */
-    private val _isLoading = MutableStateFlow(true)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+        .onEach { _isLoading.value = false }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
 
     /** True while a forced refresh (fetch + parse) is in flight. */
     private val _isRefreshing = MutableStateFlow(false)
@@ -42,11 +46,7 @@ class GtfsBrowserViewModel(
 
     init {
         viewModelScope.launch {
-            if (dao.count() == 0) {
-                refresh()
-            } else {
-                _isLoading.value = false
-            }
+            if (dao.count() == 0) refresh()
         }
     }
 
@@ -62,7 +62,6 @@ class GtfsBrowserViewModel(
                 val datasets = withContext(Dispatchers.Default) { fetcher.parseDatasets(yaml, index) }
                 dao.replaceAll(datasets.map { it.toEntity() })
             }
-            _isLoading.value = false
             _isRefreshing.value = false
         }
     }
