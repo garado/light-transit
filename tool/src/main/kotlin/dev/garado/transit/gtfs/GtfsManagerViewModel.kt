@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class GtfsManagerViewModel(lightContext: SealedLightContext) : LightViewModel<Unit>() {
-    private val store = GtfsSourceStore(GtfsSourceDatabaseHolder.get(lightContext))
+    private val store = GtfsSourceStore(GtfsSourceDatabaseHolder.get(lightContext), lightContext.filesDir)
 
     /** True only until sources below has produced its first result. */
     private val _hasLoaded = MutableStateFlow(false)
@@ -22,6 +22,7 @@ class GtfsManagerViewModel(lightContext: SealedLightContext) : LightViewModel<Un
         .onEach { _hasLoaded.value = true }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    /** Downloads gtfs feeds sequentially */
     fun addAll(datasets: List<GtfsDataset>) {
         viewModelScope.launch { datasets.forEach { store.add(it) } }
     }

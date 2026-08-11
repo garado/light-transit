@@ -14,8 +14,11 @@ data class GtfsDataset(
     /** From the directory index; null if it couldn't be matched up. */
     val sizeBytes: Long? = null,
 ) {
-    val downloadUrl: String get() = "$TRANSITOUS_GTFS_BASE_URL/$path"
+    val downloadUrl: String get() = gtfsDownloadUrl(path)
 }
+
+/** Turns a Transitous-relative path into a full download URL */
+fun gtfsDownloadUrl(path: String): String = "$TRANSITOUS_GTFS_BASE_URL/$path"
 
 fun List<GtfsDataset>.totalSizeBytes(): Long = sumOf { it.sizeBytes ?: 0L }
 

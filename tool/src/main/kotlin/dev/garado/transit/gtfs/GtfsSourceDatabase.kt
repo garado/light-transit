@@ -20,6 +20,7 @@ internal data class GtfsSourceEntity(
     val key: String,
     @ColumnInfo(name = "region_code") val regionCode: String,
     val path: String,
+    @ColumnInfo(name = "download_state", defaultValue = "NOT_DOWNLOADED") val downloadState: String = GtfsSourceDownloadState.NOT_DOWNLOADED.name,
 )
 
 @Dao
@@ -35,9 +36,12 @@ internal interface GtfsSourceDao {
 
     @Query("DELETE FROM gtfs_sources WHERE id IN (:ids)")
     suspend fun deleteByIds(ids: List<Long>)
+
+    @Query("UPDATE gtfs_sources SET download_state = :state WHERE id = :id")
+    suspend fun updateDownloadState(id: Long, state: String)
 }
 
-@Database(entities = [GtfsSourceEntity::class], version = 1, exportSchema = false)
+@Database(entities = [GtfsSourceEntity::class], version = 2, exportSchema = false)
 abstract class GtfsSourceDatabase : RoomDatabase() {
     internal abstract fun gtfsSourceDao(): GtfsSourceDao
 }

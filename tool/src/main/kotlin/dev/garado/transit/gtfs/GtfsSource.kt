@@ -1,3 +1,28 @@
 package dev.garado.transit.gtfs
 
-data class GtfsSource(val id: Long, val key: String, val regionCode: String, val path: String)
+enum class GtfsSourceDownloadState {
+    NOT_DOWNLOADED,
+    DOWNLOADING,
+    DOWNLOADED,
+    FAILED;
+
+    /** What to show next to a source in this state, or null to show nothing */
+    val statusLabel: String?
+        get() = when (this) {
+            NOT_DOWNLOADED, DOWNLOADED -> null
+            DOWNLOADING -> "Downloading..."
+            FAILED -> "Download failed — tap to retry"
+        }
+
+    val isRetryable: Boolean get() = this == FAILED
+}
+
+data class GtfsSource(
+    val id: Long,
+    val key: String,
+    val regionCode: String,
+    val path: String,
+    val downloadState: GtfsSourceDownloadState,
+) {
+    val downloadUrl: String get() = gtfsDownloadUrl(path)
+}

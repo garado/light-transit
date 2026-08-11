@@ -45,7 +45,7 @@ class GtfsManagerSourceListScreen(
     @Composable
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
-        val store = remember { GtfsSourceStore(GtfsSourceDatabaseHolder.get(lightContext)) }
+        val store = remember { GtfsSourceStore(GtfsSourceDatabaseHolder.get(lightContext), lightContext.filesDir) }
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
         val scope = rememberCoroutineScope()
         val allSources by store.all.collectAsState(initial = null)
@@ -84,6 +84,7 @@ class GtfsManagerSourceListScreen(
                                 displayName = displayNames.agencyName(source.key, source.regionCode),
                                 isEditing = isEditing,
                                 onDeleteClick = { scope.launch { store.delete(source) } },
+                                onRetryClick = { scope.launch { store.retryDownload(source) } },
                             )
                         }
                     }
@@ -107,7 +108,13 @@ private val DELETE_ICON_SIZE_UNITS = 1.25f
 private val DELETE_ICON_GAP = 8.dp
 
 @Composable
-private fun GtfsSourceRow(source: GtfsSource, displayName: String, isEditing: Boolean, onDeleteClick: () -> Unit) {
+private fun GtfsSourceRow(
+    source: GtfsSource,
+    displayName: String,
+    isEditing: Boolean,
+    onDeleteClick: () -> Unit,
+    onRetryClick: () -> Unit,
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
@@ -124,6 +131,21 @@ private fun GtfsSourceRow(source: GtfsSource, displayName: String, isEditing: Bo
                 )
             }
         }
-        LightText(text = displayName, variant = LightTextVariant.Copy)
+        Column {
+            LightText(text = displayName, variant = LightTextVariant.Copy)
+            DownloadStateLabel(source.downloadState, onRetryClick)
+        }
     }
+}
+
+@Composable
+private fun DownloadStateLabel(state: GtfsSourceDownloadState, onRetryClick: () -> Unit) {
+    val text = state.statusLabel ?: return
+    val baseModifier = Modifier.padding(top = 2.dp)
+    LightText(
+        text = text,
+        variant = LightTextVariant.Detail,
+        lighten = true,
+        modifier = if (state.isRetryable) baseModifier.lightClickable(onClick = onRetryClick) else baseModifier,
+    )
 }

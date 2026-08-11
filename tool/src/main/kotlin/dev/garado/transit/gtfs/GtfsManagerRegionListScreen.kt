@@ -45,7 +45,7 @@ class GtfsManagerRegionListScreen(
     @Composable
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
-        val store = remember { GtfsSourceStore(GtfsSourceDatabaseHolder.get(lightContext)) }
+        val store = remember { GtfsSourceStore(GtfsSourceDatabaseHolder.get(lightContext), lightContext.filesDir) }
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
         val scope = rememberCoroutineScope()
         val sources by store.all.collectAsState(initial = emptyList())
