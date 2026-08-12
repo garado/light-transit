@@ -1,6 +1,6 @@
 /** Set up room db for GTFS sources */
 
-package dev.garado.transit.gtfs
+package dev.garado.transit.gtfs.sources
 
 import androidx.room.ColumnInfo
 import androidx.room.Dao

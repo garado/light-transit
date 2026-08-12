@@ -30,8 +30,8 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.api.transit.MockTransitApiSettings
-import dev.garado.transit.gtfs.GtfsClearCacheConfirmScreen
-import dev.garado.transit.gtfs.clearGtfsDownloadCache
+import dev.garado.transit.gtfs.sources.GtfsClearCacheConfirmScreen
+import dev.garado.transit.gtfs.sources.clearGtfsDownloadCache
 import kotlinx.coroutines.launch
 
 class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Unit>(sealedActivity) {

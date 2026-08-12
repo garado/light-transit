@@ -22,7 +22,7 @@ import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
-import dev.garado.transit.gtfs.GtfsManagerScreen
+import dev.garado.transit.gtfs.sources.GtfsManagerScreen
 import dev.garado.transit.map.MapMenuScreen
 import dev.garado.transit.route.RouteSelectScreen
 import dev.garado.transit.search.DepartureSelection

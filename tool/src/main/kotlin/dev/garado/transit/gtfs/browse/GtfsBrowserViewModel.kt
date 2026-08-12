@@ -1,8 +1,9 @@
-package dev.garado.transit.gtfs
+package dev.garado.transit.gtfs.browse
 
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
+import dev.garado.transit.gtfs.GtfsDataset
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope

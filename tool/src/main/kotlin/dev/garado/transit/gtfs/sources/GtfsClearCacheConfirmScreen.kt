@@ -1,4 +1,4 @@
-package dev.garado.transit.gtfs
+package dev.garado.transit.gtfs.sources
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

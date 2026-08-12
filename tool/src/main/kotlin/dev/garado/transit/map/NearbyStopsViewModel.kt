@@ -3,9 +3,13 @@ package dev.garado.transit.map
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
+import dev.garado.transit.api.NearbyStopsProvider
 import dev.garado.transit.api.models.StopDeparture
 import dev.garado.transit.api.models.TripStop
 import dev.garado.transit.api.transit.TransitApiPlanProvider
+import dev.garado.transit.gtfs.local.GtfsLocalNearbyStopsProvider
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,6 +23,7 @@ enum class NearbyStopsViewMode { MAP, LIST }
 class NearbyStopsViewModel(
     lightContext: SealedLightContext,
     private val transitApiProvider: TransitApiPlanProvider = TransitApiPlanProvider(lightContext),
+    private val localStopsProvider: NearbyStopsProvider = GtfsLocalNearbyStopsProvider(lightContext),
 ) : LightViewModel<Unit>() {
     private val _stops = MutableStateFlow<List<TripStop>>(emptyList())
     val stops: StateFlow<List<TripStop>> = _stops.asStateFlow()
@@ -65,16 +70,25 @@ class NearbyStopsViewModel(
         _hasSearched.value = false
     }
 
-    /** Fetch NearbyStops and StopDepartures centered on wherever the map is now */
+    /**
+     * Fetch NearbyStops and StopDepartures centered on wherever the map is now.
+     * Merges live API results with stops from any locally-downloaded GTFS feeds, so
+     * this still finds stops in areas the API doesn't cover (or with it disabled entirely
+     * via the "Simulate API failures" dev setting). Local stops have no departure data yet.
+     */
     fun search() {
         if (_isSearching.value) return
         val location = _liveCenter.value
         viewModelScope.launch {
             _isSearching.value = true
             try {
-                val nearby = transitApiProvider.nearbyStops(location.lat, location.lon)
-                _stops.value = nearby
-                _departuresByStop.value = transitApiProvider.departures(nearby.map { it.globalStopId })
+                val (apiStops, localStops) = coroutineScope {
+                    val apiDeferred = async { transitApiProvider.nearbyStops(location.lat, location.lon) }
+                    val localDeferred = async { localStopsProvider.nearbyStops(location.lat, location.lon) }
+                    apiDeferred.await() to localDeferred.await()
+                }
+                _stops.value = apiStops + localStops
+                _departuresByStop.value = transitApiProvider.departures(apiStops.map { it.globalStopId })
                 _hasSearched.value = true
             } finally {
                 _isSearching.value = false

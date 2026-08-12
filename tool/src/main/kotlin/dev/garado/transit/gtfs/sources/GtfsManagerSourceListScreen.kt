@@ -1,4 +1,4 @@
-package dev.garado.transit.gtfs
+package dev.garado.transit.gtfs.sources
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -34,6 +34,8 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
+import dev.garado.transit.gtfs.GtfsDisplayNames
+import dev.garado.transit.gtfs.local.GtfsStopsDatabaseHolder
 import kotlinx.coroutines.launch
 
 class GtfsManagerSourceListScreen(
@@ -45,7 +47,13 @@ class GtfsManagerSourceListScreen(
     @Composable
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
-        val store = remember { GtfsSourceStore(GtfsSourceDatabaseHolder.get(lightContext), lightContext.filesDir) }
+        val store = remember {
+            GtfsSourceStore(
+                GtfsSourceDatabaseHolder.get(lightContext),
+                lightContext.filesDir,
+                GtfsStopsDatabaseHolder.get(lightContext).gtfsStopsDao(),
+            )
+        }
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
         val scope = rememberCoroutineScope()
         val allSources by store.all.collectAsState(initial = null)

@@ -1,6 +1,6 @@
 /** Set up room db for the (parsed) Transitous dataset catalog */
 
-package dev.garado.transit.gtfs
+package dev.garado.transit.gtfs.browse
 
 import androidx.room.ColumnInfo
 import androidx.room.Dao
@@ -13,6 +13,7 @@ import androidx.room.RoomDatabase
 import androidx.room.Transaction
 import com.thelightphone.sdk.SealedLightContext
 import com.thelightphone.sdk.buildDatabase
+import dev.garado.transit.gtfs.GtfsDataset
 import kotlinx.coroutines.flow.Flow
 
 @Entity(tableName = "gtfs_catalog_datasets")

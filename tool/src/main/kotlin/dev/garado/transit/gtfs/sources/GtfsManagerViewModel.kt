@@ -1,8 +1,10 @@
-package dev.garado.transit.gtfs
+package dev.garado.transit.gtfs.sources
 
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
+import dev.garado.transit.gtfs.GtfsDataset
+import dev.garado.transit.gtfs.local.GtfsStopsDatabaseHolder
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -12,7 +14,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class GtfsManagerViewModel(lightContext: SealedLightContext) : LightViewModel<Unit>() {
-    private val store = GtfsSourceStore(GtfsSourceDatabaseHolder.get(lightContext), lightContext.filesDir)
+    private val store = GtfsSourceStore(
+        GtfsSourceDatabaseHolder.get(lightContext),
+        lightContext.filesDir,
+        GtfsStopsDatabaseHolder.get(lightContext).gtfsStopsDao(),
+    )
 
     /** True only until sources below has produced its first result. */
     private val _hasLoaded = MutableStateFlow(false)
