@@ -6,6 +6,8 @@ import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.gtfs.browse.GtfsCatalogDatabaseHolder
 import dev.garado.transit.gtfs.local.GtfsStopsDatabaseHolder
 import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Clears the Transitous browse cache and deletes every downloaded .gtfs.zip.
@@ -15,7 +17,9 @@ suspend fun clearGtfsDownloadCache(lightContext: SealedLightContext) {
     GtfsCatalogDatabaseHolder.get(lightContext).gtfsCatalogDao().clear()
     GtfsStopsDatabaseHolder.get(lightContext).gtfsStopsDao().clear()
 
-    File(lightContext.filesDir, "gtfs").listFiles()?.forEach { it.delete() }
+    withContext(Dispatchers.IO) {
+        File(lightContext.filesDir, "gtfs").listFiles()?.forEach { it.delete() }
+    }
 
     GtfsSourceDatabaseHolder.get(lightContext).gtfsSourceDao()
         .resetAllDownloadStates(GtfsSourceDownloadState.NOT_DOWNLOADED.name)
