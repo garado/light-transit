@@ -49,7 +49,7 @@ internal class GtfsSourceStore(
         }
     }
 
-    /** Always resolves to DOWNLOADED or FAILED — never leaves a row stuck in DOWNLOADING, even if the stops.txt import throws. */
+    /** Always resolves to DOWNLOADED or FAILED */
     private suspend fun downloadFile(id: Long, url: String) {
         dao.updateDownloadState(id, GtfsSourceDownloadState.DOWNLOADING.name)
         val destination = localFile(id)
@@ -69,7 +69,7 @@ internal class GtfsSourceStore(
         dao.updateDownloadState(id, (if (success) GtfsSourceDownloadState.DOWNLOADED else GtfsSourceDownloadState.FAILED).name)
     }
 
-    /** Best-effort: a stops.txt parse failure shouldn't undo an otherwise-successful download. */
+    /** Best-effort (a stops.txt parse failure shouldn't undo an otherwise-successful download) */
     private suspend fun importStops(id: Long, zipFile: File) {
         val csvText = withContext(Dispatchers.IO) { GtfsZipExtractor.readEntryText(zipFile, "stops.txt") }
         if (csvText == null) {

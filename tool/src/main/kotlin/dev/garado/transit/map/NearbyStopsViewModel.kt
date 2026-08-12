@@ -72,9 +72,7 @@ class NearbyStopsViewModel(
 
     /**
      * Fetch NearbyStops and StopDepartures centered on wherever the map is now.
-     * Merges live API results with stops from any locally-downloaded GTFS feeds, so
-     * this still finds stops in areas the API doesn't cover (or with it disabled entirely
-     * via the "Simulate API failures" dev setting). Local stops have no departure data yet.
+     * Merges live API results with stops from any locally-downloaded GTFS feeds.
      */
     fun search() {
         if (_isSearching.value) return
