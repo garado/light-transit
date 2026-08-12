@@ -8,12 +8,14 @@ import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.RoomDatabase
 import com.thelightphone.sdk.SealedLightContext
 import com.thelightphone.sdk.buildDatabase
 import dev.garado.transit.api.models.TripStop
 import kotlin.math.ceil
+import kotlin.math.floor
 
 /** ~0.6km x 1.2km */
 private const val GEOHASH_PRECISION = 6
@@ -34,7 +36,7 @@ internal data class GtfsStopEntity(
 
 @Dao
 internal interface GtfsStopsDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(entities: List<GtfsStopEntity>)
 
     @Query("DELETE FROM gtfs_stops WHERE source_id = :sourceId")
@@ -149,15 +151,21 @@ internal object Geohash {
         val cellWidth = 360.0 / (1L shl lonBits)
         val cellHeight = 180.0 / (1L shl latBits)
 
+        // use grid-aligned indices
+        val maxLatIndex = (1L shl latBits) - 1
+        val maxLonIndex = (1L shl lonBits) - 1
+        fun latIndex(lat: Double) =
+            floor((lat.coerceIn(-90.0, 90.0) + 90.0) / cellHeight).toLong().coerceIn(0, maxLatIndex)
+        fun lonIndex(lon: Double) =
+            floor((lon.coerceIn(-180.0, 180.0) + 180.0) / cellWidth).toLong().coerceIn(0, maxLonIndex)
+
         val cells = LinkedHashSet<String>()
-        var lat = minLat
-        while (lat <= maxLat + cellHeight) {
-            var lon = minLon
-            while (lon <= maxLon + cellWidth) {
-                cells.add(encode(lat.coerceIn(-90.0, 90.0), lon.coerceIn(-180.0, 180.0), precision))
-                lon += cellWidth
+        for (latIdx in latIndex(minLat)..latIndex(maxLat)) {
+            val lat = (-90.0 + (latIdx + 0.5) * cellHeight).coerceIn(-90.0, 90.0)
+            for (lonIdx in lonIndex(minLon)..lonIndex(maxLon)) {
+                val lon = (-180.0 + (lonIdx + 0.5) * cellWidth).coerceIn(-180.0, 180.0)
+                cells.add(encode(lat, lon, precision))
             }
-            lat += cellHeight
         }
         return cells.toList()
     }
