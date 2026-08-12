@@ -8,42 +8,34 @@ import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.Insert
-import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RoomDatabase
-import androidx.room.Transaction
 import com.thelightphone.sdk.SealedLightContext
 import com.thelightphone.sdk.buildDatabase
 import dev.garado.transit.api.models.TripStop
+import kotlin.math.ceil
+
+/** ~0.6km x 1.2km */
+private const val GEOHASH_PRECISION = 6
 
 @Entity(
     tableName = "gtfs_stops",
-    indices = [Index("lat"), Index("lon"), Index(value = ["source_id", "stop_id"], unique = true)],
+    primaryKeys = ["source_id", "stop_id"],
+    indices = [Index("lat"), Index("lon"), Index("geohash")],
 )
 internal data class GtfsStopEntity(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "rtree_id") val rtreeId: Long = 0,
     @ColumnInfo(name = "source_id") val sourceId: Long,
     @ColumnInfo(name = "stop_id") val stopId: String,
     val name: String,
     val lat: Double,
     val lon: Double,
+    val geohash: String = Geohash.encode(lat, lon, GEOHASH_PRECISION),
 )
 
 @Dao
 internal interface GtfsStopsDao {
     @Insert
-    suspend fun insertGtfsStops(entities: List<GtfsStopEntity>): List<Long>
-
-    @Query("INSERT INTO gtfs_stops_rtree (id, minLat, maxLat, minLon, maxLon) VALUES (:rtreeId, :lat, :lat, :lon, :lon)")
-    suspend fun insertRtreeEntry(rtreeId: Long, lat: Double, lon: Double)
-
-    @Transaction
-    suspend fun insertAll(entities: List<GtfsStopEntity>) {
-        val generatedIds = insertGtfsStops(entities)
-        entities.forEachIndexed { index, entity ->
-            insertRtreeEntry(generatedIds[index], entity.lat, entity.lon)
-        }
-    }
+    suspend fun insertAll(entities: List<GtfsStopEntity>)
 
     @Query("DELETE FROM gtfs_stops WHERE source_id = :sourceId")
     suspend fun deleteBySource(sourceId: Long)
@@ -51,8 +43,30 @@ internal interface GtfsStopsDao {
     @Query("DELETE FROM gtfs_stops")
     suspend fun clear()
 
-    @Query("SELECT * FROM gtfs_stops WHERE lat BETWEEN :minLat AND :maxLat AND lon BETWEEN :minLon AND :maxLon")
-    suspend fun nearby(minLat: Double, maxLat: Double, minLon: Double, maxLon: Double): List<GtfsStopEntity>
+    @Query(
+        """
+        SELECT * FROM gtfs_stops
+        WHERE geohash IN (:cells)
+          AND lat BETWEEN :minLat AND :maxLat
+          AND lon BETWEEN :minLon AND :maxLon
+        """
+    )
+    suspend fun nearbyInCells(
+        cells: List<String>,
+        minLat: Double,
+        maxLat: Double,
+        minLon: Double,
+        maxLon: Double,
+    ): List<GtfsStopEntity>
+
+    /**
+     * Geohash narrows candidates down to a handful of indexed cells.
+     * lat/lon BETWEEN is a final exact filter to drop false positives
+     */
+    suspend fun nearby(minLat: Double, maxLat: Double, minLon: Double, maxLon: Double): List<GtfsStopEntity> {
+        val cells = Geohash.cellsCovering(minLat, maxLat, minLon, maxLon, GEOHASH_PRECISION)
+        return nearbyInCells(cells, minLat, maxLat, minLon, maxLon)
+    }
 }
 
 @Database(entities = [GtfsStopEntity::class], version = 1, exportSchema = false)
@@ -68,20 +82,83 @@ object GtfsStopsDatabaseHolder {
     fun get(lightContext: SealedLightContext): GtfsStopsDatabase =
         instance ?: synchronized(this) {
             instance ?: lightContext.buildDatabase(GtfsStopsDatabase::class.java, "gtfs_stops.db")
-                .also {
-                    // Room has no annotation support for rtree virtual tables, so it's created here directly
-                    it.openHelper.writableDatabase.execSQL(
-                        "CREATE VIRTUAL TABLE IF NOT EXISTS gtfs_stops_rtree USING rtree(id, minLat, maxLat, minLon, maxLon)"
-                    )
-                    instance = it
-                }
+                .also { instance = it }
         }
 }
 
-/** Local GTFS stops are id-namespaced by source so they never collide with live API's global_stop_id */
+/** Local GTFS stops are id-namespaced by source to avoid collisions with live API's global_stop_id */
 internal fun GtfsStopEntity.toTripStop() = TripStop(
     globalStopId = "gtfs:$sourceId:$stopId",
     name = name,
     lat = lat,
     lon = lon,
 )
+
+/**
+ * Basic geohash implementation: encodes a point to a base32 string identifying its grid cell,
+ * and enumerates the cells (at a given precision) that a bounding box overlaps.
+ * (used as alternative to rtree, since light's sqlite build doesn't include rtree. sadge)
+ */
+internal object Geohash {
+    private const val BASE32 = "0123456789bcdefghjkmnpqrstuvwxyz"
+
+    fun encode(lat: Double, lon: Double, precision: Int): String {
+        var latMin = -90.0
+        var latMax = 90.0
+        var lonMin = -180.0
+        var lonMax = 180.0
+        val hash = StringBuilder()
+        var isEvenBit = true
+        var bit = 0
+        var ch = 0
+        while (hash.length < precision) {
+            if (isEvenBit) {
+                val mid = (lonMin + lonMax) / 2
+                if (lon >= mid) {
+                    ch = ch or (1 shl (4 - bit))
+                    lonMin = mid
+                } else {
+                    lonMax = mid
+                }
+            } else {
+                val mid = (latMin + latMax) / 2
+                if (lat >= mid) {
+                    ch = ch or (1 shl (4 - bit))
+                    latMin = mid
+                } else {
+                    latMax = mid
+                }
+            }
+            isEvenBit = !isEvenBit
+            if (bit < 4) {
+                bit++
+            } else {
+                hash.append(BASE32[ch])
+                bit = 0
+                ch = 0
+            }
+        }
+        return hash.toString()
+    }
+
+    /** Every cell (at [precision]) that overlaps the given bounding box. */
+    fun cellsCovering(minLat: Double, maxLat: Double, minLon: Double, maxLon: Double, precision: Int): List<String> {
+        val totalBits = precision * 5
+        val lonBits = ceil(totalBits / 2.0).toInt()
+        val latBits = totalBits / 2
+        val cellWidth = 360.0 / (1L shl lonBits)
+        val cellHeight = 180.0 / (1L shl latBits)
+
+        val cells = LinkedHashSet<String>()
+        var lat = minLat
+        while (lat <= maxLat + cellHeight) {
+            var lon = minLon
+            while (lon <= maxLon + cellWidth) {
+                cells.add(encode(lat.coerceIn(-90.0, 90.0), lon.coerceIn(-180.0, 180.0), precision))
+                lon += cellWidth
+            }
+            lat += cellHeight
+        }
+        return cells.toList()
+    }
+}
