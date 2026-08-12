@@ -21,6 +21,10 @@ android {
         buildConfig = true
     }
 
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
+
     signingConfigs {
         create("lightsdkDev") {
             storeFile = file("../light-sdk/sdk/keys/lightsdk-dev.jks")
