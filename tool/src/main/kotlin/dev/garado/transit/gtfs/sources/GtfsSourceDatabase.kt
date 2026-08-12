@@ -1,6 +1,6 @@
 /** Set up room db for GTFS sources */
 
-package dev.garado.transit.gtfs
+package dev.garado.transit.gtfs.sources
 
 import androidx.room.ColumnInfo
 import androidx.room.Dao
@@ -39,6 +39,9 @@ internal interface GtfsSourceDao {
 
     @Query("UPDATE gtfs_sources SET download_state = :state WHERE id = :id")
     suspend fun updateDownloadState(id: Long, state: String)
+
+    @Query("UPDATE gtfs_sources SET download_state = :state")
+    suspend fun resetAllDownloadStates(state: String)
 }
 
 @Database(entities = [GtfsSourceEntity::class], version = 2, exportSchema = false)

@@ -1,4 +1,4 @@
-package dev.garado.transit.gtfs
+package dev.garado.transit.gtfs.sources
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -24,10 +24,8 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 
-class GtfsBulkAddConfirmScreen(
-    sealedActivity: SealedLightActivity,
-    private val datasets: List<GtfsDataset>,
-) : SimpleLightScreen<List<GtfsDataset>>(sealedActivity) {
+/** Confirmation before wiping gtfs db */
+class GtfsClearCacheConfirmScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Boolean>(sealedActivity) {
 
     @Composable
     override fun Content() {
@@ -46,11 +44,11 @@ class GtfsBulkAddConfirmScreen(
 
                 Column(modifier = Modifier.weight(1f).padding(horizontal = 32.dp, vertical = 16.dp)) {
                     LightText(
-                        text = "Add ${datasets.size} source${if (datasets.size == 1) "" else "s"}?",
+                        text = "Clear GTFS cache and downloads?",
                         variant = LightTextVariant.Paragraph,
                     )
                     LightText(
-                        text = "Total size: ${formatFileSize(datasets.totalSizeBytes())}",
+                        text = "Deletes the browse cache and every downloaded .gtfs.zip. Saved sources are kept, but will need to be re-downloaded.",
                         variant = LightTextVariant.Detail,
                         lighten = true,
                         modifier = Modifier.padding(top = 8.dp),
@@ -58,13 +56,13 @@ class GtfsBulkAddConfirmScreen(
                 }
 
                 LightText(
-                    text = "ADD",
+                    text = "CLEAR",
                     variant = LightTextVariant.Button,
                     align = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 32.dp, vertical = 16.dp)
-                        .lightClickable(onClick = { goBack(datasets) }),
+                        .lightClickable(onClick = { goBack(true) }),
                 )
             }
         }

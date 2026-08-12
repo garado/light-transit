@@ -1,6 +1,8 @@
-package dev.garado.transit.gtfs
+package dev.garado.transit.gtfs.browse
 
 import android.util.Log
+import dev.garado.transit.gtfs.GtfsDataset
+import dev.garado.transit.gtfs.TRANSITOUS_GTFS_BASE_URL
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
