@@ -8,18 +8,20 @@ import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.Insert
+import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RoomDatabase
+import androidx.room.Transaction
 import com.thelightphone.sdk.SealedLightContext
 import com.thelightphone.sdk.buildDatabase
 import dev.garado.transit.api.models.TripStop
 
 @Entity(
     tableName = "gtfs_stops",
-    primaryKeys = ["source_id", "stop_id"],
-    indices = [Index("lat"), Index("lon")],
+    indices = [Index("lat"), Index("lon"), Index(value = ["source_id", "stop_id"], unique = true)],
 )
 internal data class GtfsStopEntity(
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "rtree_id") val rtreeId: Long = 0,
     @ColumnInfo(name = "source_id") val sourceId: Long,
     @ColumnInfo(name = "stop_id") val stopId: String,
     val name: String,
@@ -30,7 +32,18 @@ internal data class GtfsStopEntity(
 @Dao
 internal interface GtfsStopsDao {
     @Insert
-    suspend fun insertAll(entities: List<GtfsStopEntity>)
+    suspend fun insertGtfsStops(entities: List<GtfsStopEntity>): List<Long>
+
+    @Query("INSERT INTO gtfs_stops_rtree (id, minLat, maxLat, minLon, maxLon) VALUES (:rtreeId, :lat, :lat, :lon, :lon)")
+    suspend fun insertRtreeEntry(rtreeId: Long, lat: Double, lon: Double)
+
+    @Transaction
+    suspend fun insertAll(entities: List<GtfsStopEntity>) {
+        val generatedIds = insertGtfsStops(entities)
+        entities.forEachIndexed { index, entity ->
+            insertRtreeEntry(generatedIds[index], entity.lat, entity.lon)
+        }
+    }
 
     @Query("DELETE FROM gtfs_stops WHERE source_id = :sourceId")
     suspend fun deleteBySource(sourceId: Long)
