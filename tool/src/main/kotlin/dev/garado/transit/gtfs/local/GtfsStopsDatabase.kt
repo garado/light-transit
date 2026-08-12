@@ -8,6 +8,7 @@ import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.RoomDatabase
 import com.thelightphone.sdk.SealedLightContext
@@ -34,7 +35,7 @@ internal data class GtfsStopEntity(
 
 @Dao
 internal interface GtfsStopsDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(entities: List<GtfsStopEntity>)
 
     @Query("DELETE FROM gtfs_stops WHERE source_id = :sourceId")
