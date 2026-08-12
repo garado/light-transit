@@ -71,12 +71,13 @@ internal class GtfsSourceStore(
 
     /** Best-effort (a stops.txt parse failure shouldn't undo an otherwise-successful download) */
     private suspend fun importStops(id: Long, zipFile: File) {
-        val csvText = withContext(Dispatchers.IO) { GtfsZipExtractor.readEntryText(zipFile, "stops.txt") }
-        if (csvText == null) {
+        val stops = withContext(Dispatchers.IO) {
+            GtfsZipExtractor.readEntry(zipFile, "stops.txt") { reader -> GtfsStopsTxtParser.parse(id, reader) }
+        }
+        if (stops == null) {
             Log.w(TAG, "stops.txt not found in zip for source $id")
             return
         }
-        val stops = withContext(Dispatchers.Default) { GtfsStopsTxtParser.parse(id, csvText) }
         if (stops.isEmpty()) {
             Log.w(TAG, "stops.txt parsed to zero rows for source $id")
             return
