@@ -75,6 +75,15 @@ internal data class GtfsCalendarEntity(
     @ColumnInfo(name = "end_date") val endDate: Int,
 )
 
+internal data class GtfsDepartureRow(
+    @ColumnInfo(name = "stop_id") val stopId: String,
+    @ColumnInfo(name = "departure_seconds") val departureSeconds: Int,
+    val headsign: String?,
+    @ColumnInfo(name = "route_name") val routeName: String,
+    @ColumnInfo(name = "route_color") val routeColor: String?,
+    @ColumnInfo(name = "route_text_color") val routeTextColor: String?,
+)
+
 @Dao
 internal interface GtfsScheduleDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -126,6 +135,35 @@ internal interface GtfsScheduleDao {
         clearStopTimes()
         clearCalendars()
     }
+
+    @Query("SELECT * FROM gtfs_calendar WHERE source_id = :sourceId AND start_date <= :today AND end_date >= :today")
+    suspend fun calendarsActiveOn(sourceId: Long, today: Int): List<GtfsCalendarEntity>
+
+    @Query(
+        """
+        SELECT
+            st.stop_id AS stop_id,
+            st.departure_seconds AS departure_seconds,
+            t.headsign AS headsign,
+            r.name AS route_name,
+            r.color AS route_color,
+            r.text_color AS route_text_color
+        FROM gtfs_stop_times st
+        INNER JOIN gtfs_trips t ON t.source_id = st.source_id AND t.trip_id = st.trip_id
+        INNER JOIN gtfs_routes r ON r.source_id = t.source_id AND r.route_id = t.route_id
+        WHERE st.source_id = :sourceId
+          AND st.stop_id IN (:stopIds)
+          AND st.departure_seconds >= :afterSeconds
+          AND t.service_id IN (:serviceIds)
+        ORDER BY st.departure_seconds ASC
+        """
+    )
+    suspend fun departures(
+        sourceId: Long,
+        stopIds: List<String>,
+        afterSeconds: Int,
+        serviceIds: List<String>,
+    ): List<GtfsDepartureRow>
 }
 
 @Database(
