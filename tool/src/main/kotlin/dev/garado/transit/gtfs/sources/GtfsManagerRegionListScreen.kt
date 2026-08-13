@@ -153,6 +153,5 @@ private fun RegionRow(
                 modifier = Modifier.padding(top = 2.dp),
             )
         }
-        LightIcon(icon = LightIcons.ARROW_RIGHT)
     }
 }

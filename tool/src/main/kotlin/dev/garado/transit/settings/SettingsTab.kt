@@ -120,14 +120,12 @@ private fun SettingsToggleRow(option: SettingsOption, onClick: () -> Unit) {
 
 @Composable
 private fun SettingsNavigationRow(label: String, onClick: () -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    LightText(
+        text = label,
+        variant = LightTextVariant.Copy,
         modifier = Modifier
             .fillMaxWidth()
             .lightClickable(onClick = onClick)
             .padding(vertical = 12.dp),
-    ) {
-        LightText(text = label, variant = LightTextVariant.Copy, modifier = Modifier.weight(1f))
-        LightIcon(icon = LightIcons.ARROW_RIGHT)
-    }
+    )
 }

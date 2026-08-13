@@ -3,7 +3,6 @@ package dev.garado.transit.gtfs.browse
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.ui.LightBarButton
-import com.thelightphone.sdk.ui.LightIcon
 import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightScrollView
 import com.thelightphone.sdk.ui.LightText
@@ -132,22 +130,18 @@ private fun CenteredMessage(text: String, modifier: Modifier = Modifier) {
 
 @Composable
 private fun CountryRow(countryCode: String, countryName: String, count: Int, onClick: () -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .lightClickable(onClick = onClick)
             .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            LightText(text = countryName, variant = LightTextVariant.Copy)
-            LightText(
-                text = "$count source${if (count == 1) "" else "s"}",
-                variant = LightTextVariant.Detail,
-                lighten = true,
-                modifier = Modifier.padding(top = 2.dp),
-            )
-        }
-        LightIcon(icon = LightIcons.ARROW_RIGHT)
+        LightText(text = countryName, variant = LightTextVariant.Copy)
+        LightText(
+            text = "$count source${if (count == 1) "" else "s"}",
+            variant = LightTextVariant.Detail,
+            lighten = true,
+            modifier = Modifier.padding(top = 2.dp),
+        )
     }
 }
