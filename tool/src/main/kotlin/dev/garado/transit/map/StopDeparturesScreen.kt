@@ -17,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.SimpleLightScreen
@@ -91,7 +90,7 @@ class StopDeparturesScreen(
 @Composable
 private fun RouteDeparturesSection(departures: List<StopDeparture>) {
     val first = departures.first()
-    Column(modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 12.dp, start = 16.dp)) {
+    Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp, start = 16.dp)) {
         // route badge and name
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
@@ -145,7 +144,6 @@ private fun DepartureTimesGrid(departures: List<StopDeparture>, modifier: Modifi
                         LightText(
                             text = formatClockTime(departure.departureTime),
                             variant = LightTextVariant.Paragraph,
-                            align = TextAlign.Center,
                             maxLines = 1,
                             modifier = Modifier.weight(1f),
                         )
