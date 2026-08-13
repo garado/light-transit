@@ -45,7 +45,7 @@ class ApiSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen
                     center = LightTopBarCenter.Text("API Settings"),
                 )
 
-                Column(modifier = Modifier.padding(horizontal = 32.dp)) {
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     LightText(
                         text = "Transit API calls this month",
                         variant = LightTextVariant.Detail,
@@ -53,7 +53,6 @@ class ApiSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen
                     LightText(
                         text = "$callCount / ${TransitApiUsageTracker.MONTHLY_CALL_LIMIT}",
                         variant = LightTextVariant.Copy,
-                        modifier = Modifier.padding(top = 2.dp),
                     )
                 }
             }

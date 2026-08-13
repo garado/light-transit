@@ -58,7 +58,7 @@ class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLight
                     center = LightTopBarCenter.Text("Developer Settings"),
                 )
 
-                Column(modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp)) {
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     DevToggleRow(
                         label = "Mock API responses",
                         enabled = useMockedResponses,
@@ -72,7 +72,6 @@ class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLight
                         onClick = {
                             coroutineScope.launch { mockSettings.setSimulateApiFailure(!simulateApiFailure) }
                         },
-                        modifier = Modifier.padding(top = 12.dp),
                     )
                     DevActionRow(
                         label = "Clear GTFS cache and downloads",
@@ -83,7 +82,6 @@ class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLight
                                 }
                             }
                         },
-                        modifier = Modifier.padding(top = 12.dp),
                     )
                 }
             }
@@ -92,12 +90,13 @@ class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLight
 }
 
 @Composable
-private fun DevToggleRow(label: String, enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun DevToggleRow(label: String, enabled: Boolean, onClick: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .lightClickable(onClick = onClick),
+            .lightClickable(onClick = onClick)
+            .padding(top = 12.dp, bottom = 12.dp),
     ) {
         LightIcon(
             icon = if (enabled) LightIcons.TOGGLE_STATE_ON else LightIcons.TOGGLE_STATE_OFF,
@@ -108,12 +107,13 @@ private fun DevToggleRow(label: String, enabled: Boolean, onClick: () -> Unit, m
 }
 
 @Composable
-private fun DevActionRow(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun DevActionRow(label: String, onClick: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .lightClickable(onClick = onClick),
+            .lightClickable(onClick = onClick)
+            .padding(top = 12.dp, bottom = 12.dp),
     ) {
         LightText(text = label, variant = LightTextVariant.Copy)
     }
