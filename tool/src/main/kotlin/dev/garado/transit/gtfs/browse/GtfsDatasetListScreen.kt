@@ -29,6 +29,11 @@ import dev.garado.transit.StatusBar
 import dev.garado.transit.gtfs.GtfsDataset
 import dev.garado.transit.gtfs.GtfsDisplayNames
 import dev.garado.transit.gtfs.formatFileSize
+import dev.garado.transit.gtfs.local.GtfsScheduleDatabaseHolder
+import dev.garado.transit.gtfs.local.GtfsStopsDatabaseHolder
+import dev.garado.transit.gtfs.sources.GtfsSourceDatabaseHolder
+import dev.garado.transit.gtfs.sources.GtfsSourceDownloadState
+import dev.garado.transit.gtfs.sources.GtfsSourceStore
 
 class GtfsDatasetListScreen(
     sealedActivity: SealedLightActivity,
@@ -40,6 +45,20 @@ class GtfsDatasetListScreen(
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
+        val store = remember {
+            GtfsSourceStore(
+                GtfsSourceDatabaseHolder.get(lightContext),
+                lightContext.filesDir,
+                GtfsStopsDatabaseHolder.get(lightContext).gtfsStopsDao(),
+                GtfsScheduleDatabaseHolder.get(lightContext).gtfsScheduleDao(),
+            )
+        }
+        val sources by store.all.collectAsState(initial = emptyList())
+        val downloadedKeys = remember(sources) {
+            sources.filter { it.downloadState == GtfsSourceDownloadState.DOWNLOADED }
+                .map { it.key to it.regionCode }
+                .toSet()
+        }
 
         LightTheme(colors = themeColors) {
             Column(
@@ -65,7 +84,14 @@ class GtfsDatasetListScreen(
                                 text = displayNames.agencyName(dataset.key, dataset.regionCode),
                                 variant = LightTextVariant.Copy,
                             )
-                            if (dataset.sizeBytes != null) {
+                            if (dataset.key to dataset.regionCode in downloadedKeys) {
+                                LightText(
+                                    text = "Downloaded",
+                                    variant = LightTextVariant.Detail,
+                                    lighten = true,
+                                    modifier = Modifier.padding(top = 2.dp),
+                                )
+                            } else if (dataset.sizeBytes != null) {
                                 LightText(
                                     text = formatFileSize(dataset.sizeBytes),
                                     variant = LightTextVariant.Detail,

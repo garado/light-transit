@@ -28,6 +28,9 @@ internal interface GtfsSourceDao {
     @Query("SELECT * FROM gtfs_sources ORDER BY id ASC")
     fun getAll(): Flow<List<GtfsSourceEntity>>
 
+    @Query("SELECT * FROM gtfs_sources WHERE key = :key AND region_code = :regionCode LIMIT 1")
+    suspend fun findByKeyAndRegion(key: String, regionCode: String): GtfsSourceEntity?
+
     @Insert
     suspend fun insert(entity: GtfsSourceEntity): Long
 

@@ -33,6 +33,18 @@ internal class GtfsSourceStore(
     val all: Flow<List<GtfsSource>> = dao.getAll().map { entities -> entities.map(GtfsSourceEntity::toGtfsSource) }
 
     suspend fun add(dataset: GtfsDataset) {
+        val existing = dao.findByKeyAndRegion(dataset.key, dataset.regionCode)
+        if (existing != null) {
+            val state = runCatching { GtfsSourceDownloadState.valueOf(existing.downloadState) }
+                .getOrDefault(GtfsSourceDownloadState.NOT_DOWNLOADED)
+            if (state == GtfsSourceDownloadState.DOWNLOADED || state == GtfsSourceDownloadState.DOWNLOADING) {
+                Log.d(TAG, "source ${dataset.key}/${dataset.regionCode} already $state (id=${existing.id}), skipping duplicate add")
+                return
+            }
+            // NOT_DOWNLOADED or FAILED - retry the existing row instead of inserting a duplicate
+            downloadFile(existing.id, dataset.downloadUrl)
+            return
+        }
         val id = dao.insert(GtfsSourceEntity(key = dataset.key, regionCode = dataset.regionCode, path = dataset.path))
         downloadFile(id, dataset.downloadUrl)
     }
