@@ -35,7 +35,16 @@ internal object GtfsRoutesTxtParser {
             val name = shortName ?: longName ?: routeId
             val color = fields.getOrNull(colorIndex)?.takeIf { it.isNotBlank() }
             val textColor = fields.getOrNull(textColorIndex)?.takeIf { it.isNotBlank() }
-            entities.add(GtfsRouteEntity(sourceId = sourceId, routeId = routeId, name = name, color = color, textColor = textColor))
+            entities.add(
+                GtfsRouteEntity(
+                    sourceId = sourceId,
+                    routeId = routeId,
+                    name = name,
+                    longName = longName?.takeIf { it != name },
+                    color = color,
+                    textColor = textColor,
+                )
+            )
         }
         return entities
     }

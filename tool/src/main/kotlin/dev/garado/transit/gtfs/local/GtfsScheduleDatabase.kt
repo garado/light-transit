@@ -23,7 +23,10 @@ import dev.garado.transit.api.models.TripRoute
 internal data class GtfsRouteEntity(
     @ColumnInfo(name = "source_id") val sourceId: Long,
     @ColumnInfo(name = "route_id") val routeId: String,
+    /** badge text: route_short_name, falling back to route_long_name, falling back to route_id */
     val name: String,
+    /** route_long_name, when present and distinct from [name] - the descriptive text next to the badge */
+    @ColumnInfo(name = "long_name") val longName: String?,
     val color: String?,
     @ColumnInfo(name = "text_color") val textColor: String?,
 )
@@ -31,6 +34,7 @@ internal data class GtfsRouteEntity(
 internal fun GtfsRouteEntity.toTripRoute() = TripRoute(
     globalRouteId = "gtfs:$sourceId:$routeId",
     name = name,
+    longName = longName,
     color = color,
     textColor = textColor,
 )
