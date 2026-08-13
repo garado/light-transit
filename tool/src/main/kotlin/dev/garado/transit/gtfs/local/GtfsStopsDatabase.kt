@@ -31,8 +31,8 @@ internal data class GtfsStopEntity(
     val name: String,
     val lat: Double,
     val lon: Double,
-    /** Raw GTFS location_type ("0"/blank = stop or platform, "1" = station, "2" = entrance/exit, etc.) */
     @ColumnInfo(name = "location_type") val locationType: String? = null,
+    @ColumnInfo(name = "parent_station") val parentStation: String? = null,
     val geohash: String = Geohash.encode(lat, lon, GEOHASH_PRECISION),
 )
 
@@ -74,7 +74,7 @@ internal interface GtfsStopsDao {
     }
 }
 
-@Database(entities = [GtfsStopEntity::class], version = 1, exportSchema = false)
+@Database(entities = [GtfsStopEntity::class], version = 2, exportSchema = false)
 abstract class GtfsStopsDatabase : RoomDatabase() {
     internal abstract fun gtfsStopsDao(): GtfsStopsDao
 }
@@ -91,15 +91,22 @@ object GtfsStopsDatabaseHolder {
         }
 }
 
-/** Local GTFS stops are id-namespaced by source to avoid collisions with live API's global_stop_id */
-internal fun GtfsStopEntity.toTripStop() = TripStop(
-    globalStopId = "gtfs:$sourceId:$stopId",
-    name = name,
-    lat = lat,
-    lon = lon,
-)
+/**
+ * Local GTFS stops are id-namespaced by source to avoid collisions with live API's global_stop_id.
+ * Merges platforms that share a parent_station into one [TripStop].
+ */
+internal fun List<GtfsStopEntity>.toGroupedTripStop(): TripStop {
+    val first = first()
+    return TripStop(
+        globalStopId = "gtfs:${first.sourceId}:${first.stopId}",
+        name = first.name,
+        lat = first.lat,
+        lon = first.lon,
+        groupedStopIds = map { "gtfs:${it.sourceId}:${it.stopId}" },
+    )
+}
 
-/** Inverse of [toTripStop]'s globalStopId. Null if [globalStopId] isn't a local-GTFS id. */
+/** Inverse of [toGroupedTripStop]'s globalStopId. Null if [globalStopId] isn't a local-GTFS id. */
 internal fun parseGtfsGlobalStopId(globalStopId: String): Pair<Long, String>? {
     val parts = globalStopId.split(":", limit = 3)
     if (parts.size != 3 || parts[0] != "gtfs") return null

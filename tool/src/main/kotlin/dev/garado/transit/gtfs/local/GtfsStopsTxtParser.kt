@@ -17,6 +17,7 @@ internal object GtfsStopsTxtParser {
         val latIndex = header.indexOf("stop_lat")
         val lonIndex = header.indexOf("stop_lon")
         val locationTypeIndex = header.indexOf("location_type")
+        val parentStationIndex = header.indexOf("parent_station")
         if (idIndex < 0 || nameIndex < 0 || latIndex < 0 || lonIndex < 0) {
             Log.w(TAG, "stops.txt missing a required column (stop_id/stop_name/stop_lat/stop_lon)")
             return emptyList()
@@ -30,8 +31,17 @@ internal object GtfsStopsTxtParser {
             val lat = fields.getOrNull(latIndex)?.toDoubleOrNull() ?: continue
             val lon = fields.getOrNull(lonIndex)?.toDoubleOrNull() ?: continue
             val locationType = fields.getOrNull(locationTypeIndex)?.takeIf { it.isNotBlank() }
+            val parentStation = fields.getOrNull(parentStationIndex)?.takeIf { it.isNotBlank() }
             entities.add(
-                GtfsStopEntity(sourceId = sourceId, stopId = stopId, name = name, lat = lat, lon = lon, locationType = locationType)
+                GtfsStopEntity(
+                    sourceId = sourceId,
+                    stopId = stopId,
+                    name = name,
+                    lat = lat,
+                    lon = lon,
+                    locationType = locationType,
+                    parentStation = parentStation,
+                )
             )
         }
         return entities

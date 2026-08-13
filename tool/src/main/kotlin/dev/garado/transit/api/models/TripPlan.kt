@@ -40,4 +40,5 @@ data class TripStop(
     val name: String,
     val lat: Double,
     val lon: Double,
+    val groupedStopIds: List<String> = listOf(globalStopId),
 )

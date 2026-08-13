@@ -90,8 +90,8 @@ class NearbyStopsViewModel(
                 }
                 _stops.value = apiStops + localStops
                 _departuresByStop.value = coroutineScope {
-                    val apiDeparturesDeferred = async { transitApiProvider.departures(apiStops.map { it.globalStopId }) }
-                    val localDeparturesDeferred = async { localDeparturesProvider.departures(localStops.map { it.globalStopId }) }
+                    val apiDeparturesDeferred = async { transitApiProvider.departures(apiStops.flatMap { it.groupedStopIds }) }
+                    val localDeparturesDeferred = async { localDeparturesProvider.departures(localStops.flatMap { it.groupedStopIds }) }
                     apiDeparturesDeferred.await() + localDeparturesDeferred.await()
                 }
                 _hasSearched.value = true
@@ -101,5 +101,8 @@ class NearbyStopsViewModel(
         }
     }
 
-    fun departuresFor(stop: TripStop): List<StopDeparture> = departuresByStop.value[stop.globalStopId] ?: emptyList()
+    fun departuresFor(stop: TripStop): List<StopDeparture> =
+        stop.groupedStopIds
+            .flatMap { departuresByStop.value[it].orEmpty() }
+            .sortedBy { it.departureTime }
 }

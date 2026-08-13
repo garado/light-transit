@@ -24,7 +24,9 @@ class GtfsLocalNearbyStopsProvider(lightContext: SealedLightContext) : NearbySto
             minLon = lon - lonDelta,
             maxLon = lon + lonDelta,
         )
-            .map { it.toTripStop() }
+            // collapse stops with shared parent_station into a single marker
+            .groupBy { entity -> entity.sourceId to (entity.parentStation ?: "stop:${entity.stopId}") }
+            .map { (_, entities) -> entities.toGroupedTripStop() }
             .sortedBy { squaredDistance(it.lat, it.lon, lat, lon) }
             .take(MAX_RESULTS)
     }
