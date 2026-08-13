@@ -4,10 +4,12 @@ import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.api.NearbyStopsProvider
+import dev.garado.transit.api.StopDeparturesProvider
 import dev.garado.transit.api.models.StopDeparture
 import dev.garado.transit.api.models.TripStop
 import dev.garado.transit.api.transit.TransitApiPlanProvider
 import dev.garado.transit.gtfs.local.GtfsLocalNearbyStopsProvider
+import dev.garado.transit.gtfs.local.GtfsLocalStopDeparturesProvider
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +26,7 @@ class NearbyStopsViewModel(
     lightContext: SealedLightContext,
     private val transitApiProvider: TransitApiPlanProvider = TransitApiPlanProvider(lightContext),
     private val localStopsProvider: NearbyStopsProvider = GtfsLocalNearbyStopsProvider(lightContext),
+    private val localDeparturesProvider: StopDeparturesProvider = GtfsLocalStopDeparturesProvider(lightContext),
 ) : LightViewModel<Unit>() {
     private val _stops = MutableStateFlow<List<TripStop>>(emptyList())
     val stops: StateFlow<List<TripStop>> = _stops.asStateFlow()
@@ -86,7 +89,11 @@ class NearbyStopsViewModel(
                     apiDeferred.await() to localDeferred.await()
                 }
                 _stops.value = apiStops + localStops
-                _departuresByStop.value = transitApiProvider.departures(apiStops.map { it.globalStopId })
+                _departuresByStop.value = coroutineScope {
+                    val apiDeparturesDeferred = async { transitApiProvider.departures(apiStops.map { it.globalStopId }) }
+                    val localDeparturesDeferred = async { localDeparturesProvider.departures(localStops.map { it.globalStopId }) }
+                    apiDeparturesDeferred.await() + localDeparturesDeferred.await()
+                }
                 _hasSearched.value = true
             } finally {
                 _isSearching.value = false
