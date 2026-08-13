@@ -27,7 +27,7 @@ class NearbyRoutesViewModel(
     val isSearching: StateFlow<Boolean> = _isSearching.asStateFlow()
 
     fun search() {
-        if (_isSearching.value) return
+        if (_isSearching.value || _hasSearched.value) return
         val location = DEMO_LOCATION
         viewModelScope.launch {
             _isSearching.value = true
