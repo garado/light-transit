@@ -472,6 +472,16 @@ internal interface GtfsScheduleDao {
         """
     )
     suspend fun routesServing(sourceId: Long, stopIds: List<String>): List<GtfsRouteEntity>
+
+    /**
+     * routes can have multiple trips with slightly different shape IDs
+     * Pick an arbitrary one for [routeId] to be the representative path for the route
+     */
+    @Query("SELECT shape_id FROM gtfs_trips WHERE source_id = :sourceId AND route_id = :routeId AND shape_id IS NOT NULL LIMIT 1")
+    suspend fun representativeShapeId(sourceId: Long, routeId: String): String?
+
+    @Query("SELECT * FROM gtfs_shape_points WHERE source_id = :sourceId AND shape_id = :shapeId ORDER BY sequence ASC")
+    suspend fun shapePoints(sourceId: Long, shapeId: String): List<GtfsShapePointEntity>
 }
 
 // DATABASE ------------------------
