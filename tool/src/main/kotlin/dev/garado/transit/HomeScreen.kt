@@ -173,7 +173,7 @@ private fun DepartureSelection.fieldValue(): String = when (this) {
     is DepartureSelection.ArriveBy -> formatClockTime(hour24, minute)
 }
 
-private fun Modifier.tabContentPadding(selectedTab: HomeTab): Modifier = this.padding(horizontal = 32.dp).padding(
+private fun Modifier.tabContentPadding(selectedTab: HomeTab): Modifier = this.padding(horizontal = 16.dp).padding(
     top = if (selectedTab == HomeTab.SETTINGS) 0.dp else 12.dp,
     bottom = 16.dp,
 )

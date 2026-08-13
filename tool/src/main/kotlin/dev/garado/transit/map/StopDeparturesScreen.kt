@@ -73,7 +73,7 @@ class StopDeparturesScreen(
                     Column(
                         modifier = Modifier.weight(1f).fillMaxWidth(),
                     ) {
-                        LightScrollView(modifier = Modifier.weight(1f).padding(start = 16.dp).padding(top = 12.dp)) {
+                        LightScrollView(modifier = Modifier.weight(1f).padding(top = 12.dp)) {
                             departures
                                 .groupBy { it.routeName to it.headsign }
                                 .values
@@ -91,7 +91,7 @@ class StopDeparturesScreen(
 @Composable
 private fun RouteDeparturesSection(departures: List<StopDeparture>) {
     val first = departures.first()
-    Column(modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 12.dp, end = 12.dp)) {
+    Column(modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 12.dp, start = 16.dp)) {
         // route badge and name
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(

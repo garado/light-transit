@@ -69,7 +69,7 @@ class RouteSelectScreen(
                 when {
                     plans == null -> StatusMessage("Finding routes...")
                     plans.isEmpty() -> StatusMessage("No routes found")
-                    else -> LightScrollView(modifier = Modifier.padding(horizontal = 8.dp)) {
+                    else -> LightScrollView {
                         plans.forEachIndexed { index, plan ->
                             RouteOptionRow(
                                 plan = plan,
@@ -102,7 +102,7 @@ private fun RouteOptionRow(plan: TripPlan, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .lightClickable(onClick = onClick)
-            .padding(vertical = 12.dp),
+            .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

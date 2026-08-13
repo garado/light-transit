@@ -182,14 +182,14 @@ private fun NearbyStopsList(stops: List<TripStop>, modifier: Modifier = Modifier
         }
         return
     }
-    LightScrollView(modifier = modifier.padding(horizontal = 8.dp)) {
+    LightScrollView(modifier = modifier) {
         stops.forEach { stop ->
             LightText(
                 text = stop.name,
                 variant = LightTextVariant.Copy,
                 modifier = Modifier
                     .lightClickable(onClick = { onStopClick(stop) })
-                    .padding(vertical = 12.dp, horizontal = 16.dp),
+                    .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
             )
         }
     }

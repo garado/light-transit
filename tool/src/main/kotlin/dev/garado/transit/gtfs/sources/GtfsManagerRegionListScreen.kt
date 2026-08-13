@@ -82,7 +82,7 @@ class GtfsManagerRegionListScreen(
                     center = LightTopBarCenter.Text(displayNames.countryName(countryCode)),
                 )
 
-                LightScrollView(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
+                LightScrollView(modifier = Modifier.weight(1f)) {
                     byRegion.forEach { (regionCode, srcs) ->
                         RegionRow(
                             regionName = displayNames.regionName(regionCode),
@@ -130,7 +130,7 @@ private fun RegionRow(
         modifier = Modifier
             .fillMaxWidth()
             .lightClickable(onClick = onClick)
-            .padding(vertical = 12.dp, horizontal = 16.dp),
+            .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
     ) {
         if (isEditing) {
             Box(

@@ -120,7 +120,7 @@ private fun LocationResultRow(result: LocationResult, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .lightClickable(onClick = onClick)
-            .padding(vertical = 12.dp),
+            .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
     ) {
         LightText(text = result.title, variant = LightTextVariant.Copy)
         if (result.address.isNotBlank()) {

@@ -53,13 +53,13 @@ class GtfsDatasetListScreen(
                     center = LightTopBarCenter.Text(displayNames.regionName(regionCode)),
                 )
 
-                LightScrollView(modifier = Modifier.weight(1f).padding(horizontal = 16.dp)) {
+                LightScrollView(modifier = Modifier.weight(1f)) {
                     datasets.forEach { dataset ->
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .lightClickable(onClick = { goBack(listOf(dataset)) })
-                                .padding(vertical = 12.dp),
+                                .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
                         ) {
                             LightText(
                                 text = displayNames.agencyName(dataset.key, dataset.regionCode),

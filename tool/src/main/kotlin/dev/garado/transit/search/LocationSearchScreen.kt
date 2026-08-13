@@ -97,7 +97,7 @@ class LocationSearchScreen(
                     LightScrollView(
                         modifier = Modifier
                             .weight(1f)
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                            .padding(top = 8.dp, bottom = 8.dp),
                     ) {
                         savedLocations.forEach { saved ->
                             SavedLocationRow(
@@ -118,7 +118,7 @@ private fun SavedLocationRow(saved: SavedLocation, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .lightClickable(onClick = onClick)
-            .padding(vertical = 12.dp),
+            .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
     ) {
         LightText(text = saved.displayName, variant = LightTextVariant.Copy)
         LightText(

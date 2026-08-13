@@ -81,7 +81,7 @@ class GtfsCountryListScreen(sealedActivity: SealedLightActivity) :
                         modifier = Modifier.weight(1f),
                     )
                     else -> {
-                        LightScrollView(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
+                        LightScrollView(modifier = Modifier.weight(1f)) {
                             regionsByCountry.forEach { (countryCode, regions) ->
                                 CountryRow(
                                     countryCode = countryCode,
@@ -137,7 +137,7 @@ private fun CountryRow(countryCode: String, countryName: String, count: Int, onC
         modifier = Modifier
             .fillMaxWidth()
             .lightClickable(onClick = onClick)
-            .padding(vertical = 12.dp, horizontal = 16.dp),
+            .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
     ) {
         Column(modifier = Modifier.weight(1f)) {
             LightText(text = countryName, variant = LightTextVariant.Copy)

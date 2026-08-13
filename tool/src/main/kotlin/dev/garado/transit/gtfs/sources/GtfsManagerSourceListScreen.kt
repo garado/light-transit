@@ -89,7 +89,7 @@ class GtfsManagerSourceListScreen(
                         }
                     }
                 } else {
-                    LightScrollView(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
+                    LightScrollView(modifier = Modifier.weight(1f)) {
                         sources.forEach { source ->
                             GtfsSourceRow(
                                 source = source,
@@ -129,7 +129,7 @@ private fun GtfsSourceRow(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
     ) {
         Box(
             modifier = Modifier.width(DELETE_ICON_SIZE_UNITS.gridUnitsAsDp() + DELETE_ICON_GAP),

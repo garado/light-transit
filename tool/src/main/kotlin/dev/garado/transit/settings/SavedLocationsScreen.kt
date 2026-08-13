@@ -130,7 +130,7 @@ private fun SavedLocationsList(
             )
         }
 
-        LightScrollView(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
+        LightScrollView(modifier = Modifier.weight(1f)) {
             savedLocations.forEach { saved ->
                 SavedLocationRow(
                     saved = saved,
@@ -159,7 +159,7 @@ private val DELETE_ICON_GAP = 8.dp
 private fun SavedLocationRow(saved: SavedLocation, isEditing: Boolean, onDeleteClick: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
     ) {
         Box(
             modifier = Modifier.width(DELETE_ICON_SIZE_UNITS.gridUnitsAsDp() + DELETE_ICON_GAP),

@@ -88,7 +88,7 @@ class GtfsManagerScreen(sealedActivity: SealedLightActivity) :
                         }
                     }
                 } else {
-                    LightScrollView(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
+                    LightScrollView(modifier = Modifier.weight(1f)) {
                         byCountry.forEach { (countryCode, srcs) ->
                             val regionCodes = srcs.map { it.regionCode }.distinct()
                             CountryRow(
@@ -142,7 +142,7 @@ private fun CountryRow(
         modifier = Modifier
             .fillMaxWidth()
             .lightClickable(onClick = onClick)
-            .padding(vertical = 12.dp, horizontal = 16.dp),
+            .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
     ) {
         if (isEditing) {
             Box(
