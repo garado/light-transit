@@ -255,6 +255,14 @@ internal fun GtfsRouteEntity.toTripRoute() = TripRoute(
     textColor = textColor,
 )
 
+/** Inverse of [toTripRoute]'s globalRouteId; null if [globalRouteId] isn't a local-GTFS id */
+internal fun parseGtfsGlobalRouteId(globalRouteId: String): Pair<Long, String>? {
+    val parts = globalRouteId.split(":", limit = 3)
+    if (parts.size != 3 || parts[0] != "gtfs") return null
+    val sourceId = parts[1].toLongOrNull() ?: return null
+    return sourceId to parts[2]
+}
+
 @Entity(
     tableName = "gtfs_trips",
     primaryKeys = ["source_id", "trip_id"],
