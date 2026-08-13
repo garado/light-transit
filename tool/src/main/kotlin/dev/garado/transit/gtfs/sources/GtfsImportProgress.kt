@@ -11,7 +11,7 @@ sealed class GtfsImportStage {
     data object ParsingRoutes : GtfsImportStage()
     data object ParsingTrips : GtfsImportStage()
     data object ParsingCalendar : GtfsImportStage()
-    data object ParsingStopTimes : GtfsImportStage()
+    data class ParsingStopTimes(val count: Int) : GtfsImportStage()
 }
 
 /**
@@ -37,5 +37,5 @@ val GtfsImportStage.label: String
         GtfsImportStage.ParsingRoutes -> "Parsing routes..."
         GtfsImportStage.ParsingTrips -> "Parsing trips..."
         GtfsImportStage.ParsingCalendar -> "Parsing calendar..."
-        GtfsImportStage.ParsingStopTimes -> "Parsing schedule..."
+        is GtfsImportStage.ParsingStopTimes -> "${count / 1000}k stop times imported..."
     }

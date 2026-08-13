@@ -139,12 +139,19 @@ internal class GtfsSourceStore(
         scheduleDao.insertCalendars(calendars)
 
         Log.d(TAG, "stop_times.txt parsing started for source $id")
-        GtfsImportProgressTracker.update(id, GtfsImportStage.ParsingStopTimes)
-        val stopTimeCount = withContext(Dispatchers.IO) {
-            GtfsZipExtractor.readEntry(zipFile, "stop_times.txt") { reader ->
-                GtfsStopTimesTxtParser.parse(id, reader) { batch -> scheduleDao.insertStopTimes(batch) }
-            }
-        } ?: 0
+        GtfsImportProgressTracker.update(id, GtfsImportStage.ParsingStopTimes(count = 0))
+        var stopTimesImported = 0
+        val stopTimeCount = scheduleDao.insertStopTimesInOneTransaction {
+            withContext(Dispatchers.IO) {
+                GtfsZipExtractor.readEntry(zipFile, "stop_times.txt") { reader ->
+                    GtfsStopTimesTxtParser.parse(id, reader) { batch ->
+                        scheduleDao.insertStopTimes(batch)
+                        stopTimesImported += batch.size
+                        GtfsImportProgressTracker.update(id, GtfsImportStage.ParsingStopTimes(stopTimesImported))
+                    }
+                }
+            } ?: 0
+        }
         Log.d(TAG, "stop_times.txt parsing ended: $stopTimeCount stop_times for source $id")
 
         Log.d(

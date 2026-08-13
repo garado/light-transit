@@ -11,6 +11,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.RoomDatabase
+import androidx.room.Transaction
 import com.thelightphone.sdk.SealedLightContext
 import com.thelightphone.sdk.buildDatabase
 
@@ -135,6 +136,10 @@ internal interface GtfsScheduleDao {
         clearStopTimes()
         clearCalendars()
     }
+
+    /** Runs [block] as one DB transaction, so many small suspend calls inside it (e.g. batched inserts) commit once. */
+    @Transaction
+    suspend fun insertStopTimesInOneTransaction(block: suspend () -> Int): Int = block()
 
     @Query("SELECT * FROM gtfs_calendar WHERE source_id = :sourceId AND start_date <= :today AND end_date >= :today")
     suspend fun calendarsActiveOn(sourceId: Long, today: Int): List<GtfsCalendarEntity>
