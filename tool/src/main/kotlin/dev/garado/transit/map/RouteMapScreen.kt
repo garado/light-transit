@@ -39,7 +39,11 @@ class RouteMapScreen(
         val themeColors by LightThemeController.colors.collectAsState()
         val stopsProvider = remember { GtfsLocalRouteStopsProvider(lightContext) }
         var stops by remember { mutableStateOf<List<TripStop>>(emptyList()) }
-        LaunchedEffect(route.globalRouteId) { stops = stopsProvider.stopsForRoute(route.globalRouteId) }
+        var shape by remember { mutableStateOf(route.shape) }
+        LaunchedEffect(route.globalRouteId) {
+            stops = stopsProvider.stopsForRoute(route.globalRouteId)
+            if (shape == null) shape = stopsProvider.shapeForRoute(route.globalRouteId)
+        }
 
         val tileCacheDatabase = remember {
             lightContext.buildDatabase(TileCacheDatabase::class.java, "tile_cache.db")
@@ -54,8 +58,8 @@ class RouteMapScreen(
 
         val markerColor = LightThemeTokens.colors.content
         val routeColor = parseHexColor(route.color, fallback = markerColor)
-        val polyline = remember(route.shape, routeColor) {
-            route.shape?.let { shape -> MapOverlay.Polyline(points = decodePolyline(shape), color = routeColor) }
+        val polyline = remember(shape, routeColor) {
+            shape?.let { MapOverlay.Polyline(points = decodePolyline(it), color = routeColor) }
         }
         val markers = remember(stops, markerColor) {
             stops.map { stop ->

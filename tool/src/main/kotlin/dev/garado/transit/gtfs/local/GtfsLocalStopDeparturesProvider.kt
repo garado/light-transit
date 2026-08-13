@@ -46,6 +46,7 @@ class GtfsLocalStopDeparturesProvider(lightContext: SealedLightContext) : StopDe
                 stopDepartures.add(
                     StopDeparture(
                         globalStopId = globalStopId,
+                        globalRouteId = "gtfs:$sourceId:${row.routeId}",
                         routeName = row.routeName,
                         routeColor = row.routeColor,
                         routeTextColor = row.routeTextColor,

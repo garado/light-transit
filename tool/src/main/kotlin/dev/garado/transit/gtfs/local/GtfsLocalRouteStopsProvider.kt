@@ -16,4 +16,9 @@ class GtfsLocalRouteStopsProvider(lightContext: SealedLightContext) : RouteStops
             .groupBy { entity -> entity.parentStation ?: "stop:${entity.stopId}" }
             .map { (_, entities) -> entities.toGroupedTripStop() }
     }
+
+    suspend fun shapeForRoute(globalRouteId: String): String? {
+        val (sourceId, routeId) = parseGtfsGlobalRouteId(globalRouteId) ?: return null
+        return scheduleDao.routeShape(sourceId, routeId)
+    }
 }

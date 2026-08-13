@@ -19,6 +19,8 @@ import com.thelightphone.sdk.buildDatabase
 import dev.garado.transit.api.models.TripRoute
 import dev.garado.transit.api.models.TripStop
 import dev.garado.transit.gtfs.sources.GtfsSourceDownloadState
+import dev.garado.transit.map.LatLon
+import dev.garado.transit.route.encodePolyline
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlinx.coroutines.flow.Flow
@@ -363,6 +365,7 @@ internal data class GtfsDepartureRow(
     @ColumnInfo(name = "stop_id") val stopId: String,
     @ColumnInfo(name = "departure_seconds") val departureSeconds: Int,
     val headsign: String?,
+    @ColumnInfo(name = "route_id") val routeId: String,
     @ColumnInfo(name = "route_name") val routeName: String,
     @ColumnInfo(name = "route_color") val routeColor: String?,
     @ColumnInfo(name = "route_text_color") val routeTextColor: String?,
@@ -448,6 +451,7 @@ internal interface GtfsScheduleDao {
             st.stop_id AS stop_id,
             st.departure_seconds AS departure_seconds,
             t.headsign AS headsign,
+            r.route_id AS route_id,
             r.name AS route_name,
             r.color AS route_color,
             r.text_color AS route_text_color
@@ -506,6 +510,14 @@ internal interface GtfsScheduleDao {
         """
     )
     suspend fun stopsForTrip(sourceId: Long, tripId: String): List<GtfsStopEntity>
+}
+
+/** Encoded polyline for [routeId]'s representative shape, or null if unavailable */
+internal suspend fun GtfsScheduleDao.routeShape(sourceId: Long, routeId: String): String? {
+    val shapeId = representativeShapeId(sourceId, routeId) ?: return null
+    val points = shapePoints(sourceId, shapeId)
+    if (points.isEmpty()) return null
+    return encodePolyline(points.map { LatLon(lat = it.lat, lon = it.lon) })
 }
 
 // DATABASE ------------------------

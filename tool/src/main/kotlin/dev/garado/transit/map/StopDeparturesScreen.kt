@@ -33,6 +33,7 @@ import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.StatusBar
 import dev.garado.transit.api.models.StopDeparture
+import dev.garado.transit.api.models.TripRoute
 import dev.garado.transit.formatClockTime
 import dev.garado.transit.parseHexColor
 
@@ -77,7 +78,12 @@ class StopDeparturesScreen(
                                 .groupBy { it.routeName to it.headsign }
                                 .values
                                 .sortedBy { section -> section.minOf { it.departureTime } }
-                                .forEach { routeDepartures -> RouteDeparturesSection(routeDepartures) }
+                                .forEach { routeDepartures ->
+                                    RouteDeparturesSection(
+                                        routeDepartures,
+                                        onRouteClick = { route -> navigateTo({ activity -> RouteMapScreen(activity, route) }) },
+                                    )
+                                }
                         }
                     }
                 }
@@ -88,11 +94,23 @@ class StopDeparturesScreen(
 
 /** Show route badge/name + its departure times*/
 @Composable
-private fun RouteDeparturesSection(departures: List<StopDeparture>) {
+private fun RouteDeparturesSection(departures: List<StopDeparture>, onRouteClick: (TripRoute) -> Unit) {
     val first = departures.first()
+    val route = remember(first.globalRouteId, first.routeName, first.routeColor, first.routeTextColor) {
+        TripRoute(
+            globalRouteId = first.globalRouteId,
+            name = first.routeName,
+            longName = null,
+            color = first.routeColor,
+            textColor = first.routeTextColor,
+        )
+    }
     Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp, start = 16.dp)) {
         // route badge and name
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.lightClickable(onClick = { onRouteClick(route) }),
+        ) {
             Box(
                 modifier = Modifier
                     .background(
