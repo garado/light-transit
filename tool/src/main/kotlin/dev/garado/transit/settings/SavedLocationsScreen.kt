@@ -75,17 +75,21 @@ class SavedLocationsScreen(sealedActivity: SealedLightActivity) :
 
         LightTheme(colors = themeColors) {
             if (isEnteringName) {
-                LightTextInputEditor(
-                    title = "Display Name",
-                    state = nameFieldState,
-                    onSubmit = {
-                        isEnteringName = false
-                        startAddFlow(it.toString())
-                    },
-                    onBack = { isEnteringName = false },
-                    keyboardOptionsFlow = keyboardOptionsFlow,
-                    singleLine = true,
-                )
+                Column(modifier = Modifier.fillMaxSize()) {
+                    StatusBar()
+                    LightTextInputEditor(
+                        title = "Display Name",
+                        state = nameFieldState,
+                        onSubmit = {
+                            isEnteringName = false
+                            startAddFlow(it.toString())
+                        },
+                        onBack = { isEnteringName = false },
+                        keyboardOptionsFlow = keyboardOptionsFlow,
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
             } else {
                 SavedLocationsList(
                     savedLocations = savedLocations,

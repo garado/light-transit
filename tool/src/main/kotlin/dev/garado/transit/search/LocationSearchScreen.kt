@@ -65,14 +65,18 @@ class LocationSearchScreen(
 
         LightTheme(colors = themeColors) {
             if (isEnteringQuery) {
-                LightTextInputEditor(
-                    title = "Search Location",
-                    state = fieldState,
-                    onSubmit = { submitQuery(it) },
-                    onBack = { isEnteringQuery = false },
-                    keyboardOptionsFlow = keyboardOptionsFlow,
-                    singleLine = true,
-                )
+                Column(modifier = Modifier.fillMaxSize()) {
+                    StatusBar()
+                    LightTextInputEditor(
+                        title = "Search Location",
+                        state = fieldState,
+                        onSubmit = { submitQuery(it) },
+                        onBack = { isEnteringQuery = false },
+                        keyboardOptionsFlow = keyboardOptionsFlow,
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
             } else {
                 Column(
                     modifier = Modifier

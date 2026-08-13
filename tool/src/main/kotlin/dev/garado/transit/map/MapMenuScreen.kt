@@ -43,10 +43,10 @@ class MapMenuScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Uni
                 )
 
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    MapMenuRow(label = "Search on map", onClick = {})
-                    MapMenuRow(label = "Bikeshare", onClick = {})
+                    MapMenuRow(label = "Search on map", onClick = {}, lighten = true)
+                    MapMenuRow(label = "Bikeshare", onClick = {}, lighten = true)
                     MapMenuRow(label = "Nearby stops", onClick = { navigateTo(::NearbyStopsScreen) })
-                    MapMenuRow(label = "Saved routes", onClick = {})
+                    MapMenuRow(label = "Saved routes", onClick = {}, lighten = true)
                 }
             }
         }
@@ -54,10 +54,11 @@ class MapMenuScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Uni
 }
 
 @Composable
-private fun MapMenuRow(label: String, onClick: () -> Unit) {
+private fun MapMenuRow(label: String, onClick: () -> Unit, lighten: Boolean = false) {
     LightText(
         text = label,
         variant = LightTextVariant.Copy,
+        lighten = lighten,
         modifier = Modifier
             .fillMaxWidth()
             .lightClickable(onClick = onClick)
