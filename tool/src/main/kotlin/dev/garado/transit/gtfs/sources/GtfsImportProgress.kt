@@ -33,9 +33,9 @@ object GtfsImportProgressTracker {
 val GtfsImportStage.label: String
     get() = when (this) {
         is GtfsImportStage.Downloading -> if (percent != null) "Downloading... $percent%" else "Downloading..."
-        GtfsImportStage.ParsingStops -> "Parsing stops..."
-        GtfsImportStage.ParsingRoutes -> "Parsing routes..."
-        GtfsImportStage.ParsingTrips -> "Parsing trips..."
-        GtfsImportStage.ParsingCalendar -> "Parsing calendar..."
-        is GtfsImportStage.ParsingStopTimes -> "${count / 1000}k stop times imported..."
+        GtfsImportStage.ParsingStops -> "Parsing stops"
+        GtfsImportStage.ParsingRoutes -> "Parsing routes"
+        GtfsImportStage.ParsingTrips -> "Parsing trips"
+        GtfsImportStage.ParsingCalendar -> "Parsing calendar"
+        is GtfsImportStage.ParsingStopTimes -> "${count / 1000}k stop times imported"
     }
