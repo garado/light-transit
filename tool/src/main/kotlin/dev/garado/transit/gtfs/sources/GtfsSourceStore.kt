@@ -5,10 +5,10 @@ package dev.garado.transit.gtfs.sources
 import android.util.Log
 import dev.garado.transit.gtfs.GtfsDataset
 import dev.garado.transit.gtfs.local.GtfsCalendarTxtParser
+import dev.garado.transit.gtfs.local.GtfsDatabase
 import dev.garado.transit.gtfs.local.GtfsRoutesTxtParser
-import dev.garado.transit.gtfs.local.GtfsScheduleDao
+import dev.garado.transit.gtfs.local.GtfsSourceEntity
 import dev.garado.transit.gtfs.local.GtfsStopTimesTxtParser
-import dev.garado.transit.gtfs.local.GtfsStopsDao
 import dev.garado.transit.gtfs.local.GtfsStopsTxtParser
 import dev.garado.transit.gtfs.local.GtfsTripsTxtParser
 import dev.garado.transit.gtfs.local.GtfsZipExtractor
@@ -25,13 +25,13 @@ private const val TAG = "GtfsSourceStore"
 
 /** Persists user-added GTFS sources on disk, downloads their .gtfs.zip, and imports data for local use */
 internal class GtfsSourceStore(
-    database: GtfsSourceDatabase,
+    database: GtfsDatabase,
     private val filesDir: File,
-    private val stopsDao: GtfsStopsDao,
-    private val scheduleDao: GtfsScheduleDao,
     private val downloader: GtfsDownloader = GtfsDownloader.shared,
 ) {
     private val dao = database.gtfsSourceDao()
+    private val stopsDao = database.gtfsStopsDao()
+    private val scheduleDao = database.gtfsScheduleDao()
 
     val all: Flow<List<GtfsSource>> = dao.getAll().map { entities -> entities.map(GtfsSourceEntity::toGtfsSource) }
 
@@ -56,22 +56,17 @@ internal class GtfsSourceStore(
         downloadFile(source.id, source.downloadUrl)
     }
 
+    /** Dependent stops/routes/trips/stop_times/calendar rows cascade automatically via foreign keys */
     suspend fun delete(source: GtfsSource) {
         GtfsImportProgressTracker.cancel(source.id)
         dao.deleteById(source.id)
-        stopsDao.deleteBySource(source.id)
-        scheduleDao.deleteBySource(source.id)
         localFile(source.id).delete()
     }
 
     suspend fun deleteAll(sources: List<GtfsSource>) {
         sources.forEach { GtfsImportProgressTracker.cancel(it.id) }
         dao.deleteByIds(sources.map { it.id })
-        sources.forEach {
-            stopsDao.deleteBySource(it.id)
-            scheduleDao.deleteBySource(it.id)
-            localFile(it.id).delete()
-        }
+        sources.forEach { localFile(it.id).delete() }
     }
 
     /** Always resolves to DOWNLOADED or FAILED, unless cancelled */

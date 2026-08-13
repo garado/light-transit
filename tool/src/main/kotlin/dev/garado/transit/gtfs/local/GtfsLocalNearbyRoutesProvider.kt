@@ -10,8 +10,8 @@ private const val METERS_PER_DEGREE_LAT = 111_320.0
 
 /** Finds routes serving stops near a location from downloaded GTFS data */
 class GtfsLocalNearbyRoutesProvider(lightContext: SealedLightContext) : NearbyRoutesProvider {
-    private val stopsDao = GtfsStopsDatabaseHolder.get(lightContext).gtfsStopsDao()
-    private val scheduleDao = GtfsScheduleDatabaseHolder.get(lightContext).gtfsScheduleDao()
+    private val stopsDao = GtfsDatabaseHolder.get(lightContext).gtfsStopsDao()
+    private val scheduleDao = GtfsDatabaseHolder.get(lightContext).gtfsScheduleDao()
 
     override suspend fun nearbyRoutes(lat: Double, lon: Double): List<TripRoute> {
         val latDelta = SEARCH_RADIUS_METERS / METERS_PER_DEGREE_LAT

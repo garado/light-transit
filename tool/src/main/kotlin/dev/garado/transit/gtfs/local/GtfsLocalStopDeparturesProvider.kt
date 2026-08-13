@@ -12,7 +12,7 @@ import java.time.ZonedDateTime
  * excludes real-time data, exceptions (calendar_dates.txt), frequencies.txt
  */
 class GtfsLocalStopDeparturesProvider(lightContext: SealedLightContext) : StopDeparturesProvider {
-    private val dao = GtfsScheduleDatabaseHolder.get(lightContext).gtfsScheduleDao()
+    private val dao = GtfsDatabaseHolder.get(lightContext).gtfsScheduleDao()
 
     override suspend fun departures(globalStopIds: List<String>, maxDepartures: Int): Map<String, List<StopDeparture>> {
         val stopsBySource = globalStopIds.mapNotNull { globalStopId ->

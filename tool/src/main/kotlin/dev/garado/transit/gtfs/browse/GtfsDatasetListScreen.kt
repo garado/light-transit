@@ -29,9 +29,7 @@ import dev.garado.transit.StatusBar
 import dev.garado.transit.gtfs.GtfsDataset
 import dev.garado.transit.gtfs.GtfsDisplayNames
 import dev.garado.transit.gtfs.formatFileSize
-import dev.garado.transit.gtfs.local.GtfsScheduleDatabaseHolder
-import dev.garado.transit.gtfs.local.GtfsStopsDatabaseHolder
-import dev.garado.transit.gtfs.sources.GtfsSourceDatabaseHolder
+import dev.garado.transit.gtfs.local.GtfsDatabaseHolder
 import dev.garado.transit.gtfs.sources.GtfsSourceDownloadState
 import dev.garado.transit.gtfs.sources.GtfsSourceStore
 
@@ -47,10 +45,8 @@ class GtfsDatasetListScreen(
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
         val store = remember {
             GtfsSourceStore(
-                GtfsSourceDatabaseHolder.get(lightContext),
+                GtfsDatabaseHolder.get(lightContext),
                 lightContext.filesDir,
-                GtfsStopsDatabaseHolder.get(lightContext).gtfsStopsDao(),
-                GtfsScheduleDatabaseHolder.get(lightContext).gtfsScheduleDao(),
             )
         }
         val sources by store.all.collectAsState(initial = emptyList())
