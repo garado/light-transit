@@ -96,6 +96,14 @@ internal fun GtfsStopEntity.toTripStop() = TripStop(
     lon = lon,
 )
 
+/** Inverse of [toTripStop]'s globalStopId. Null if [globalStopId] isn't a local-GTFS id. */
+internal fun parseGtfsGlobalStopId(globalStopId: String): Pair<Long, String>? {
+    val parts = globalStopId.split(":", limit = 3)
+    if (parts.size != 3 || parts[0] != "gtfs") return null
+    val sourceId = parts[1].toLongOrNull() ?: return null
+    return sourceId to parts[2]
+}
+
 /**
  * Basic geohash implementation: encodes a point to a base32 string identifying its grid cell,
  * and enumerates the cells (at a given precision) that a bounding box overlaps.

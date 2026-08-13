@@ -18,7 +18,7 @@ private const val TAG = "GtfsZipExtractor"
  * it failed on SF Bay Area bc it had duplicate Attribution entry.
  */
 internal object GtfsZipExtractor {
-    fun <T> readEntry(zipFile: File, entryName: String, block: (BufferedReader) -> T): T? = try {
+    suspend fun <T> readEntry(zipFile: File, entryName: String, block: suspend (BufferedReader) -> T): T? = try {
         ZipInputStream(BufferedInputStream(FileInputStream(zipFile))).use { zip ->
             var entry = zip.nextEntry
             while (entry != null) {

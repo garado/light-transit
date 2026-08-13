@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.gtfs.GtfsDataset
+import dev.garado.transit.gtfs.local.GtfsScheduleDatabaseHolder
 import dev.garado.transit.gtfs.local.GtfsStopsDatabaseHolder
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,6 +19,7 @@ class GtfsManagerViewModel(lightContext: SealedLightContext) : LightViewModel<Un
         GtfsSourceDatabaseHolder.get(lightContext),
         lightContext.filesDir,
         GtfsStopsDatabaseHolder.get(lightContext).gtfsStopsDao(),
+        GtfsScheduleDatabaseHolder.get(lightContext).gtfsScheduleDao(),
     )
 
     /** True only until sources below has produced its first result. */
