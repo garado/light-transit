@@ -1,13 +1,14 @@
 package dev.garado.transit.gtfs.local
 
 import android.util.Log
+import java.io.BufferedReader
 
 private const val TAG = "GtfsStopsTxtParser"
 
 /** Parses a GTFS stops.txt into rows ready to store, ignoring every column but the ones we use */
 internal object GtfsStopsTxtParser {
-    fun parse(sourceId: Long, csvText: String): List<GtfsStopEntity> {
-        val lines = csvText.lineSequence().filter { it.isNotBlank() }.iterator()
+    fun parse(sourceId: Long, reader: BufferedReader): List<GtfsStopEntity> {
+        val lines = reader.lineSequence().filter { it.isNotBlank() }.iterator()
         if (!lines.hasNext()) return emptyList()
 
         val header = splitCsvLine(lines.next())
