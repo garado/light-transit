@@ -10,7 +10,8 @@ class GtfsLocalRouteStopsProvider(lightContext: SealedLightContext) : RouteStops
 
     override suspend fun stopsForRoute(globalRouteId: String): List<TripStop> {
         val (sourceId, routeId) = parseGtfsGlobalRouteId(globalRouteId) ?: return emptyList()
-        return scheduleDao.stopsForRoute(sourceId, routeId)
+        val tripId = scheduleDao.representativeTripId(sourceId, routeId) ?: return emptyList()
+        return scheduleDao.stopsForTrip(sourceId, tripId)
             // collapse stops with shared parent_station into a single marker
             .groupBy { entity -> entity.parentStation ?: "stop:${entity.stopId}" }
             .map { (_, entities) -> entities.toGroupedTripStop() }

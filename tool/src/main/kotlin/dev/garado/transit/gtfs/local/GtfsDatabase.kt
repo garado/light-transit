@@ -491,17 +491,21 @@ internal interface GtfsScheduleDao {
     @Query("SELECT * FROM gtfs_shape_points WHERE source_id = :sourceId AND shape_id = :shapeId ORDER BY sequence ASC")
     suspend fun shapePoints(sourceId: Long, shapeId: String): List<GtfsShapePointEntity>
 
-    /** Every distinct stop served by any trip on [routeId] */
+    /** Arbitrary trip's trip_id for [routeId], as a representative stopping pattern for the route */
+    @Query("SELECT trip_id FROM gtfs_trips WHERE source_id = :sourceId AND route_id = :routeId LIMIT 1")
+    suspend fun representativeTripId(sourceId: Long, routeId: String): String?
+
+    /** Stops served by the representative trip on [routeId], in visiting order */
     @Query(
         """
-        SELECT DISTINCT s.*
-        FROM gtfs_stops s
-        INNER JOIN gtfs_stop_times st ON st.source_id = s.source_id AND st.stop_id = s.stop_id
-        INNER JOIN gtfs_trips t ON t.source_id = st.source_id AND t.trip_id = st.trip_id
-        WHERE t.source_id = :sourceId AND t.route_id = :routeId
+        SELECT s.*
+        FROM gtfs_stop_times st
+        INNER JOIN gtfs_stops s ON s.source_id = st.source_id AND s.stop_id = st.stop_id
+        WHERE st.source_id = :sourceId AND st.trip_id = :tripId
+        ORDER BY st.stop_sequence ASC
         """
     )
-    suspend fun stopsForRoute(sourceId: Long, routeId: String): List<GtfsStopEntity>
+    suspend fun stopsForTrip(sourceId: Long, tripId: String): List<GtfsStopEntity>
 }
 
 // DATABASE ------------------------

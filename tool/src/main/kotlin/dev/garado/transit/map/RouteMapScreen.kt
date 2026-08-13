@@ -52,13 +52,14 @@ class RouteMapScreen(
             }
         }
 
-        val routeColor = parseHexColor(route.color, fallback = LightThemeTokens.colors.content)
+        val markerColor = LightThemeTokens.colors.content
+        val routeColor = parseHexColor(route.color, fallback = markerColor)
         val polyline = remember(route.shape, routeColor) {
             route.shape?.let { shape -> MapOverlay.Polyline(points = decodePolyline(shape), color = routeColor) }
         }
-        val markers = remember(stops, routeColor) {
+        val markers = remember(stops, markerColor) {
             stops.map { stop ->
-                MapOverlay.Marker(point = LatLon(lat = stop.lat, lon = stop.lon), color = routeColor, id = stop.globalStopId)
+                MapOverlay.Marker(point = LatLon(lat = stop.lat, lon = stop.lon), color = markerColor, id = stop.globalStopId)
             }
         }
         val overlays = remember(polyline, markers) { listOfNotNull(polyline) + markers }
