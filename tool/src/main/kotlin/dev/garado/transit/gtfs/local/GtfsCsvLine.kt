@@ -15,13 +15,13 @@ internal fun splitGtfsCsvLine(line: String): List<String> {
             }
             c == '"' -> inQuotes = !inQuotes
             c == ',' && !inQuotes -> {
-                fields.add(current.toString())
+                fields.add(current.toString().trim())
                 current.clear()
             }
             else -> current.append(c)
         }
         i++
     }
-    fields.add(current.toString())
-    return fields.map { it.trim() }
+    fields.add(current.toString().trim())
+    return fields
 }
