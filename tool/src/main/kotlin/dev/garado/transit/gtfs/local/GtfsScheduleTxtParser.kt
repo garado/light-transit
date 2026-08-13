@@ -4,6 +4,9 @@ package dev.garado.transit.gtfs.local
 
 import android.util.Log
 import java.io.BufferedReader
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 private const val TAG = "GtfsScheduleTxtParser"
 
@@ -89,49 +92,58 @@ internal object GtfsStopTimesTxtParser {
         }
 
         var count = 0
-        // Reuse batch buffer array capacity
-        val batch = ArrayList<GtfsStopTimeEntity>(BATCH_SIZE)
 
-        var line: String? = reader.readLine()
-        while (line != null) {
-            if (line.isNotEmpty()) {
-                val fields = splitGtfsCsvLine(line)
+        // Parsing is CPU-bound - decompress + CSV-split + build entities
+        // onBatch is I/O-bound - DB insert
+        // Run these as separate coroutines connected by a small bounded channel, so next
+        // batch can be parsed while the current one is being written
+        coroutineScope {
+            val channel = Channel<List<GtfsStopTimeEntity>>(capacity = 2)
+            val consumer = launch {
+                for (batch in channel) onBatch(batch)
+            }
 
-                val tripId = fields.getOrNull(tripIdIndex)
-                val stopId = fields.getOrNull(stopIdIndex)
-                val stopSeqStr = fields.getOrNull(stopSequenceIndex)
-                val rawTime = fields.getOrNull(departureTimeIndex)?.ifEmpty { null }
-                    ?: fields.getOrNull(arrivalTimeIndex)?.ifEmpty { null }
+            val batch = ArrayList<GtfsStopTimeEntity>(BATCH_SIZE)
+            var line: String? = reader.readLine()
+            while (line != null) {
+                if (line.isNotEmpty()) {
+                    val fields = splitGtfsCsvLine(line)
 
-                if (!tripId.isNullOrEmpty() && !stopId.isNullOrEmpty() && !stopSeqStr.isNullOrEmpty() && rawTime != null) {
-                    val stopSequence = stopSeqStr.toIntOrNull()
-                    val departureSeconds = parseGtfsTimeToSecondsFast(rawTime)
+                    val tripId = fields.getOrNull(tripIdIndex)
+                    val stopId = fields.getOrNull(stopIdIndex)
+                    val stopSeqStr = fields.getOrNull(stopSequenceIndex)
+                    val rawTime = fields.getOrNull(departureTimeIndex)?.ifEmpty { null }
+                        ?: fields.getOrNull(arrivalTimeIndex)?.ifEmpty { null }
 
-                    if (stopSequence != null && departureSeconds != null) {
-                        batch.add(
-                            GtfsStopTimeEntity(
-                                sourceId = sourceId,
-                                tripId = tripId,
-                                stopSequence = stopSequence,
-                                stopId = stopId,
-                                departureSeconds = departureSeconds,
+                    if (!tripId.isNullOrEmpty() && !stopId.isNullOrEmpty() && !stopSeqStr.isNullOrEmpty() && rawTime != null) {
+                        val stopSequence = stopSeqStr.toIntOrNull()
+                        val departureSeconds = parseGtfsTimeToSecondsFast(rawTime)
+
+                        if (stopSequence != null && departureSeconds != null) {
+                            batch.add(
+                                GtfsStopTimeEntity(
+                                    sourceId = sourceId,
+                                    tripId = tripId,
+                                    stopSequence = stopSequence,
+                                    stopId = stopId,
+                                    departureSeconds = departureSeconds,
+                                )
                             )
-                        )
-                        count++
+                            count++
 
-                        if (batch.size >= BATCH_SIZE) {
-                            // Pass immutable snapshot without allocating a new backing array copy
-                            onBatch(ArrayList(batch))
-                            batch.clear()
+                            if (batch.size >= BATCH_SIZE) {
+                                channel.send(ArrayList(batch))
+                                batch.clear()
+                            }
                         }
                     }
                 }
+                line = reader.readLine()
             }
-            line = reader.readLine()
-        }
+            if (batch.isNotEmpty()) channel.send(ArrayList(batch))
 
-        if (batch.isNotEmpty()) {
-            onBatch(ArrayList(batch))
+            channel.close()
+            consumer.join()
         }
 
         return count
