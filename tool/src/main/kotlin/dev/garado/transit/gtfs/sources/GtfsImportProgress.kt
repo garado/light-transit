@@ -1,5 +1,6 @@
 package dev.garado.transit.gtfs.sources
 
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,12 +22,30 @@ object GtfsImportProgressTracker {
     private val _progress = MutableStateFlow<Map<Long, GtfsImportStage>>(emptyMap())
     val progress: StateFlow<Map<Long, GtfsImportStage>> = _progress.asStateFlow()
 
+    private val jobs = mutableMapOf<Long, Job>()
+
     fun update(sourceId: Long, stage: GtfsImportStage) {
         _progress.value = _progress.value + (sourceId to stage)
     }
 
     fun clear(sourceId: Long) {
         _progress.value = _progress.value - sourceId
+    }
+
+    /** Save [Job] doing [sourceId]'s download+import in case it needs to be cancelled */
+    @Synchronized
+    fun registerJob(sourceId: Long, job: Job) {
+        jobs[sourceId] = job
+    }
+
+    @Synchronized
+    fun unregisterJob(sourceId: Long) {
+        jobs.remove(sourceId)
+    }
+
+    @Synchronized
+    fun cancel(sourceId: Long) {
+        jobs[sourceId]?.cancel()
     }
 }
 

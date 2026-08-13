@@ -13,14 +13,17 @@ import dev.garado.transit.gtfs.local.GtfsStopsTxtParser
 import dev.garado.transit.gtfs.local.GtfsTripsTxtParser
 import dev.garado.transit.gtfs.local.GtfsZipExtractor
 import java.io.File
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private const val TAG = "GtfsSourceStore"
 
-/** Persists user-added GTFS sources on disk, downloads their .gtfs.zip, and imports schedule data for local use */
+/** Persists user-added GTFS sources on disk, downloads their .gtfs.zip, and imports data for local use */
 internal class GtfsSourceStore(
     database: GtfsSourceDatabase,
     private val filesDir: File,
@@ -54,6 +57,7 @@ internal class GtfsSourceStore(
     }
 
     suspend fun delete(source: GtfsSource) {
+        GtfsImportProgressTracker.cancel(source.id)
         dao.deleteById(source.id)
         stopsDao.deleteBySource(source.id)
         scheduleDao.deleteBySource(source.id)
@@ -61,6 +65,7 @@ internal class GtfsSourceStore(
     }
 
     suspend fun deleteAll(sources: List<GtfsSource>) {
+        sources.forEach { GtfsImportProgressTracker.cancel(it.id) }
         dao.deleteByIds(sources.map { it.id })
         sources.forEach {
             stopsDao.deleteBySource(it.id)
@@ -69,38 +74,49 @@ internal class GtfsSourceStore(
         }
     }
 
-    /** Always resolves to DOWNLOADED or FAILED */
-    private suspend fun downloadFile(id: Long, url: String) {
-        dao.updateDownloadState(id, GtfsSourceDownloadState.DOWNLOADING.name)
-        val destination = localFile(id)
-        Log.d(TAG, "download started for source $id ($url)")
-        GtfsImportProgressTracker.update(id, GtfsImportStage.Downloading(percent = null))
-        val success = try {
-            downloader.download(url, destination) { percent ->
-                GtfsImportProgressTracker.update(id, GtfsImportStage.Downloading(percent))
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Download failed for source $id", e)
-            false
-        }
-        Log.d(TAG, "download stopped for source $id, success=$success")
-        if (success) {
-            try {
-                importStops(id, destination)
+    /** Always resolves to DOWNLOADED or FAILED, unless cancelled */
+    private suspend fun downloadFile(id: Long, url: String): Unit = coroutineScope {
+        val job = launch {
+            dao.updateDownloadState(id, GtfsSourceDownloadState.DOWNLOADING.name)
+            val destination = localFile(id)
+            Log.d(TAG, "download started for source $id ($url)")
+            GtfsImportProgressTracker.update(id, GtfsImportStage.Downloading(percent = null))
+            val success = try {
+                downloader.download(url, destination) { percent ->
+                    GtfsImportProgressTracker.update(id, GtfsImportStage.Downloading(percent))
+                }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                Log.e(TAG, "stops.txt import failed for source $id", e)
+                Log.e(TAG, "Download failed for source $id", e)
+                false
             }
-            try {
-                importSchedule(id, destination)
-            } catch (e: Exception) {
-                Log.e(TAG, "schedule import failed for source $id", e)
+            Log.d(TAG, "download stopped for source $id, success=$success")
+            if (success) {
+                try {
+                    importStops(id, destination)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.e(TAG, "stops.txt import failed for source $id", e)
+                }
+                try {
+                    importSchedule(id, destination)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.e(TAG, "schedule import failed for source $id", e)
+                }
             }
+            dao.updateDownloadState(id, (if (success) GtfsSourceDownloadState.DOWNLOADED else GtfsSourceDownloadState.FAILED).name)
+            GtfsImportProgressTracker.clear(id)
         }
-        dao.updateDownloadState(id, (if (success) GtfsSourceDownloadState.DOWNLOADED else GtfsSourceDownloadState.FAILED).name)
-        GtfsImportProgressTracker.clear(id)
+        GtfsImportProgressTracker.registerJob(id, job)
+        job.invokeOnCompletion { GtfsImportProgressTracker.unregisterJob(id) }
+        job.join()
     }
 
-    /** Best-effort (a stops.txt parse failure shouldn't undo an otherwise-successful download) */
+    /** Best-effort (parse failures don't undo a successful download) */
     private suspend fun importStops(id: Long, zipFile: File) {
         Log.d(TAG, "stops.txt parsing started for source $id")
         GtfsImportProgressTracker.update(id, GtfsImportStage.ParsingStops)
@@ -120,7 +136,7 @@ internal class GtfsSourceStore(
         Log.d(TAG, "stops.txt parsing ended: imported ${stops.size} stops for source $id")
     }
 
-    /** Best-effort (a schedule parse failure shouldn't undo an otherwise-successful download) */
+    /** Best-effort (parse failures don't undo a successful download) */
     private suspend fun importSchedule(id: Long, zipFile: File) {
         Log.d(TAG, "schedule parsing started for source $id")
 
