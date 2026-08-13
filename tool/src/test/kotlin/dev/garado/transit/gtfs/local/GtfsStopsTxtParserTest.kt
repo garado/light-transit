@@ -107,6 +107,23 @@ class GtfsStopsTxtParserTest {
         assertTrue(parse("").isEmpty())
     }
 
+    @Test
+    fun `location_type is stored as-is, including blank as null`() {
+        val stops = parse(
+            """
+            stop_id,stop_name,stop_lat,stop_lon,location_type
+            1,Platform,40.7128,-74.0060,0
+            2,No Type,40.7128,-74.0060,
+            3,Elevator,40.7128,-74.0060,2
+            """.trimIndent()
+        )
+
+        assertEquals(3, stops.size)
+        assertEquals("0", stops.single { it.stopId == "1" }.locationType)
+        assertEquals(null, stops.single { it.stopId == "2" }.locationType)
+        assertEquals("2", stops.single { it.stopId == "3" }.locationType)
+    }
+
     private fun parse(csv: String): List<GtfsStopEntity> =
         GtfsStopsTxtParser.parse(sourceId = 1L, reader = BufferedReader(StringReader(csv)))
 }

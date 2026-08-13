@@ -31,6 +31,8 @@ internal data class GtfsStopEntity(
     val name: String,
     val lat: Double,
     val lon: Double,
+    /** Raw GTFS location_type ("0"/blank = stop or platform, "1" = station, "2" = entrance/exit, etc.) */
+    @ColumnInfo(name = "location_type") val locationType: String? = null,
     val geohash: String = Geohash.encode(lat, lon, GEOHASH_PRECISION),
 )
 
@@ -51,6 +53,7 @@ internal interface GtfsStopsDao {
         WHERE geohash IN (:cells)
           AND lat BETWEEN :minLat AND :maxLat
           AND lon BETWEEN :minLon AND :maxLon
+          AND (location_type IS NULL OR location_type = '0')
         """
     )
     suspend fun nearbyInCells(
