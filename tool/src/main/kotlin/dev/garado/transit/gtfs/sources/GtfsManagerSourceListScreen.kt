@@ -34,6 +34,7 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
+import dev.garado.transit.StatusBar
 import dev.garado.transit.gtfs.GtfsDisplayNames
 import dev.garado.transit.gtfs.local.GtfsScheduleDatabaseHolder
 import dev.garado.transit.gtfs.local.GtfsStopsDatabaseHolder
@@ -71,6 +72,7 @@ class GtfsManagerSourceListScreen(
                     .fillMaxSize()
                     .background(LightThemeTokens.colors.background),
             ) {
+                StatusBar()
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
                     center = LightTopBarCenter.Text(displayNames.regionName(regionCode)),

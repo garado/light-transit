@@ -30,7 +30,7 @@ fun StatusBar(modifier: Modifier = Modifier, onCancel: (() -> Unit)? = null) {
         modifier = modifier
             .fillMaxWidth()
             .background(LightThemeTokens.colors.background)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp),
     ) {
         LightIcon(
             icon = LightIcons.CLOSE,
@@ -41,10 +41,10 @@ fun StatusBar(modifier: Modifier = Modifier, onCancel: (() -> Unit)? = null) {
         )
         LightText(
             text = formatClockTime(currentTimeSeconds),
-            variant = LightTextVariant.Detail,
+            variant = LightTextVariant.Superfine,
             align = TextAlign.Center,
             modifier = Modifier.weight(1f),
         )
-        LightIcon(icon = LightIcons.BATTERY_FULL, size = 1f) // TODO: real battery level
+        // LightIcon(icon = LightIcons.BATTERY_FULL, size = 1f) // TODO: real battery level
     }
 }

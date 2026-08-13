@@ -25,6 +25,7 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
+import dev.garado.transit.StatusBar
 
 class MapMenuScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Unit>(sealedActivity) {
 
@@ -38,6 +39,7 @@ class MapMenuScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Uni
                     .fillMaxSize()
                     .background(LightThemeTokens.colors.background),
             ) {
+                StatusBar()
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, sizeUnits = 1.5f, onClick = { goBack() }),
                     center = LightTopBarCenter.Text("Map"),

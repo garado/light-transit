@@ -33,6 +33,7 @@ class AboutScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Unit>
                     .fillMaxSize()
                     .background(LightThemeTokens.colors.background),
             ) {
+                StatusBar()
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(
                         icon = LightIcons.BACK,

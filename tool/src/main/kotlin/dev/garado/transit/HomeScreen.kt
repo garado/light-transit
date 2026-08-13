@@ -79,9 +79,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                         .fillMaxSize()
                         .background(LightThemeTokens.colors.background),
                 ) {
-                    if (selectedTab == HomeTab.SEARCH) {
-                        StatusBar()
-                    }
+                    StatusBar()
 
                     if (selectedTab == HomeTab.SETTINGS) {
                         LightTopBar(

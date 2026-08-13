@@ -21,6 +21,7 @@ import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
+import dev.garado.transit.StatusBar
 import dev.garado.transit.components.TimePicker
 
 data class TimeSelection(val hour24: Int, val minute: Int)
@@ -43,6 +44,7 @@ class TimePickerScreen(
                     .fillMaxSize()
                     .background(LightThemeTokens.colors.background),
             ) {
+                StatusBar()
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
                     center = LightTopBarCenter.Text("Select Time"),

@@ -29,6 +29,7 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
+import dev.garado.transit.StatusBar
 import dev.garado.transit.api.nominatim.NominatimClient
 import dev.garado.transit.api.nominatim.NominatimResult
 import dev.garado.transit.api.nominatim.toDisplayLine
@@ -69,6 +70,7 @@ class LocationResultsScreen(
                     .fillMaxSize()
                     .background(LightThemeTokens.colors.background),
             ) {
+                StatusBar()
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(
                         icon = LightIcons.BACK,

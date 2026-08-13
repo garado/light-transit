@@ -29,6 +29,7 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
+import dev.garado.transit.StatusBar
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class LocationSearchScreen(
@@ -78,6 +79,7 @@ class LocationSearchScreen(
                         .fillMaxSize()
                         .background(LightThemeTokens.colors.background),
                 ) {
+                    StatusBar()
                     LightTopBar(
                         leftButton = LightBarButton.LightIcon(
                             icon = LightIcons.BACK,

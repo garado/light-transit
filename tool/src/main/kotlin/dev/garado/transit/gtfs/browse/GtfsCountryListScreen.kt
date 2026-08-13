@@ -29,6 +29,7 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
+import dev.garado.transit.StatusBar
 import dev.garado.transit.gtfs.GtfsDataset
 import dev.garado.transit.gtfs.GtfsDisplayNames
 
@@ -61,6 +62,7 @@ class GtfsCountryListScreen(sealedActivity: SealedLightActivity) :
                     .fillMaxSize()
                     .background(LightThemeTokens.colors.background),
             ) {
+                StatusBar()
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
                     center = LightTopBarCenter.Text(if (isRefreshing) "Refreshing..." else "Browse Sources"),

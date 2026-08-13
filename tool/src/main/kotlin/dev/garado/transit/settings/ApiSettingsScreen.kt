@@ -21,6 +21,7 @@ import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
+import dev.garado.transit.StatusBar
 import dev.garado.transit.api.transit.TransitApiUsageTracker
 
 class ApiSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Unit>(sealedActivity) {
@@ -38,6 +39,7 @@ class ApiSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen
                     .fillMaxSize()
                     .background(LightThemeTokens.colors.background),
             ) {
+                StatusBar()
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
                     center = LightTopBarCenter.Text("API Settings"),

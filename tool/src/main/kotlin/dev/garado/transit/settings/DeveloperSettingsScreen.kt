@@ -29,6 +29,7 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
+import dev.garado.transit.StatusBar
 import dev.garado.transit.api.transit.MockTransitApiSettings
 import dev.garado.transit.gtfs.sources.GtfsClearCacheConfirmScreen
 import dev.garado.transit.gtfs.sources.clearGtfsDownloadCache
@@ -51,6 +52,7 @@ class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLight
                     .fillMaxSize()
                     .background(LightThemeTokens.colors.background),
             ) {
+                StatusBar()
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
                     center = LightTopBarCenter.Text("Developer Settings"),

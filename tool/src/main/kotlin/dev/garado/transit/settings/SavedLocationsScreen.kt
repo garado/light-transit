@@ -36,6 +36,7 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
+import dev.garado.transit.StatusBar
 import dev.garado.transit.search.LocationSearchScreen
 import dev.garado.transit.search.SavedLocation
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -113,6 +114,7 @@ private fun SavedLocationsList(
             .fillMaxSize()
             .background(LightThemeTokens.colors.background),
     ) {
+        StatusBar()
         Box {
             LightTopBar(
                 leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = onBack),
