@@ -27,6 +27,7 @@ import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
+import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.StatusBar
 import dev.garado.transit.api.models.TripRoute
 import dev.garado.transit.parseHexColor
@@ -62,7 +63,9 @@ class NearbyRoutesScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit
                     !hasSearched -> CenteredMessage("Searching...", modifier = Modifier.weight(1f))
                     routes.isEmpty() -> CenteredMessage("No nearby routes found", modifier = Modifier.weight(1f))
                     else -> LightScrollView(modifier = Modifier.weight(1f)) {
-                        routes.forEach { route -> RouteRow(route) }
+                        routes.forEach { route ->
+                            RouteRow(route, onClick = { navigateTo({ activity -> RouteMapScreen(activity, route) }) })
+                        }
                     }
                 }
             }
@@ -81,10 +84,13 @@ private fun CenteredMessage(text: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun RouteRow(route: TripRoute) {
+private fun RouteRow(route: TripRoute, onClick: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .lightClickable(onClick = onClick)
+            .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
     ) {
         Box(
             modifier = Modifier

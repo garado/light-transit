@@ -274,7 +274,7 @@ internal fun parseGtfsGlobalRouteId(globalRouteId: String): Pair<Long, String>? 
             onDelete = ForeignKey.CASCADE,
         ),
     ],
-    indices = [Index("source_id", "service_id")],
+    indices = [Index("source_id", "service_id"), Index("source_id", "route_id")],
 )
 internal data class GtfsTripEntity(
     @ColumnInfo(name = "source_id") val sourceId: Long,
