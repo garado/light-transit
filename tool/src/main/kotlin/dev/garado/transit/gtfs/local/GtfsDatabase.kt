@@ -274,6 +274,7 @@ internal data class GtfsTripEntity(
     @ColumnInfo(name = "route_id") val routeId: String,
     @ColumnInfo(name = "service_id") val serviceId: String,
     val headsign: String?,
+    @ColumnInfo(name = "shape_id") val shapeId: String?,
 )
 
 /**
@@ -328,6 +329,28 @@ internal data class GtfsCalendarEntity(
     @ColumnInfo(name = "end_date") val endDate: Int,
 )
 
+/** One point along a route's shape polyline, ordered by [sequence] */
+@Entity(
+    tableName = "gtfs_shape_points",
+    primaryKeys = ["source_id", "shape_id", "sequence"],
+    foreignKeys = [
+        ForeignKey(
+            entity = GtfsSourceEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["source_id"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [Index("source_id", "shape_id")],
+)
+internal data class GtfsShapePointEntity(
+    @ColumnInfo(name = "source_id") val sourceId: Long,
+    @ColumnInfo(name = "shape_id") val shapeId: String,
+    val sequence: Int,
+    val lat: Double,
+    val lon: Double,
+)
+
 internal data class GtfsDepartureRow(
     @ColumnInfo(name = "stop_id") val stopId: String,
     @ColumnInfo(name = "departure_seconds") val departureSeconds: Int,
@@ -351,6 +374,9 @@ internal interface GtfsScheduleDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCalendars(entities: List<GtfsCalendarEntity>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertShapePoints(entities: List<GtfsShapePointEntity>)
+
     @Query("DELETE FROM gtfs_routes WHERE source_id = :sourceId")
     suspend fun deleteRoutesBySource(sourceId: Long)
 
@@ -363,11 +389,15 @@ internal interface GtfsScheduleDao {
     @Query("DELETE FROM gtfs_calendar WHERE source_id = :sourceId")
     suspend fun deleteCalendarsBySource(sourceId: Long)
 
+    @Query("DELETE FROM gtfs_shape_points WHERE source_id = :sourceId")
+    suspend fun deleteShapesBySource(sourceId: Long)
+
     suspend fun deleteBySource(sourceId: Long) {
         deleteRoutesBySource(sourceId)
         deleteTripsBySource(sourceId)
         deleteStopTimesBySource(sourceId)
         deleteCalendarsBySource(sourceId)
+        deleteShapesBySource(sourceId)
     }
 
     @Query("DELETE FROM gtfs_routes")
@@ -382,16 +412,24 @@ internal interface GtfsScheduleDao {
     @Query("DELETE FROM gtfs_calendar")
     suspend fun clearCalendars()
 
+    @Query("DELETE FROM gtfs_shape_points")
+    suspend fun clearShapes()
+
     suspend fun clear() {
         clearRoutes()
         clearTrips()
         clearStopTimes()
         clearCalendars()
+        clearShapes()
     }
 
     /** Runs [block] as one DB transaction, so many small suspend calls inside it (e.g. batched inserts) commit once. */
     @Transaction
     suspend fun insertStopTimesInOneTransaction(block: suspend () -> Int): Int = block()
+
+    /** Runs [block] as one DB transaction, so many small suspend calls inside it (e.g. batched inserts) commit once. */
+    @Transaction
+    suspend fun insertShapePointsInOneTransaction(block: suspend () -> Int): Int = block()
 
     @Query("SELECT * FROM gtfs_calendar WHERE source_id = :sourceId AND start_date <= :today AND end_date >= :today")
     suspend fun calendarsActiveOn(sourceId: Long, today: Int): List<GtfsCalendarEntity>
@@ -446,6 +484,7 @@ internal interface GtfsScheduleDao {
         GtfsTripEntity::class,
         GtfsStopTimeEntity::class,
         GtfsCalendarEntity::class,
+        GtfsShapePointEntity::class,
     ],
     version = 1,
     exportSchema = false,

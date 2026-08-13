@@ -7,6 +7,7 @@ import dev.garado.transit.gtfs.GtfsDataset
 import dev.garado.transit.gtfs.local.GtfsCalendarTxtParser
 import dev.garado.transit.gtfs.local.GtfsDatabase
 import dev.garado.transit.gtfs.local.GtfsRoutesTxtParser
+import dev.garado.transit.gtfs.local.GtfsShapesTxtParser
 import dev.garado.transit.gtfs.local.GtfsSourceEntity
 import dev.garado.transit.gtfs.local.GtfsStopTimesTxtParser
 import dev.garado.transit.gtfs.local.GtfsStopsTxtParser
@@ -177,10 +178,26 @@ internal class GtfsSourceStore(
         }
         Log.d(TAG, "stop_times.txt parsing ended: $stopTimeCount stop_times for source $id")
 
+        Log.d(TAG, "shapes.txt parsing started for source $id")
+        GtfsImportProgressTracker.update(id, GtfsImportStage.ParsingShapes(count = 0))
+        var shapePointsImported = 0
+        val shapePointCount = scheduleDao.insertShapePointsInOneTransaction {
+            withContext(Dispatchers.IO) {
+                GtfsZipExtractor.readEntry(zipFile, "shapes.txt") { reader ->
+                    GtfsShapesTxtParser.parse(id, reader) { batch ->
+                        scheduleDao.insertShapePoints(batch)
+                        shapePointsImported += batch.size
+                        GtfsImportProgressTracker.update(id, GtfsImportStage.ParsingShapes(shapePointsImported))
+                    }
+                }
+            } ?: 0
+        }
+        Log.d(TAG, "shapes.txt parsing ended: $shapePointCount shape points for source $id")
+
         Log.d(
             TAG,
             "schedule parsing ended: ${routes.size} routes, ${trips.size} trips, $stopTimeCount stop_times, " +
-                "${calendars.size} calendar rows for source $id",
+                "${calendars.size} calendar rows, $shapePointCount shape points for source $id",
         )
     }
 

@@ -60,6 +60,7 @@ internal object GtfsTripsTxtParser {
         val routeIdIndex = header.indexOf("route_id")
         val serviceIdIndex = header.indexOf("service_id")
         val headsignIndex = header.indexOf("trip_headsign")
+        val shapeIdIndex = header.indexOf("shape_id")
         if (tripIdIndex < 0 || routeIdIndex < 0 || serviceIdIndex < 0) {
             Log.w(TAG, "trips.txt missing a required column (trip_id/route_id/service_id)")
             return emptyList()
@@ -72,8 +73,16 @@ internal object GtfsTripsTxtParser {
             val routeId = fields.getOrNull(routeIdIndex)?.takeIf { it.isNotBlank() } ?: continue
             val serviceId = fields.getOrNull(serviceIdIndex)?.takeIf { it.isNotBlank() } ?: continue
             val headsign = fields.getOrNull(headsignIndex)?.takeIf { it.isNotBlank() }
+            val shapeId = fields.getOrNull(shapeIdIndex)?.takeIf { it.isNotBlank() }
             entities.add(
-                GtfsTripEntity(sourceId = sourceId, tripId = tripId, routeId = routeId, serviceId = serviceId, headsign = headsign)
+                GtfsTripEntity(
+                    sourceId = sourceId,
+                    tripId = tripId,
+                    routeId = routeId,
+                    serviceId = serviceId,
+                    headsign = headsign,
+                    shapeId = shapeId,
+                )
             )
         }
         return entities
@@ -183,6 +192,72 @@ internal object GtfsStopTimesTxtParser {
         return result
     }
 
+}
+
+internal object GtfsShapesTxtParser {
+    private const val BATCH_SIZE = 5_000
+
+    suspend fun parse(sourceId: Long, reader: BufferedReader, onBatch: suspend (List<GtfsShapePointEntity>) -> Unit): Int {
+        val headerLine = reader.readLine() ?: return 0
+        val header = splitGtfsCsvLine(headerLine)
+
+        val shapeIdIndex = header.indexOf("shape_id")
+        val latIndex = header.indexOf("shape_pt_lat")
+        val lonIndex = header.indexOf("shape_pt_lon")
+        val sequenceIndex = header.indexOf("shape_pt_sequence")
+
+        if (shapeIdIndex < 0 || latIndex < 0 || lonIndex < 0 || sequenceIndex < 0) {
+            Log.w(TAG, "shapes.txt missing a required column")
+            return 0
+        }
+
+        var count = 0
+
+        coroutineScope {
+            val channel = Channel<List<GtfsShapePointEntity>>(capacity = 2)
+            val consumer = launch {
+                for (batch in channel) onBatch(batch)
+            }
+
+            val batch = ArrayList<GtfsShapePointEntity>(BATCH_SIZE)
+            var line: String? = reader.readLine()
+            while (line != null) {
+                if (line.isNotEmpty()) {
+                    val fields = splitGtfsCsvLine(line)
+
+                    val shapeId = fields.getOrNull(shapeIdIndex)
+                    val lat = fields.getOrNull(latIndex)?.toDoubleOrNull()
+                    val lon = fields.getOrNull(lonIndex)?.toDoubleOrNull()
+                    val sequence = fields.getOrNull(sequenceIndex)?.toIntOrNull()
+
+                    if (!shapeId.isNullOrEmpty() && lat != null && lon != null && sequence != null) {
+                        batch.add(
+                            GtfsShapePointEntity(
+                                sourceId = sourceId,
+                                shapeId = shapeId,
+                                sequence = sequence,
+                                lat = lat,
+                                lon = lon,
+                            )
+                        )
+                        count++
+
+                        if (batch.size >= BATCH_SIZE) {
+                            channel.send(ArrayList(batch))
+                            batch.clear()
+                        }
+                    }
+                }
+                line = reader.readLine()
+            }
+            if (batch.isNotEmpty()) channel.send(ArrayList(batch))
+
+            channel.close()
+            consumer.join()
+        }
+
+        return count
+    }
 }
 
 internal object GtfsCalendarTxtParser {
