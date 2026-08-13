@@ -145,19 +145,21 @@ private fun GtfsSourceRow(
         }
         Column {
             LightText(text = displayName, variant = LightTextVariant.Copy)
-            DownloadStateLabel(source.downloadState, onRetryClick)
+            DownloadStateLabel(source.id, source.downloadState, onRetryClick)
         }
     }
 }
 
 @Composable
-private fun DownloadStateLabel(state: GtfsSourceDownloadState, onRetryClick: () -> Unit) {
-    val text = state.statusLabel ?: return
+private fun DownloadStateLabel(sourceId: Long, state: GtfsSourceDownloadState, onRetryClick: () -> Unit) {
+    val progress by GtfsImportProgressTracker.progress.collectAsState()
+    val liveStage = progress[sourceId]
+    val text = liveStage?.label ?: state.statusLabel ?: return
     val baseModifier = Modifier.padding(top = 2.dp)
     LightText(
         text = text,
         variant = LightTextVariant.Detail,
         lighten = true,
-        modifier = if (state.isRetryable) baseModifier.lightClickable(onClick = onRetryClick) else baseModifier,
+        modifier = if (liveStage == null && state.isRetryable) baseModifier.lightClickable(onClick = onRetryClick) else baseModifier,
     )
 }

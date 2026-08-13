@@ -62,8 +62,11 @@ internal class GtfsSourceStore(
         dao.updateDownloadState(id, GtfsSourceDownloadState.DOWNLOADING.name)
         val destination = localFile(id)
         Log.d(TAG, "download started for source $id ($url)")
+        GtfsImportProgressTracker.update(id, GtfsImportStage.Downloading(percent = null))
         val success = try {
-            downloader.download(url, destination)
+            downloader.download(url, destination) { percent ->
+                GtfsImportProgressTracker.update(id, GtfsImportStage.Downloading(percent))
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Download failed for source $id", e)
             false
@@ -82,11 +85,13 @@ internal class GtfsSourceStore(
             }
         }
         dao.updateDownloadState(id, (if (success) GtfsSourceDownloadState.DOWNLOADED else GtfsSourceDownloadState.FAILED).name)
+        GtfsImportProgressTracker.clear(id)
     }
 
     /** Best-effort (a stops.txt parse failure shouldn't undo an otherwise-successful download) */
     private suspend fun importStops(id: Long, zipFile: File) {
         Log.d(TAG, "stops.txt parsing started for source $id")
+        GtfsImportProgressTracker.update(id, GtfsImportStage.ParsingStops)
         val stops = withContext(Dispatchers.IO) {
             GtfsZipExtractor.readEntry(zipFile, "stops.txt") { reader -> GtfsStopsTxtParser.parse(id, reader) }
         }
@@ -108,18 +113,21 @@ internal class GtfsSourceStore(
         Log.d(TAG, "schedule parsing started for source $id")
 
         Log.d(TAG, "routes.txt parsing started for source $id")
+        GtfsImportProgressTracker.update(id, GtfsImportStage.ParsingRoutes)
         val routes = withContext(Dispatchers.IO) {
             GtfsZipExtractor.readEntry(zipFile, "routes.txt") { reader -> GtfsRoutesTxtParser.parse(id, reader) }
         }.orEmpty()
         Log.d(TAG, "routes.txt parsing ended: ${routes.size} routes for source $id")
 
         Log.d(TAG, "trips.txt parsing started for source $id")
+        GtfsImportProgressTracker.update(id, GtfsImportStage.ParsingTrips)
         val trips = withContext(Dispatchers.IO) {
             GtfsZipExtractor.readEntry(zipFile, "trips.txt") { reader -> GtfsTripsTxtParser.parse(id, reader) }
         }.orEmpty()
         Log.d(TAG, "trips.txt parsing ended: ${trips.size} trips for source $id")
 
         Log.d(TAG, "calendar.txt parsing started for source $id")
+        GtfsImportProgressTracker.update(id, GtfsImportStage.ParsingCalendar)
         val calendars = withContext(Dispatchers.IO) {
             GtfsZipExtractor.readEntry(zipFile, "calendar.txt") { reader -> GtfsCalendarTxtParser.parse(id, reader) }
         }.orEmpty()
@@ -131,6 +139,7 @@ internal class GtfsSourceStore(
         scheduleDao.insertCalendars(calendars)
 
         Log.d(TAG, "stop_times.txt parsing started for source $id")
+        GtfsImportProgressTracker.update(id, GtfsImportStage.ParsingStopTimes)
         val stopTimeCount = withContext(Dispatchers.IO) {
             GtfsZipExtractor.readEntry(zipFile, "stop_times.txt") { reader ->
                 GtfsStopTimesTxtParser.parse(id, reader) { batch -> scheduleDao.insertStopTimes(batch) }
