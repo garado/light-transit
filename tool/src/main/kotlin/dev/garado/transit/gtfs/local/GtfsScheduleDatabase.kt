@@ -14,6 +14,7 @@ import androidx.room.RoomDatabase
 import androidx.room.Transaction
 import com.thelightphone.sdk.SealedLightContext
 import com.thelightphone.sdk.buildDatabase
+import dev.garado.transit.api.models.TripRoute
 
 @Entity(
     tableName = "gtfs_routes",
@@ -25,6 +26,13 @@ internal data class GtfsRouteEntity(
     val name: String,
     val color: String?,
     @ColumnInfo(name = "text_color") val textColor: String?,
+)
+
+internal fun GtfsRouteEntity.toTripRoute() = TripRoute(
+    globalRouteId = "gtfs:$sourceId:$routeId",
+    name = name,
+    color = color,
+    textColor = textColor,
 )
 
 @Entity(
@@ -169,6 +177,19 @@ internal interface GtfsScheduleDao {
         afterSeconds: Int,
         serviceIds: List<String>,
     ): List<GtfsDepartureRow>
+
+    /** Every distinct route that stops at any of [stopIds] */
+    @Query(
+        """
+        SELECT DISTINCT r.*
+        FROM gtfs_stop_times st
+        INNER JOIN gtfs_trips t ON t.source_id = st.source_id AND t.trip_id = st.trip_id
+        INNER JOIN gtfs_routes r ON r.source_id = t.source_id AND r.route_id = t.route_id
+        WHERE st.source_id = :sourceId
+          AND st.stop_id IN (:stopIds)
+        """
+    )
+    suspend fun routesServing(sourceId: Long, stopIds: List<String>): List<GtfsRouteEntity>
 }
 
 @Database(
