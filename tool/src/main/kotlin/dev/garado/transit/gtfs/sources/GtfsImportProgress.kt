@@ -13,6 +13,7 @@ sealed class GtfsImportStage {
     data object ParsingTrips : GtfsImportStage()
     data object ParsingCalendar : GtfsImportStage()
     data class ParsingStopTimes(val count: Int) : GtfsImportStage()
+    data class ParsingShapes(val count: Int) : GtfsImportStage()
 }
 
 /**
@@ -57,4 +58,5 @@ val GtfsImportStage.label: String
         GtfsImportStage.ParsingTrips -> "Parsing trips"
         GtfsImportStage.ParsingCalendar -> "Parsing calendar"
         is GtfsImportStage.ParsingStopTimes -> "${count / 1000}k stop times imported"
+        is GtfsImportStage.ParsingShapes -> "${count / 1000}k shape points imported"
     }

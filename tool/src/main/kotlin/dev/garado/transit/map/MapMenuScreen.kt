@@ -38,15 +38,20 @@ class MapMenuScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Uni
             ) {
                 StatusBar()
                 LightTopBar(
-                    leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, sizeUnits = 1.5f, onClick = { goBack() }),
+                    leftButton = LightBarButton.LightIcon(
+                      icon = LightIcons.BACK,
+                      sizeUnits = 1.5f,
+                      onClick = { goBack() }
+                    ),
                     center = LightTopBarCenter.Text("Map"),
                 )
 
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     MapMenuRow(label = "Search on map", onClick = {}, lighten = true)
-                    MapMenuRow(label = "Bikeshare", onClick = {}, lighten = true)
-                    MapMenuRow(label = "Nearby stops", onClick = { navigateTo(::NearbyStopsScreen) })
                     MapMenuRow(label = "Saved routes", onClick = {}, lighten = true)
+                    MapMenuRow(label = "Nearby stops", onClick = { navigateTo(::NearbyStopsScreen) })
+                    MapMenuRow(label = "Nearby routes", onClick = { navigateTo(::NearbyRoutesScreen) })
+                    MapMenuRow(label = "Bikeshare", onClick = {}, lighten = true)
                 }
             }
         }

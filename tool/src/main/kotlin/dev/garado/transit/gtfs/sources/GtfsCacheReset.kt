@@ -4,8 +4,7 @@ package dev.garado.transit.gtfs.sources
 
 import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.gtfs.browse.GtfsCatalogDatabaseHolder
-import dev.garado.transit.gtfs.local.GtfsScheduleDatabaseHolder
-import dev.garado.transit.gtfs.local.GtfsStopsDatabaseHolder
+import dev.garado.transit.gtfs.local.GtfsDatabaseHolder
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,13 +15,13 @@ import kotlinx.coroutines.withContext
  */
 suspend fun clearGtfsDownloadCache(lightContext: SealedLightContext) {
     GtfsCatalogDatabaseHolder.get(lightContext).gtfsCatalogDao().clear()
-    GtfsStopsDatabaseHolder.get(lightContext).gtfsStopsDao().clear()
-    GtfsScheduleDatabaseHolder.get(lightContext).gtfsScheduleDao().clear()
+    val gtfsDb = GtfsDatabaseHolder.get(lightContext)
+    gtfsDb.gtfsStopsDao().clear()
+    gtfsDb.gtfsScheduleDao().clear()
 
     withContext(Dispatchers.IO) {
         File(lightContext.filesDir, "gtfs").listFiles()?.forEach { it.delete() }
     }
 
-    GtfsSourceDatabaseHolder.get(lightContext).gtfsSourceDao()
-        .resetAllDownloadStates(GtfsSourceDownloadState.NOT_DOWNLOADED.name)
+    gtfsDb.gtfsSourceDao().resetAllDownloadStates(GtfsSourceDownloadState.NOT_DOWNLOADED.name)
 }

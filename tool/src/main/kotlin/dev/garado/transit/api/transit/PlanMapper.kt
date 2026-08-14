@@ -85,6 +85,7 @@ private fun RouteDepartureDto.toStopDepartures(): List<StopDeparture> = mergedIt
         .map { item ->
             StopDeparture(
                 globalStopId = globalStopId,
+                globalRouteId = globalRouteId,
                 routeName = routeShortName ?: routeLongName ?: globalRouteId,
                 routeColor = routeColor,
                 routeTextColor = routeTextColor,

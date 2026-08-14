@@ -36,8 +36,7 @@ import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.StatusBar
 import dev.garado.transit.gtfs.GtfsDisplayNames
-import dev.garado.transit.gtfs.local.GtfsScheduleDatabaseHolder
-import dev.garado.transit.gtfs.local.GtfsStopsDatabaseHolder
+import dev.garado.transit.gtfs.local.GtfsDatabaseHolder
 import kotlinx.coroutines.launch
 
 /** Sub-regions of saved sources within one country, mirrors GtfsRegionListScreen. */
@@ -51,10 +50,8 @@ class GtfsManagerRegionListScreen(
         val themeColors by LightThemeController.colors.collectAsState()
         val store = remember {
             GtfsSourceStore(
-                GtfsSourceDatabaseHolder.get(lightContext),
+                GtfsDatabaseHolder.get(lightContext),
                 lightContext.filesDir,
-                GtfsStopsDatabaseHolder.get(lightContext).gtfsStopsDao(),
-                GtfsScheduleDatabaseHolder.get(lightContext).gtfsScheduleDao(),
             )
         }
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
