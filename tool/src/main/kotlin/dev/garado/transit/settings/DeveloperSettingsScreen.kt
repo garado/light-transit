@@ -78,7 +78,7 @@ class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLight
                         },
                     )
                     DevToggleRow(
-                        label = "Enable Live location ",
+                        label = "Enable live location ",
                         enabled = liveLocationEnabled,
                         onClick = {
                             coroutineScope.launch { locationSettings.setLiveLocationEnabled(!liveLocationEnabled) }
