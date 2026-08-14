@@ -1,0 +1,12 @@
+diff --git a/plugin/src/main/kotlin/com/thelightphone/plugin/LightSdkPlugin.kt b/plugin/src/main/kotlin/com/thelightphone/plugin/LightSdkPlugin.kt
+index 2da84e2..328c00e 100644
+--- a/plugin/src/main/kotlin/com/thelightphone/plugin/LightSdkPlugin.kt
++++ b/plugin/src/main/kotlin/com/thelightphone/plugin/LightSdkPlugin.kt
+@@ -36,6 +36,7 @@ class LightSdkPlugin : Plugin<Project> {
+             "androidx.startup",
+             "androidx.media3",
+             "io.github.david-allison:anki-android-backend",
++            "org.yaml:snakeyaml",
+         )
+ 
+         val ALLOWED_PLUGINS = setOf(
