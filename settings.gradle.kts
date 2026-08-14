@@ -38,36 +38,45 @@ dependencyResolutionManagement {
 
 rootProject.name = "light-sdk-template"
 
-// Overlay local light-sdk-patch patches before light-sdk's build files/sources are read below.
-// git restore'd after build to keep light-sdk submodule clean
-val sdkPatchDir = file("light-sdk-patch")
+// Apply local light-sdk-patch/*.patch to the light-sdk submodule before its build
+// files/sources are read below. Reverted in buildFinished to keep the submodule clean.
+// Patches are real diffs (not full-file copies) so they fail loudly via `git apply` if upstream
+// has drifted underneath them, instead of silently overwriting with stale content.
+val sdkPatchesDir = file("light-sdk-patch")
 val sdkDir = file("light-sdk")
-if (sdkPatchDir.exists()) {
-    val patchedRelativePaths = sdkPatchDir.walkTopDown()
-        .filter { it.isFile && it.name != "README.md" }
-        .map { it.relativeTo(sdkPatchDir).path }
-        .toList()
+if (sdkPatchesDir.exists()) {
+    val patchFiles = sdkPatchesDir.listFiles { f -> f.isFile && f.extension == "patch" }
+        ?.sortedBy { it.name }
+        .orEmpty()
 
-    for (relativePath in patchedRelativePaths) {
-        val target = sdkDir.resolve(relativePath)
-        target.parentFile.mkdirs()
-        sdkPatchDir.resolve(relativePath).copyTo(target, overwrite = true)
+    fun runGit(vararg args: String): Int = ProcessBuilder("git", *args)
+        .directory(sdkDir)
+        .redirectErrorStream(true)
+        .start()
+        .waitFor()
+
+    val appliedPaths = mutableListOf<String>()
+    for (patchFile in patchFiles) {
+        // paths this patch touches, so we know what to restore afterward
+        val paths = patchFile.readLines()
+            .filter { it.startsWith("+++ b/") }
+            .map { it.removePrefix("+++ b/") }
+        val exitCode = runGit("apply", patchFile.absolutePath)
+        check(exitCode == 0) {
+            "Failed to apply $patchFile - light-sdk submodule has likely drifted from what this patch expects. " +
+                "Regenerate it against the current submodule contents."
+        }
+        appliedPaths += paths
     }
 
-    gradle.buildFinished {
-        for (relativePath in patchedRelativePaths) {
-            // tracked files: restore to their committed contents
-            ProcessBuilder("git", "checkout", "--", relativePath)
-                .directory(sdkDir)
-                .redirectErrorStream(true)
-                .start()
-                .waitFor()
-            // untracked/new files: remove them entirely
-            ProcessBuilder("git", "clean", "-f", "--", relativePath)
-                .directory(sdkDir)
-                .redirectErrorStream(true)
-                .start()
-                .waitFor()
+    if (appliedPaths.isNotEmpty()) {
+        gradle.buildFinished {
+            for (relativePath in appliedPaths) {
+                // tracked files: restore to their committed contents
+                runGit("checkout", "--", relativePath)
+                // untracked/new files: remove them entirely
+                runGit("clean", "-f", "--", relativePath)
+            }
         }
     }
 }

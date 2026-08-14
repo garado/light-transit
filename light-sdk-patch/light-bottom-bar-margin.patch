@@ -1,0 +1,13 @@
+diff --git a/sdk/ui/src/main/kotlin/com/thelightphone/sdk/ui/LightBottomBar.kt b/sdk/ui/src/main/kotlin/com/thelightphone/sdk/ui/LightBottomBar.kt
+index 7e54702..71c00e6 100644
+--- a/sdk/ui/src/main/kotlin/com/thelightphone/sdk/ui/LightBottomBar.kt
++++ b/sdk/ui/src/main/kotlin/com/thelightphone/sdk/ui/LightBottomBar.kt
+@@ -14,7 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
+ 
+ private const val BOTTOMBAR_HEIGHT_UNITS = 4f
+ private const val HORIZONTAL_PADDING_MULTI_UNITS = 2f
+-private const val TOP_MARGIN_UNITS = 1f
++private const val TOP_MARGIN_UNITS = 0f
+ 
+ private val BOTTOMBAR_TEXT_VARIANT = LightTextVariant.Button
+ 
