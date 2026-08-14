@@ -37,6 +37,8 @@ import dev.garado.transit.location.AutoJumpToUserLocation
 import dev.garado.transit.parseHexColor
 import dev.garado.transit.search.LocationSearchScreen
 
+private const val INITIAL_ZOOM = 18f
+
 class NearbyRoutesScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, NearbyRoutesViewModel>(sealedActivity) {
 
     override val viewModelClass = NearbyRoutesViewModel::class.java
@@ -93,6 +95,7 @@ class NearbyRoutesScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit
                             isDarkTheme = LightThemeController.isDarkTheme,
                             tileSource = tileSource,
                             initialCenter = searchedCenter ?: DEMO_LOCATION,
+                            initialZoom = INITIAL_ZOOM,
                             overlays = searchMarkers,
                             onCenterChanged = viewModel::onMapCenterChanged,
                             modifier = Modifier.weight(1f).fillMaxSize(),

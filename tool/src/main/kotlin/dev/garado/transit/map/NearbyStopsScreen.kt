@@ -34,6 +34,8 @@ import dev.garado.transit.api.models.TripStop
 import dev.garado.transit.location.AutoJumpToUserLocation
 import dev.garado.transit.search.LocationSearchScreen
 
+private const val INITIAL_ZOOM = 18f
+
 class NearbyStopsScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, NearbyStopsViewModel>(sealedActivity) {
 
     override val viewModelClass = NearbyStopsViewModel::class.java
@@ -99,6 +101,7 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit,
                             isDarkTheme = LightThemeController.isDarkTheme,
                             tileSource = tileSource,
                             initialCenter = searchedCenter ?: DEMO_LOCATION,
+                            initialZoom = INITIAL_ZOOM,
                             overlays = markers,
                             fitBounds = fitBounds,
                             onMarkerClick = { marker ->

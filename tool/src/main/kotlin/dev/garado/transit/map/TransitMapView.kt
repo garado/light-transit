@@ -51,6 +51,7 @@ fun TransitMapView(
     isDarkTheme: Boolean,
     tileSource: MapTileSource,
     initialCenter: LatLon = DEFAULT_CENTER,
+    initialZoom: Float = DEFAULT_ZOOM,
     overlays: List<MapOverlay> = emptyList(),
     fitBounds: LatLonBounds? = null,
     onMarkerClick: ((MapOverlay.Marker) -> Unit)? = null,
@@ -59,7 +60,7 @@ fun TransitMapView(
 ) {
     var centerLat by remember(initialCenter) { mutableStateOf(initialCenter.lat) }
     var centerLon by remember(initialCenter) { mutableStateOf(initialCenter.lon) }
-    var zoom by remember { mutableStateOf(DEFAULT_ZOOM) }
+    var zoom by remember { mutableStateOf(initialZoom.coerceIn(MIN_ZOOM, MAX_ZOOM)) }
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
     var tileZoomLevel by remember { mutableStateOf<Int?>(null) }
 
