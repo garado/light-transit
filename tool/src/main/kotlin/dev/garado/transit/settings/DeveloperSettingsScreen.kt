@@ -33,6 +33,7 @@ import dev.garado.transit.StatusBar
 import dev.garado.transit.api.transit.MockTransitApiSettings
 import dev.garado.transit.gtfs.sources.GtfsClearCacheConfirmScreen
 import dev.garado.transit.gtfs.sources.clearGtfsDownloadCache
+import dev.garado.transit.location.UserLocationSettings
 import kotlinx.coroutines.launch
 
 class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Unit>(sealedActivity) {
@@ -45,6 +46,9 @@ class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLight
         val mockSettings = remember { MockTransitApiSettings(lightContext.dataStore) }
         val useMockedResponses by mockSettings.useMockedResponses.collectAsState(initial = false)
         val simulateApiFailure by mockSettings.simulateApiFailure.collectAsState(initial = false)
+
+        val locationSettings = remember { UserLocationSettings(lightContext.dataStore) }
+        val liveLocationEnabled by locationSettings.liveLocationEnabled.collectAsState(initial = false)
 
         LightTheme(colors = themeColors) {
             Column(
@@ -71,6 +75,13 @@ class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLight
                         enabled = simulateApiFailure,
                         onClick = {
                             coroutineScope.launch { mockSettings.setSimulateApiFailure(!simulateApiFailure) }
+                        },
+                    )
+                    DevToggleRow(
+                        label = "Enable Live location ",
+                        enabled = liveLocationEnabled,
+                        onClick = {
+                            coroutineScope.launch { locationSettings.setLiveLocationEnabled(!liveLocationEnabled) }
                         },
                     )
                     DevActionRow(
