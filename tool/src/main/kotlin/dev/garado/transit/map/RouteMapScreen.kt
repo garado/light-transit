@@ -51,11 +51,13 @@ class RouteMapScreen(
         }
 
         fun onStopSelected(stop: TripStop) {
+            // replace screen instead of pushing new screen to prevent endless backstack
             coroutineScope.launch {
                 val departures = departuresProvider.departures(stop.groupedStopIds)
                     .values
                     .flatten()
                     .sortedBy { it.departureTime }
+                goBack()
                 navigateTo({ activity -> StopDeparturesScreen(activity, stop.name, departures) })
             }
         }

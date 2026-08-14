@@ -81,7 +81,12 @@ class StopDeparturesScreen(
                                 .forEach { routeDepartures ->
                                     RouteDeparturesSection(
                                         routeDepartures,
-                                        onRouteClick = { route -> navigateTo({ activity -> RouteMapScreen(activity, route) }) },
+                                        onRouteClick = { route ->
+                                            // replace screen instead of pushing new screen
+                                            // to prevent endless backstack
+                                            goBack()
+                                            navigateTo({ activity -> RouteMapScreen(activity, route) })
+                                        },
                                     )
                                 }
                         }
