@@ -33,6 +33,7 @@ import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.StatusBar
 import dev.garado.transit.api.models.TripRoute
+import dev.garado.transit.location.AutoJumpToUserLocation
 import dev.garado.transit.parseHexColor
 import dev.garado.transit.search.LocationSearchScreen
 
@@ -64,6 +65,8 @@ class NearbyRoutesScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit
         fun onRouteSelected(route: TripRoute) {
             navigateTo({ activity -> RouteMapScreen(activity, route) })
         }
+
+        AutoJumpToUserLocation(lightContext, onLocationFound = viewModel::jumpTo)
 
         val markerColor = LightThemeTokens.colors.content
         val searchMarkers = remember(searchedCenter, markerColor) {

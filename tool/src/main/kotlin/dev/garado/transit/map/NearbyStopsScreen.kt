@@ -31,6 +31,7 @@ import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.StatusBar
 import dev.garado.transit.api.models.TripStop
+import dev.garado.transit.location.AutoJumpToUserLocation
 import dev.garado.transit.search.LocationSearchScreen
 
 class NearbyStopsScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, NearbyStopsViewModel>(sealedActivity) {
@@ -59,20 +60,24 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit,
         }
 
         val markerColor = LightThemeTokens.colors.content
-        val markers = remember(stops, markerColor) {
-            stops.map { stop ->
+        val markers = remember(stops, searchedCenter, markerColor) {
+            val stopMarkers = stops.map { stop ->
                 MapOverlay.Marker(
                     point = LatLon(lat = stop.lat, lon = stop.lon),
                     color = markerColor,
                     id = stop.globalStopId,
                 )
             }
+            val searchedCenterMarker = searchedCenter?.let { MapOverlay.Marker(point = it, color = markerColor) }
+            stopMarkers + listOfNotNull(searchedCenterMarker)
         }
         val fitBounds = remember(stops) { stops.map { LatLon(lat = it.lat, lon = it.lon) }.boundingBox() }
 
         fun onStopSelected(stop: TripStop) {
             navigateTo({ activity -> StopDeparturesScreen(activity, stop.name, viewModel.departuresFor(stop)) })
         }
+
+        AutoJumpToUserLocation(lightContext, onLocationFound = viewModel::jumpTo)
 
         LightTheme(colors = themeColors) {
             Column(
