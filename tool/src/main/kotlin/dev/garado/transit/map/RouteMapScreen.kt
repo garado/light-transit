@@ -10,6 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.thelightphone.sdk.SealedLightActivity
@@ -26,8 +27,10 @@ import dev.garado.transit.StatusBar
 import dev.garado.transit.api.models.TripRoute
 import dev.garado.transit.api.models.TripStop
 import dev.garado.transit.gtfs.local.GtfsLocalRouteStopsProvider
+import dev.garado.transit.gtfs.local.GtfsLocalStopDeparturesProvider
 import dev.garado.transit.parseHexColor
 import dev.garado.transit.route.decodePolyline
+import kotlinx.coroutines.launch
 
 class RouteMapScreen(
     sealedActivity: SealedLightActivity,
@@ -38,11 +41,23 @@ class RouteMapScreen(
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
         val stopsProvider = remember { GtfsLocalRouteStopsProvider(lightContext) }
+        val departuresProvider = remember { GtfsLocalStopDeparturesProvider(lightContext) }
+        val coroutineScope = rememberCoroutineScope()
         var stops by remember { mutableStateOf<List<TripStop>>(emptyList()) }
         var shape by remember { mutableStateOf(route.shape) }
         LaunchedEffect(route.globalRouteId) {
             stops = stopsProvider.stopsForRoute(route.globalRouteId)
             if (shape == null) shape = stopsProvider.shapeForRoute(route.globalRouteId)
+        }
+
+        fun onStopSelected(stop: TripStop) {
+            coroutineScope.launch {
+                val departures = departuresProvider.departures(stop.groupedStopIds)
+                    .values
+                    .flatten()
+                    .sortedBy { it.departureTime }
+                navigateTo({ activity -> StopDeparturesScreen(activity, stop.name, departures) })
+            }
         }
 
         val tileCacheDatabase = remember {
@@ -89,6 +104,7 @@ class RouteMapScreen(
                     initialCenter = fitBounds?.center ?: DEMO_LOCATION,
                     overlays = overlays,
                     fitBounds = fitBounds,
+                    onMarkerClick = { marker -> stops.find { it.globalStopId == marker.id }?.let(::onStopSelected) },
                     modifier = Modifier.weight(1f).fillMaxSize(),
                 )
             }
