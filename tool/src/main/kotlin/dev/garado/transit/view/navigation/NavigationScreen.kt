@@ -40,16 +40,16 @@ import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.LegModeIcon
 import dev.garado.transit.util.MinuteTimer
 import dev.garado.transit.view.home.StatusBar
-import dev.garado.transit.api.models.TripLeg
-import dev.garado.transit.api.models.TripPlan
-import dev.garado.transit.api.models.TripStop
+import dev.garado.transit.models.TripLeg
+import dev.garado.transit.models.TripPlan
+import dev.garado.transit.models.TripStop
 import dev.garado.transit.util.formatClockTime
 import dev.garado.transit.util.formatDuration
-import dev.garado.transit.map.LatLon
+import dev.garado.transit.models.LatLon
 import dev.garado.transit.map.RasterTileSource
 import dev.garado.transit.map.TileCacheDatabase
 import dev.garado.transit.view.map.TransitMapView
-import dev.garado.transit.search.LocationResult
+import dev.garado.transit.models.LocationResult
 
 private enum class NavigationViewMode { DIRECTIONS, MAP }
 

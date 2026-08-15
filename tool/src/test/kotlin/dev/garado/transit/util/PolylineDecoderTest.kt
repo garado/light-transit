@@ -21,7 +21,7 @@ class PolylineDecoderTest {
         assertEquals(emptyList(), decodePolyline(""))
     }
 
-    private fun assertLatLonEquals(expectedLat: Double, expectedLon: Double, actual: dev.garado.transit.map.LatLon) {
+    private fun assertLatLonEquals(expectedLat: Double, expectedLon: Double, actual: dev.garado.transit.models.LatLon) {
         assertEquals(expectedLat, actual.lat, absoluteTolerance = 1e-5)
         assertEquals(expectedLon, actual.lon, absoluteTolerance = 1e-5)
     }

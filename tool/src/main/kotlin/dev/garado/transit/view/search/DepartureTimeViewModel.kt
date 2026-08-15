@@ -1,6 +1,6 @@
 package dev.garado.transit.view.search
 
-import dev.garado.transit.search.DepartureSelection
+import dev.garado.transit.models.DepartureSelection
 import com.thelightphone.sdk.LightViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

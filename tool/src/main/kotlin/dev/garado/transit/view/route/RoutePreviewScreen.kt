@@ -33,14 +33,14 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
-import dev.garado.transit.api.models.TripPlan
+import dev.garado.transit.models.TripPlan
 import dev.garado.transit.util.formatDuration
 import dev.garado.transit.util.formatTimeRange
 import dev.garado.transit.map.RasterTileSource
 import dev.garado.transit.map.TileCacheDatabase
 import dev.garado.transit.view.map.TransitMapView
 import dev.garado.transit.view.navigation.NavigationScreen
-import dev.garado.transit.search.LocationResult
+import dev.garado.transit.models.LocationResult
 
 class RoutePreviewScreen(
     sealedActivity: SealedLightActivity,

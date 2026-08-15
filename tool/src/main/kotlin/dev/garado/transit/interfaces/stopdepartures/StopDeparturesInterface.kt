@@ -1,6 +1,6 @@
 package dev.garado.transit.interfaces.stopdepartures
 
-import dev.garado.transit.api.models.StopDeparture
+import dev.garado.transit.models.StopDeparture
 
 /** Backend for fetching upcoming departures for a batch of stops at once. */
 interface StopDeparturesInterface {

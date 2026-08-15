@@ -1,11 +1,11 @@
 package dev.garado.transit.view.map
 
-import dev.garado.transit.map.LatLon
+import dev.garado.transit.models.LatLon
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
-import dev.garado.transit.api.models.StopDeparture
-import dev.garado.transit.api.models.TripStop
+import dev.garado.transit.models.StopDeparture
+import dev.garado.transit.models.TripStop
 import dev.garado.transit.interfaces.nearbystops.GtfsLocalNearbyStopsProvider
 import dev.garado.transit.interfaces.stopdepartures.GtfsLocalStopDeparturesProvider
 import dev.garado.transit.interfaces.nearbystops.NearbyStopsInterface

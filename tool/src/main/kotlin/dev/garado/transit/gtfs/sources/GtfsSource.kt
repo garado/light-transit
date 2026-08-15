@@ -1,6 +1,6 @@
 package dev.garado.transit.gtfs.sources
 
-import dev.garado.transit.gtfs.gtfsDownloadUrl
+import dev.garado.transit.models.gtfsDownloadUrl
 
 enum class GtfsSourceDownloadState {
     NOT_DOWNLOADED,

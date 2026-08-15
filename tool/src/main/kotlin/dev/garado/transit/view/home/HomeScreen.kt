@@ -26,7 +26,7 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import dev.garado.transit.view.map.MapMenuScreen
 import dev.garado.transit.view.route.RouteSelectScreen
-import dev.garado.transit.search.DepartureSelection
+import dev.garado.transit.models.DepartureSelection
 import dev.garado.transit.view.search.DepartureTimeScreen
 import dev.garado.transit.view.search.LocationSearchScreen
 import dev.garado.transit.view.search.SearchTabContent

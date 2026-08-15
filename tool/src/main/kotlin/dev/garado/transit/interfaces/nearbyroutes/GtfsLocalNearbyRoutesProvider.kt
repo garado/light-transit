@@ -1,7 +1,7 @@
 package dev.garado.transit.interfaces.nearbyroutes
 
 import com.thelightphone.sdk.SealedLightContext
-import dev.garado.transit.api.models.TripRoute
+import dev.garado.transit.models.TripRoute
 import dev.garado.transit.gtfs.local.GtfsDatabaseHolder
 import dev.garado.transit.gtfs.local.routeShape
 import dev.garado.transit.gtfs.local.toTripRoute

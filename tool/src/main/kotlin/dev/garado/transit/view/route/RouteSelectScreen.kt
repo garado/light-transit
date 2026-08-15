@@ -29,11 +29,11 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
-import dev.garado.transit.api.models.TripPlan
+import dev.garado.transit.models.TripPlan
 import dev.garado.transit.util.formatDurationLines
 import dev.garado.transit.util.formatTimeRange
-import dev.garado.transit.search.DepartureSelection
-import dev.garado.transit.search.LocationResult
+import dev.garado.transit.models.DepartureSelection
+import dev.garado.transit.models.LocationResult
 
 private val SUMMARY_COLUMN_WIDTH = 56.dp
 

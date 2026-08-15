@@ -1,6 +1,6 @@
 package dev.garado.transit.view.search
 
-import dev.garado.transit.search.LocationResult
+import dev.garado.transit.models.LocationResult
 import dev.garado.transit.search.SearchCache
 import dev.garado.transit.search.SearchCacheDatabase
 import androidx.compose.foundation.background

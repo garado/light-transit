@@ -16,10 +16,10 @@ import androidx.room.RoomDatabase
 import androidx.room.Transaction
 import com.thelightphone.sdk.SealedLightContext
 import com.thelightphone.sdk.buildDatabase
-import dev.garado.transit.api.models.TripRoute
-import dev.garado.transit.api.models.TripStop
+import dev.garado.transit.models.TripRoute
+import dev.garado.transit.models.TripStop
 import dev.garado.transit.gtfs.sources.GtfsSourceDownloadState
-import dev.garado.transit.map.LatLon
+import dev.garado.transit.models.LatLon
 import dev.garado.transit.util.encodePolyline
 import kotlin.math.ceil
 import kotlin.math.floor

@@ -1,7 +1,7 @@
 package dev.garado.transit.interfaces.stopdepartures
 
 import com.thelightphone.sdk.SealedLightContext
-import dev.garado.transit.api.models.StopDeparture
+import dev.garado.transit.models.StopDeparture
 import dev.garado.transit.api.transitapi.TransitApiClient
 import dev.garado.transit.api.transitapi.TransitEndpoint
 import dev.garado.transit.api.transitapi.models.StopDeparturesApiResponse

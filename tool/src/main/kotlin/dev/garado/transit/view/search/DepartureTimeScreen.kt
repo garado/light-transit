@@ -1,6 +1,6 @@
 package dev.garado.transit.view.search
 
-import dev.garado.transit.search.DepartureSelection
+import dev.garado.transit.models.DepartureSelection
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

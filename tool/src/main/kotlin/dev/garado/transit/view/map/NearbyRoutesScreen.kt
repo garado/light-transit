@@ -1,6 +1,6 @@
 package dev.garado.transit.view.map
 
-import dev.garado.transit.map.LatLon
+import dev.garado.transit.models.LatLon
 import dev.garado.transit.map.MapOverlay
 import dev.garado.transit.map.RasterTileSource
 import dev.garado.transit.map.TileCacheDatabase
@@ -36,7 +36,7 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
-import dev.garado.transit.api.models.TripRoute
+import dev.garado.transit.models.TripRoute
 import dev.garado.transit.util.parseHexColor
 import dev.garado.transit.view.search.LocationSearchScreen
 

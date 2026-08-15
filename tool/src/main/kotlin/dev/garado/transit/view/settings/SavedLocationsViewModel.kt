@@ -3,8 +3,8 @@ package dev.garado.transit.view.settings
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
-import dev.garado.transit.search.LocationResult
-import dev.garado.transit.search.SavedLocation
+import dev.garado.transit.models.LocationResult
+import dev.garado.transit.models.SavedLocation
 import dev.garado.transit.search.SavedLocationDatabaseHolder
 import dev.garado.transit.search.SavedLocationStore
 import kotlinx.coroutines.flow.SharingStarted

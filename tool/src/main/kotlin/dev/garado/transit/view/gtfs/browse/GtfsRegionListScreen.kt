@@ -26,7 +26,7 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
-import dev.garado.transit.gtfs.GtfsDataset
+import dev.garado.transit.models.GtfsDataset
 import dev.garado.transit.gtfs.GtfsDisplayNames
 
 /** Sub-regions within one country (only shown when that country has more than one region code). */

@@ -6,7 +6,7 @@ package dev.garado.transit.util
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntSize
-import dev.garado.transit.map.LatLonBounds
+import dev.garado.transit.models.LatLonBounds
 import kotlin.math.cos
 import kotlin.math.tan
 import kotlin.math.ln

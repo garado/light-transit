@@ -1,7 +1,7 @@
 package dev.garado.transit.interfaces.routestops
 
 import com.thelightphone.sdk.SealedLightContext
-import dev.garado.transit.api.models.TripStop
+import dev.garado.transit.models.TripStop
 import dev.garado.transit.gtfs.local.GtfsDatabaseHolder
 import dev.garado.transit.gtfs.local.parseGtfsGlobalRouteId
 import dev.garado.transit.gtfs.local.routeShape

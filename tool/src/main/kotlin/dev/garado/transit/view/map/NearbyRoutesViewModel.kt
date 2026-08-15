@@ -1,11 +1,11 @@
 package dev.garado.transit.view.map
 
-import dev.garado.transit.map.LatLon
+import dev.garado.transit.models.LatLon
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.interfaces.nearbyroutes.NearbyRoutesInterface
-import dev.garado.transit.api.models.TripRoute
+import dev.garado.transit.models.TripRoute
 import dev.garado.transit.interfaces.nearbyroutes.GtfsLocalNearbyRoutesProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -1,4 +1,4 @@
-package dev.garado.transit.api.models
+package dev.garado.transit.models
 
 data class TripRoute(
     val globalRouteId: String,

@@ -1,4 +1,4 @@
-package dev.garado.transit.search
+package dev.garado.transit.models
 
 data class LocationResult(
     val title: String,

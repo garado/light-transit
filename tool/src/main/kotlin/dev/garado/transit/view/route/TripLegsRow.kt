@@ -13,7 +13,7 @@ import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightText
 import com.thelightphone.sdk.ui.LightTextVariant
 import dev.garado.transit.view.home.LegIcon
-import dev.garado.transit.api.models.TripLeg
+import dev.garado.transit.models.TripLeg
 import dev.garado.transit.util.formatDuration
 
 @Composable

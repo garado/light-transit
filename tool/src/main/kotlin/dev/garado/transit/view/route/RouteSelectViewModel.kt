@@ -3,12 +3,12 @@ package dev.garado.transit.view.route
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
-import dev.garado.transit.api.models.TripPlan
+import dev.garado.transit.models.TripPlan
 import dev.garado.transit.interfaces.plan.PlanInterface
 import dev.garado.transit.interfaces.plan.TransitApiPlanProvider
-import dev.garado.transit.search.DepartureSelection
-import dev.garado.transit.search.LocationResult
-import dev.garado.transit.search.toApiTimeParams
+import dev.garado.transit.models.DepartureSelection
+import dev.garado.transit.models.LocationResult
+import dev.garado.transit.models.toApiTimeParams
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

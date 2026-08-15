@@ -38,7 +38,7 @@ import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
 import dev.garado.transit.view.search.LocationSearchScreen
-import dev.garado.transit.search.SavedLocation
+import dev.garado.transit.models.SavedLocation
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class SavedLocationsScreen(sealedActivity: SealedLightActivity) :

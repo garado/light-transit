@@ -10,8 +10,8 @@ import dev.garado.transit.util.lonLatToTileFraction
 import dev.garado.transit.util.metersPerPixel
 import dev.garado.transit.util.tileFractionToOffset
 import dev.garado.transit.util.zoomToFit
-import dev.garado.transit.map.LatLon
-import dev.garado.transit.map.LatLonBounds
+import dev.garado.transit.models.LatLon
+import dev.garado.transit.models.LatLonBounds
 import dev.garado.transit.map.MapOverlay
 import dev.garado.transit.map.MapTile
 import dev.garado.transit.map.MapTileSource

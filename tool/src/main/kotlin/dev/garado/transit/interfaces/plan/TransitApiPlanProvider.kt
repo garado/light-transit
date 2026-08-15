@@ -1,7 +1,7 @@
 package dev.garado.transit.interfaces.plan
 
 import com.thelightphone.sdk.SealedLightContext
-import dev.garado.transit.api.models.TripPlan
+import dev.garado.transit.models.TripPlan
 import dev.garado.transit.api.transitapi.TransitApiClient
 import dev.garado.transit.api.transitapi.TransitEndpoint
 import dev.garado.transit.api.transitapi.models.PlanApiResponse

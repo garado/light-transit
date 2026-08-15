@@ -1,6 +1,6 @@
 package dev.garado.transit.api.transitapi
 
-import dev.garado.transit.api.models.TripLeg
+import dev.garado.transit.models.TripLeg
 import dev.garado.transit.api.transitapi.models.DepartureDto
 import dev.garado.transit.api.transitapi.models.ItineraryDto
 import dev.garado.transit.api.transitapi.models.LegDto

@@ -13,7 +13,7 @@ import androidx.room.RoomDatabase
 import androidx.room.Transaction
 import com.thelightphone.sdk.SealedLightContext
 import com.thelightphone.sdk.buildDatabase
-import dev.garado.transit.gtfs.GtfsDataset
+import dev.garado.transit.models.GtfsDataset
 import kotlinx.coroutines.flow.Flow
 
 @Entity(tableName = "gtfs_catalog_datasets")

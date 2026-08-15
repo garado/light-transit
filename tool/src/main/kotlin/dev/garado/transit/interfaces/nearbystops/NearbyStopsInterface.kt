@@ -1,6 +1,6 @@
 package dev.garado.transit.interfaces.nearbystops
 
-import dev.garado.transit.api.models.TripStop
+import dev.garado.transit.models.TripStop
 
 /** Backend for fetching transit stops near a location */
 interface NearbyStopsInterface {

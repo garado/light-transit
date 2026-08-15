@@ -2,6 +2,8 @@
 
 package dev.garado.transit.search
 
+import dev.garado.transit.models.LocationResult
+import dev.garado.transit.models.SavedLocation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

@@ -1,4 +1,4 @@
-package dev.garado.transit.gtfs
+package dev.garado.transit.models
 
 /**
  * One dataset entry from Transitous's config.yml 

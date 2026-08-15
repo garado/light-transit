@@ -4,10 +4,10 @@ import dev.garado.transit.util.decodePolyline
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import dev.garado.transit.api.models.TripLeg
-import dev.garado.transit.api.models.TripPlan
-import dev.garado.transit.map.LatLon
-import dev.garado.transit.map.LatLonBounds
+import dev.garado.transit.models.TripLeg
+import dev.garado.transit.models.TripPlan
+import dev.garado.transit.models.LatLon
+import dev.garado.transit.models.LatLonBounds
 import dev.garado.transit.map.MapOverlay
 import dev.garado.transit.util.parseHexColor
 

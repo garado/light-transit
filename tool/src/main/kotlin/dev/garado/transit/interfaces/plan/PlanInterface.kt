@@ -1,6 +1,6 @@
 package dev.garado.transit.interfaces.plan
 
-import dev.garado.transit.api.models.TripPlan
+import dev.garado.transit.models.TripPlan
 
 /** Backend for fetching transit trip plans between two points. */
 interface PlanInterface {

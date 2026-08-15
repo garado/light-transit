@@ -26,9 +26,9 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
-import dev.garado.transit.gtfs.GtfsDataset
+import dev.garado.transit.models.GtfsDataset
 import dev.garado.transit.gtfs.GtfsDisplayNames
-import dev.garado.transit.gtfs.formatFileSize
+import dev.garado.transit.models.formatFileSize
 import dev.garado.transit.gtfs.local.GtfsDatabaseHolder
 import dev.garado.transit.gtfs.sources.GtfsSourceDownloadState
 import dev.garado.transit.gtfs.sources.GtfsSourceStore

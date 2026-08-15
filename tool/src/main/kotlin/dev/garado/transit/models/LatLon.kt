@@ -1,4 +1,4 @@
-package dev.garado.transit.map
+package dev.garado.transit.models
 
 data class LatLon(val lat: Double, val lon: Double)
 

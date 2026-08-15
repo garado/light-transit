@@ -5,7 +5,7 @@
 
 package dev.garado.transit.util
 
-import dev.garado.transit.map.LatLon
+import dev.garado.transit.models.LatLon
 
 /** Decodes polyline into lat/lon points */
 fun decodePolyline(encoded: String): List<LatLon> {
