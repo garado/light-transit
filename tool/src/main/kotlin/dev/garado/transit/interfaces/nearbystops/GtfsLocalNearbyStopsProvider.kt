@@ -1,8 +1,9 @@
-package dev.garado.transit.gtfs.local
+package dev.garado.transit.interfaces.nearbystops
 
 import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.api.models.TripStop
-import dev.garado.transit.interfaces.nearbystops.NearbyStopsInterface
+import dev.garado.transit.gtfs.local.GtfsDatabaseHolder
+import dev.garado.transit.gtfs.local.toGroupedTripStop
 import kotlin.math.cos
 
 private const val SEARCH_RADIUS_METERS = 800.0

@@ -1,11 +1,14 @@
-package dev.garado.transit.gtfs.local
+package dev.garado.transit.interfaces.routestops
 
 import com.thelightphone.sdk.SealedLightContext
-import dev.garado.transit.api.RouteStopsProvider
 import dev.garado.transit.api.models.TripStop
+import dev.garado.transit.gtfs.local.GtfsDatabaseHolder
+import dev.garado.transit.gtfs.local.parseGtfsGlobalRouteId
+import dev.garado.transit.gtfs.local.routeShape
+import dev.garado.transit.gtfs.local.toGroupedTripStop
 
 /** Finds the stops served by a route from downloaded GTFS data */
-class GtfsLocalRouteStopsProvider(lightContext: SealedLightContext) : RouteStopsProvider {
+class GtfsLocalRouteStopsProvider(lightContext: SealedLightContext) : RouteStopsInterface {
     private val scheduleDao = GtfsDatabaseHolder.get(lightContext).gtfsScheduleDao()
 
     override suspend fun stopsForRoute(globalRouteId: String): List<TripStop> {

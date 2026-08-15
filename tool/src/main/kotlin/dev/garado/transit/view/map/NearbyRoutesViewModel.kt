@@ -4,9 +4,9 @@ import dev.garado.transit.map.LatLon
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
-import dev.garado.transit.api.NearbyRoutesProvider
+import dev.garado.transit.interfaces.nearbyroutes.NearbyRoutesInterface
 import dev.garado.transit.api.models.TripRoute
-import dev.garado.transit.gtfs.local.GtfsLocalNearbyRoutesProvider
+import dev.garado.transit.interfaces.nearbyroutes.GtfsLocalNearbyRoutesProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +16,7 @@ enum class NearbyRoutesViewMode { MAP, LIST }
 
 class NearbyRoutesViewModel(
     lightContext: SealedLightContext,
-    private val localRoutesProvider: NearbyRoutesProvider = GtfsLocalNearbyRoutesProvider(lightContext),
+    private val localRoutesProvider: NearbyRoutesInterface = GtfsLocalNearbyRoutesProvider(lightContext),
 ) : LightViewModel<Unit>() {
     private val _routes = MutableStateFlow<List<TripRoute>>(emptyList())
     val routes: StateFlow<List<TripRoute>> = _routes.asStateFlow()

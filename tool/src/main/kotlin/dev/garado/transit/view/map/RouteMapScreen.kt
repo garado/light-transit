@@ -32,8 +32,8 @@ import com.thelightphone.sdk.ui.LightTopBarCenter
 import dev.garado.transit.view.home.StatusBar
 import dev.garado.transit.api.models.TripRoute
 import dev.garado.transit.api.models.TripStop
-import dev.garado.transit.gtfs.local.GtfsLocalRouteStopsProvider
-import dev.garado.transit.gtfs.local.GtfsLocalStopDeparturesProvider
+import dev.garado.transit.interfaces.routestops.GtfsLocalRouteStopsProvider
+import dev.garado.transit.interfaces.stopdepartures.GtfsLocalStopDeparturesProvider
 import dev.garado.transit.parseHexColor
 import dev.garado.transit.route.decodePolyline
 import kotlinx.coroutines.launch

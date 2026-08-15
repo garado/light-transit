@@ -6,8 +6,8 @@ import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.api.models.StopDeparture
 import dev.garado.transit.api.models.TripStop
-import dev.garado.transit.gtfs.local.GtfsLocalNearbyStopsProvider
-import dev.garado.transit.gtfs.local.GtfsLocalStopDeparturesProvider
+import dev.garado.transit.interfaces.nearbystops.GtfsLocalNearbyStopsProvider
+import dev.garado.transit.interfaces.stopdepartures.GtfsLocalStopDeparturesProvider
 import dev.garado.transit.interfaces.nearbystops.NearbyStopsInterface
 import dev.garado.transit.interfaces.nearbystops.TransitApiNearbyStopsProvider
 import dev.garado.transit.interfaces.stopdepartures.StopDeparturesInterface

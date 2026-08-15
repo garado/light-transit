@@ -1,15 +1,17 @@
-package dev.garado.transit.gtfs.local
+package dev.garado.transit.interfaces.nearbyroutes
 
 import com.thelightphone.sdk.SealedLightContext
-import dev.garado.transit.api.NearbyRoutesProvider
 import dev.garado.transit.api.models.TripRoute
+import dev.garado.transit.gtfs.local.GtfsDatabaseHolder
+import dev.garado.transit.gtfs.local.routeShape
+import dev.garado.transit.gtfs.local.toTripRoute
 import kotlin.math.cos
 
 private const val SEARCH_RADIUS_METERS = 800.0
 private const val METERS_PER_DEGREE_LAT = 111_320.0
 
 /** Finds routes serving stops near a location from downloaded GTFS data */
-class GtfsLocalNearbyRoutesProvider(lightContext: SealedLightContext) : NearbyRoutesProvider {
+class GtfsLocalNearbyRoutesProvider(lightContext: SealedLightContext) : NearbyRoutesInterface {
     private val stopsDao = GtfsDatabaseHolder.get(lightContext).gtfsStopsDao()
     private val scheduleDao = GtfsDatabaseHolder.get(lightContext).gtfsScheduleDao()
 
