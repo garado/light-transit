@@ -32,6 +32,7 @@ import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
 import dev.garado.transit.data.api.transitapi.MockTransitApiSettings
+import dev.garado.transit.data.api.transitous.MockTransitousSettings
 import dev.garado.transit.data.gtfs.sources.clearGtfsDownloadCache
 import kotlinx.coroutines.launch
 
@@ -45,6 +46,9 @@ class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLight
         val mockSettings = remember { MockTransitApiSettings(lightContext.dataStore) }
         val useMockedResponses by mockSettings.useMockedResponses.collectAsState(initial = false)
         val simulateApiFailure by mockSettings.simulateApiFailure.collectAsState(initial = false)
+
+        val transitousMockSettings = remember { MockTransitousSettings(lightContext.dataStore) }
+        val simulateTransitousFailure by transitousMockSettings.simulateApiFailure.collectAsState(initial = false)
 
         LightTheme(colors = themeColors) {
             Column(
@@ -60,17 +64,24 @@ class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLight
 
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     DevToggleRow(
-                        label = "Mock API responses",
+                        label = "Mock TransitAPI responses",
                         enabled = useMockedResponses,
                         onClick = {
                             coroutineScope.launch { mockSettings.setUseMockedResponses(!useMockedResponses) }
                         },
                     )
                     DevToggleRow(
-                        label = "Simulate API failures",
+                        label = "Simulate TransitAPI failures",
                         enabled = simulateApiFailure,
                         onClick = {
                             coroutineScope.launch { mockSettings.setSimulateApiFailure(!simulateApiFailure) }
+                        },
+                    )
+                    DevToggleRow(
+                        label = "Simulate Transitous failures",
+                        enabled = simulateTransitousFailure,
+                        onClick = {
+                            coroutineScope.launch { transitousMockSettings.setSimulateApiFailure(!simulateTransitousFailure) }
                         },
                     )
                     DevActionRow(
