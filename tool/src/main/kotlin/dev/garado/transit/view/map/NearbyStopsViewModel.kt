@@ -23,9 +23,9 @@ internal val DEMO_LOCATION = LatLon(lat = 37.8288, lon = -122.2673)
 enum class NearbyStopsViewMode { MAP, LIST }
 
 /** A stops backend and its matching departures backend */
-private data class StopsBackend(val stops: NearbyStopsInterface, val departures: StopDeparturesInterface)
+internal data class StopsBackend(val stops: NearbyStopsInterface, val departures: StopDeparturesInterface)
 
-class NearbyStopsViewModel(
+class NearbyStopsViewModel internal constructor(
     lightContext: SealedLightContext,
     private val backends: List<StopsBackend> = listOf(
         StopsBackend(GtfsLocalNearbyStopsProvider(lightContext), GtfsLocalStopDeparturesProvider(lightContext)),
