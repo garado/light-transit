@@ -2,7 +2,7 @@ package dev.garado.transit.gtfs.local
 
 import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.api.models.StopDeparture
-import dev.garado.transit.interfaces.stopdepartures.StopDeparturesProvider
+import dev.garado.transit.interfaces.stopdepartures.StopDeparturesInterface
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
 
@@ -11,7 +11,7 @@ import java.time.ZonedDateTime
  * calendar.txt day-of-week/date-range only
  * excludes real-time data, exceptions (calendar_dates.txt), frequencies.txt
  */
-class GtfsLocalStopDeparturesProvider(lightContext: SealedLightContext) : StopDeparturesProvider {
+class GtfsLocalStopDeparturesProvider(lightContext: SealedLightContext) : StopDeparturesInterface {
     private val dao = GtfsDatabaseHolder.get(lightContext).gtfsScheduleDao()
 
     override suspend fun departures(globalStopIds: List<String>, maxDepartures: Int): Map<String, List<StopDeparture>> {

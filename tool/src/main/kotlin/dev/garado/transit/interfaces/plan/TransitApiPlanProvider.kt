@@ -10,7 +10,7 @@ import dev.garado.transit.api.transitapi.toTripPlans
 class TransitApiPlanProvider(
     lightContext: SealedLightContext,
     private val client: TransitApiClient = TransitApiClient(lightContext),
-) : PlanProvider {
+) : PlanInterface {
 
     /**
      * https://api-doc.transitapp.com/v4.html#GET/v4/public/plan

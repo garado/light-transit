@@ -2,7 +2,7 @@ package dev.garado.transit.gtfs.local
 
 import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.api.models.TripStop
-import dev.garado.transit.interfaces.nearbystops.NearbyStopsProvider
+import dev.garado.transit.interfaces.nearbystops.NearbyStopsInterface
 import kotlin.math.cos
 
 private const val SEARCH_RADIUS_METERS = 800.0
@@ -10,7 +10,7 @@ private const val MAX_RESULTS = 30
 private const val METERS_PER_DEGREE_LAT = 111_320.0
 
 /** Finds nearby stops from downloaded GTFS stops.txt data */
-class GtfsLocalNearbyStopsProvider(lightContext: SealedLightContext) : NearbyStopsProvider {
+class GtfsLocalNearbyStopsProvider(lightContext: SealedLightContext) : NearbyStopsInterface {
     private val dao = GtfsDatabaseHolder.get(lightContext).gtfsStopsDao()
 
     override suspend fun nearbyStops(lat: Double, lon: Double): List<TripStop> {

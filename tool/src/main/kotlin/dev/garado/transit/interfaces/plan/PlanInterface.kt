@@ -3,7 +3,7 @@ package dev.garado.transit.interfaces.plan
 import dev.garado.transit.api.models.TripPlan
 
 /** Backend for fetching transit trip plans between two points. */
-interface PlanProvider {
+interface PlanInterface {
     /**
      * At most one of [leaveTime]/[arrivalTime] should be set. If neither is set, defaults to
      * leaving now.

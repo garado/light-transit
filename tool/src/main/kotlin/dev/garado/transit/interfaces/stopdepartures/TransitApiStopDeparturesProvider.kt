@@ -10,7 +10,7 @@ import dev.garado.transit.api.transitapi.toStopDepartures
 class TransitApiStopDeparturesProvider(
     lightContext: SealedLightContext,
     private val client: TransitApiClient = TransitApiClient(lightContext),
-) : StopDeparturesProvider {
+) : StopDeparturesInterface {
 
     /** https://api-doc.transitapp.com/v4.html#GET/v4/public/stop_departures */
     override suspend fun departures(globalStopIds: List<String>, maxDepartures: Int): Map<String, List<StopDeparture>> {

@@ -10,7 +10,7 @@ import dev.garado.transit.api.transitapi.toTripStop
 class TransitApiNearbyStopsProvider(
     lightContext: SealedLightContext,
     private val client: TransitApiClient = TransitApiClient(lightContext),
-) : NearbyStopsProvider {
+) : NearbyStopsInterface {
 
     /**
      * https://api-doc.transitapp.com/v4.html#GET/v4/public/nearby_stops

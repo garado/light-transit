@@ -8,9 +8,9 @@ import dev.garado.transit.api.models.StopDeparture
 import dev.garado.transit.api.models.TripStop
 import dev.garado.transit.gtfs.local.GtfsLocalNearbyStopsProvider
 import dev.garado.transit.gtfs.local.GtfsLocalStopDeparturesProvider
-import dev.garado.transit.interfaces.nearbystops.NearbyStopsProvider
+import dev.garado.transit.interfaces.nearbystops.NearbyStopsInterface
 import dev.garado.transit.interfaces.nearbystops.TransitApiNearbyStopsProvider
-import dev.garado.transit.interfaces.stopdepartures.StopDeparturesProvider
+import dev.garado.transit.interfaces.stopdepartures.StopDeparturesInterface
 import dev.garado.transit.interfaces.stopdepartures.TransitApiStopDeparturesProvider
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -26,10 +26,10 @@ enum class NearbyStopsViewMode { MAP, LIST }
 
 class NearbyStopsViewModel(
     lightContext: SealedLightContext,
-    private val apiStopsProvider: NearbyStopsProvider = TransitApiNearbyStopsProvider(lightContext),
-    private val apiDeparturesProvider: StopDeparturesProvider = TransitApiStopDeparturesProvider(lightContext),
-    private val localStopsProvider: NearbyStopsProvider = GtfsLocalNearbyStopsProvider(lightContext),
-    private val localDeparturesProvider: StopDeparturesProvider = GtfsLocalStopDeparturesProvider(lightContext),
+    private val apiStopsProvider: NearbyStopsInterface = TransitApiNearbyStopsProvider(lightContext),
+    private val apiDeparturesProvider: StopDeparturesInterface = TransitApiStopDeparturesProvider(lightContext),
+    private val localStopsProvider: NearbyStopsInterface = GtfsLocalNearbyStopsProvider(lightContext),
+    private val localDeparturesProvider: StopDeparturesInterface = GtfsLocalStopDeparturesProvider(lightContext),
 ) : LightViewModel<Unit>() {
     private val _stops = MutableStateFlow<List<TripStop>>(emptyList())
     val stops: StateFlow<List<TripStop>> = _stops.asStateFlow()
