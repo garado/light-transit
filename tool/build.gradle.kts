@@ -21,6 +21,10 @@ android {
         buildConfig = true
     }
 
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
+
     signingConfigs {
         create("lightsdkDev") {
             storeFile = file("../light-sdk/sdk/keys/lightsdk-dev.jks")
@@ -82,6 +86,7 @@ dependencies {
     implementation(libs.ktor.serialization.json)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation("org.yaml:snakeyaml:2.2")
     testImplementation(libs.kotlin.test)
     ksp(libs.androidx.room.compiler)
 }

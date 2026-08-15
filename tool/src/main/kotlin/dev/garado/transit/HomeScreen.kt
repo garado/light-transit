@@ -5,16 +5,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.thelightphone.sdk.InitialScreen
 import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.SealedLightActivity
-import com.thelightphone.sdk.buildDatabase
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightTheme
@@ -22,19 +22,22 @@ import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
-import dev.garado.transit.map.MapTabContent
-import dev.garado.transit.map.TileCacheDatabase
+import dev.garado.transit.gtfs.sources.GtfsManagerScreen
+import dev.garado.transit.map.MapMenuScreen
 import dev.garado.transit.route.RouteSelectScreen
 import dev.garado.transit.search.DepartureSelection
 import dev.garado.transit.search.DepartureTimeScreen
 import dev.garado.transit.search.LocationSearchScreen
 import dev.garado.transit.search.SearchTabContent
 import dev.garado.transit.settings.ApiSettingsScreen
+import dev.garado.transit.settings.DeveloperSettingsScreen
 import dev.garado.transit.settings.NameEditor
 import dev.garado.transit.settings.SavedLocationsScreen
 import dev.garado.transit.settings.SettingsTabContent
 
-enum class HomeTab { SEARCH, MAP, SETTINGS }
+enum class HomeTab { SEARCH, SETTINGS }
+
+private const val DEVELOPER_SETTINGS_TAP_THRESHOLD = 3
 
 @InitialScreen
 class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeScreenViewModel>(sealedActivity) {
@@ -60,12 +63,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
         val isEditingName by viewModel.settings.isEditingName.collectAsState()
         val editSessionId by viewModel.settings.editSessionId.collectAsState()
         val themeColors by LightThemeController.colors.collectAsState()
-        val tileCacheDatabase = remember {
-            lightContext.buildDatabase(TileCacheDatabase::class.java, "tile_cache.db")
-        }
-        DisposableEffect(tileCacheDatabase) {
-            onDispose { tileCacheDatabase.close() }
-        }
+        var settingsTapCount by remember { mutableStateOf(0) }
 
         LightTheme(colors = themeColors) {
             if (isEditingName) {
@@ -81,18 +79,23 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                         .fillMaxSize()
                         .background(LightThemeTokens.colors.background),
                 ) {
-                    if (selectedTab == HomeTab.SEARCH) {
-                        StatusBar()
-                    }
+                    StatusBar()
 
-                    if (selectedTab != HomeTab.SEARCH) {
+                    if (selectedTab == HomeTab.SETTINGS) {
                         LightTopBar(
                             leftButton = LightBarButton.LightIcon(
                                 icon = LightIcons.BACK,
                                 onClick = { viewModel.selectTab(HomeTab.SEARCH) },
                             ),
                             center = LightTopBarCenter.Text(
-                                if (selectedTab == HomeTab.SETTINGS) "Settings" else "Map",
+                                text = "Settings",
+                                onClick = {
+                                    settingsTapCount++
+                                    if (settingsTapCount >= DEVELOPER_SETTINGS_TAP_THRESHOLD) {
+                                        settingsTapCount = 0
+                                        navigateTo(::DeveloperSettingsScreen)
+                                    }
+                                },
                             ),
                         )
                     }
@@ -123,10 +126,6 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                                     ) { result -> viewModel.search.setDepartureSelection(result) }
                                 },
                             )
-                            HomeTab.MAP -> MapTabContent(
-                                isDarkTheme = LightThemeController.isDarkTheme,
-                                database = tileCacheDatabase,
-                            )
                             HomeTab.SETTINGS -> SettingsTabContent(
                                 options = settingsOptions,
                                 displayName = displayName,
@@ -134,6 +133,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                                 onAboutClick = { navigateTo(::AboutScreen) },
                                 onSavedLocationsClick = { navigateTo(::SavedLocationsScreen) },
                                 onApiSettingsClick = { navigateTo(::ApiSettingsScreen) },
+                                onGtfsManagerClick = { navigateTo(::GtfsManagerScreen) },
                                 onEditName = { viewModel.settings.startEditingName() },
                             )
                         }
@@ -152,7 +152,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                                     )
                                 }
                             },
-                            onMapClick = { viewModel.selectTab(HomeTab.MAP) },
+                            onMenuClick = { navigateTo(::MapMenuScreen) },
                         )
                     }
                 }
@@ -173,12 +173,7 @@ private fun DepartureSelection.fieldValue(): String = when (this) {
     is DepartureSelection.ArriveBy -> formatClockTime(hour24, minute)
 }
 
-private fun Modifier.tabContentPadding(selectedTab: HomeTab): Modifier =
-    if (selectedTab == HomeTab.MAP) {
-        this
-    } else {
-        this.padding(horizontal = 32.dp).padding(
-            top = if (selectedTab == HomeTab.SETTINGS) 0.dp else 12.dp,
-            bottom = 16.dp,
-        )
-    }
+private fun Modifier.tabContentPadding(selectedTab: HomeTab): Modifier = this.padding(horizontal = 16.dp).padding(
+    top = if (selectedTab == HomeTab.SETTINGS) 0.dp else 12.dp,
+    bottom = 16.dp,
+)

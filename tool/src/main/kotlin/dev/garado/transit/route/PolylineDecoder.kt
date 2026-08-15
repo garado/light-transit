@@ -1,11 +1,13 @@
+/**
+ * Polyline utils
+ * https://developers.google.com/maps/documentation/utilities/polylinealgorithm
+ */
+
 package dev.garado.transit.route
 
 import dev.garado.transit.map.LatLon
 
-/**
- * Decodes polyline into lat/lon points
- * https://developers.google.com/maps/documentation/utilities/polylinealgorithm
- */
+/** Decodes polyline into lat/lon points */
 fun decodePolyline(encoded: String): List<LatLon> {
     val points = mutableListOf<LatLon>()
     var index = 0
@@ -39,4 +41,33 @@ private fun decodeSignedValue(encoded: String, startIndex: Int): Pair<Int, Int> 
     } while (b >= 0x20)
     val value = if (result and 1 != 0) (result shr 1).inv() else (result shr 1)
     return value to index
+}
+
+/** Inverse of [decodePolyline] */
+fun encodePolyline(points: List<LatLon>): String {
+    val result = StringBuilder()
+    var lastLat = 0
+    var lastLon = 0
+    for (point in points) {
+        // each point is delta-encoded against the previous one, not absolute
+        val lat = Math.round(point.lat * 1e5).toInt()
+        val lon = Math.round(point.lon * 1e5).toInt()
+        encodeSignedValue(lat - lastLat, result)
+        encodeSignedValue(lon - lastLon, result)
+        lastLat = lat
+        lastLon = lon
+    }
+    return result.toString()
+}
+
+/** Zigzag-encodes [value] into 5-bit chunks, inverse of [decodeSignedValue] */
+private fun encodeSignedValue(value: Int, result: StringBuilder) {
+    // zigzag: map signed -> unsigned so small magnitudes (either sign) stay small
+    var v = if (value < 0) (value shl 1).inv() else (value shl 1)
+    while (v >= 0x20) {
+        // continuation bit (0x20) set while more chunks remain, +63 shifts into printable ASCII
+        result.append(((0x20 or (v and 0x1f)) + 63).toChar())
+        v = v shr 5
+    }
+    result.append((v + 63).toChar())
 }

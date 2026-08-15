@@ -29,6 +29,7 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
+import dev.garado.transit.StatusBar
 import dev.garado.transit.api.nominatim.NominatimClient
 import dev.garado.transit.api.nominatim.NominatimResult
 import dev.garado.transit.api.nominatim.toDisplayLine
@@ -69,6 +70,7 @@ class LocationResultsScreen(
                     .fillMaxSize()
                     .background(LightThemeTokens.colors.background),
             ) {
+                StatusBar()
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(
                         icon = LightIcons.BACK,
@@ -81,7 +83,7 @@ class LocationResultsScreen(
                 when {
                     currentResults == null -> StatusMessage("Searching...")
                     currentResults.isEmpty() -> StatusMessage("No results found")
-                    else -> LightScrollView(modifier = Modifier.padding(horizontal = 32.dp)) {
+                    else -> LightScrollView {
                         currentResults.forEach { result ->
                             LocationResultRow(result = result, onClick = { goBack(result) })
                         }
@@ -118,7 +120,7 @@ private fun LocationResultRow(result: LocationResult, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .lightClickable(onClick = onClick)
-            .padding(vertical = 12.dp),
+            .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
     ) {
         LightText(text = result.title, variant = LightTextVariant.Copy)
         if (result.address.isNotBlank()) {

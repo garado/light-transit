@@ -8,8 +8,15 @@ package dev.garado.transit.api.transit
 import android.util.Log
 import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.BuildConfig
+import dev.garado.transit.api.NearbyStopsProvider
+import dev.garado.transit.api.PlanProvider
+import dev.garado.transit.api.StopDeparturesProvider
+import dev.garado.transit.api.models.StopDeparture
+import dev.garado.transit.api.models.TripPlan
+import dev.garado.transit.api.models.TripStop
+import dev.garado.transit.api.transit.models.NearbyStopsApiResponse
 import dev.garado.transit.api.transit.models.PlanApiResponse
-import dev.garado.transit.api.transit.models.TripPlan
+import dev.garado.transit.api.transit.models.StopDeparturesApiResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
@@ -25,25 +32,27 @@ import kotlinx.serialization.json.Json
 /** Map endpoints to their mocked responses */
 private enum class TransitEndpoint(val path: String, val mockAsset: String) {
     PLAN("/v4/public/plan", "mocks/v4-public-plan.json"),
+    NEARBY_STOPS("/v4/public/nearby_stops", "mocks/v4-public-nearby-stops.json"),
+    STOP_DEPARTURES("/v4/public/stop_departures", "mocks/v4-public-stop-departures.json"),
 }
 
-class TransitClient(private val lightContext: SealedLightContext) {
+class TransitApiPlanProvider(private val lightContext: SealedLightContext) :
+    PlanProvider, NearbyStopsProvider, StopDeparturesProvider {
     private val usageTracker = TransitApiUsageTracker(lightContext.dataStore)
     private val mockSettings = MockTransitApiSettings(lightContext.dataStore)
 
     /**
      * https://api-doc.transitapp.com/v4.html#GET/v4/public/plan
      *
-     * At most one of [leaveTime]/[arrivalTime] should be set (the API only honors [leaveTime] if
-     * both are provided). If neither is set, defaults to leaving now.
+     * The API only honors [leaveTime] if both [leaveTime] and [arrivalTime] are provided.
      */
-    suspend fun plan(
+    override suspend fun plan(
         fromLat: Double,
         fromLon: Double,
         toLat: Double,
         toLon: Double,
-        leaveTime: Long? = null,
-        arrivalTime: Long? = null,
+        leaveTime: Long?,
+        arrivalTime: Long?,
     ): List<TripPlan> {
         val timeParams = when {
             leaveTime != null -> mapOf("leave_time" to leaveTime)
@@ -63,12 +72,47 @@ class TransitClient(private val lightContext: SealedLightContext) {
         return response?.toTripPlans() ?: emptyList()
     }
 
-    private suspend inline fun <reified T> request(endpoint: TransitEndpoint, params: Map<String, Any?>): T? =
-        if (mockSettings.useMockedResponses.first()) {
+    /**
+     * https://api-doc.transitapp.com/v4.html#GET/v4/public/nearby_stops
+     * Stations with multiple platforms are grouped under the parent station
+     */
+    override suspend fun nearbyStops(lat: Double, lon: Double): List<TripStop> {
+        val response: NearbyStopsApiResponse? = request(
+            endpoint = TransitEndpoint.NEARBY_STOPS,
+            params = mapOf("lat" to lat, "lon" to lon),
+        )
+        return response?.stops
+            ?.distinctBy { it.parentStation?.globalStopId ?: it.globalStopId }
+            ?.map { it.toTripStop() }
+            ?: emptyList()
+    }
+
+    /** https://api-doc.transitapp.com/v4.html#GET/v4/public/stop_departures */
+    override suspend fun departures(globalStopIds: List<String>, maxDepartures: Int): Map<String, List<StopDeparture>> {
+        if (globalStopIds.isEmpty()) return emptyMap()
+        val response: StopDeparturesApiResponse? = request(
+            endpoint = TransitEndpoint.STOP_DEPARTURES,
+            params = mapOf(
+                "global_stop_ids" to globalStopIds.joinToString(","),
+                "max_num_departures" to maxDepartures.coerceIn(1, 10),
+                "merge_platform_stops" to true,
+                "exclude_terminal_arrivals" to true,
+            ),
+        )
+        return response?.toStopDepartures() ?: emptyMap()
+    }
+
+    private suspend inline fun <reified T> request(endpoint: TransitEndpoint, params: Map<String, Any?>): T? {
+        if (mockSettings.simulateApiFailure.first()) {
+            Log.w(TAG, "Simulating API failure for ${endpoint.path} (dev setting)")
+            return null
+        }
+        return if (mockSettings.useMockedResponses.first()) {
             mockResponse(endpoint)
         } else {
             realResponse(endpoint, params)
         }
+    }
 
     private inline fun <reified T> mockResponse(endpoint: TransitEndpoint): T? = try {
         val bytes = lightContext.readAsset(endpoint.mockAsset)
@@ -102,7 +146,7 @@ class TransitClient(private val lightContext: SealedLightContext) {
     }
 
     private companion object {
-        const val TAG = "TransitClient"
+        const val TAG = "TransitApiPlanProvider"
         const val BASE_URL = "https://external.transitapp.com"
         const val CONNECT_TIMEOUT_MS = 5_000L
         const val REQUEST_TIMEOUT_MS = 10_000L

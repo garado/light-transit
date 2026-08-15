@@ -1,4 +1,4 @@
-package dev.garado.transit.api.transit.models
+package dev.garado.transit.api.models
 
 data class TripPlan(
     val startTime: Long,
@@ -27,6 +27,7 @@ sealed interface TripLeg {
         val routeName: String,
         val routeColor: String?,
         val routeTextColor: String?,
+        val modeName: String?,
         val headsign: String?,
         val nextDepartureTime: Long,
         val stops: List<TripStop>,
@@ -39,4 +40,5 @@ data class TripStop(
     val name: String,
     val lat: Double,
     val lon: Double,
+    val groupedStopIds: List<String> = listOf(globalStopId),
 )

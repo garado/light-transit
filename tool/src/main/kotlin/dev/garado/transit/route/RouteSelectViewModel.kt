@@ -3,8 +3,9 @@ package dev.garado.transit.route
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
-import dev.garado.transit.api.transit.TransitClient
-import dev.garado.transit.api.transit.models.TripPlan
+import dev.garado.transit.api.PlanProvider
+import dev.garado.transit.api.models.TripPlan
+import dev.garado.transit.api.transit.TransitApiPlanProvider
 import dev.garado.transit.search.DepartureSelection
 import dev.garado.transit.search.LocationResult
 import dev.garado.transit.search.toApiTimeParams
@@ -22,9 +23,8 @@ class RouteSelectViewModel(
     from: LocationResult,
     to: LocationResult,
     departureSelection: DepartureSelection,
+    private val planProvider: PlanProvider = TransitApiPlanProvider(lightContext),
 ) : LightViewModel<Unit>() {
-    private val transitClient = TransitClient(lightContext)
-
     /** Null while loading, empty once loaded with no results. */
     private val _tripPlans = MutableStateFlow<List<TripPlan>?>(null)
     val tripPlans: StateFlow<List<TripPlan>?> = _tripPlans.asStateFlow()
@@ -32,7 +32,7 @@ class RouteSelectViewModel(
     init {
         viewModelScope.launch {
             val (leaveTime, arrivalTime) = departureSelection.toApiTimeParams()
-            _tripPlans.value = transitClient.plan(
+            _tripPlans.value = planProvider.plan(
                 fromLat = from.lat,
                 fromLon = from.lon,
                 toLat = to.lat,

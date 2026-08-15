@@ -36,6 +36,7 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
+import dev.garado.transit.StatusBar
 import dev.garado.transit.search.LocationSearchScreen
 import dev.garado.transit.search.SavedLocation
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -74,17 +75,21 @@ class SavedLocationsScreen(sealedActivity: SealedLightActivity) :
 
         LightTheme(colors = themeColors) {
             if (isEnteringName) {
-                LightTextInputEditor(
-                    title = "Display Name",
-                    state = nameFieldState,
-                    onSubmit = {
-                        isEnteringName = false
-                        startAddFlow(it.toString())
-                    },
-                    onBack = { isEnteringName = false },
-                    keyboardOptionsFlow = keyboardOptionsFlow,
-                    singleLine = true,
-                )
+                Column(modifier = Modifier.fillMaxSize()) {
+                    StatusBar()
+                    LightTextInputEditor(
+                        title = "Display Name",
+                        state = nameFieldState,
+                        onSubmit = {
+                            isEnteringName = false
+                            startAddFlow(it.toString())
+                        },
+                        onBack = { isEnteringName = false },
+                        keyboardOptionsFlow = keyboardOptionsFlow,
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
             } else {
                 SavedLocationsList(
                     savedLocations = savedLocations,
@@ -113,6 +118,7 @@ private fun SavedLocationsList(
             .fillMaxSize()
             .background(LightThemeTokens.colors.background),
     ) {
+        StatusBar()
         Box {
             LightTopBar(
                 leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = onBack),
@@ -128,7 +134,7 @@ private fun SavedLocationsList(
             )
         }
 
-        LightScrollView(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
+        LightScrollView(modifier = Modifier.weight(1f)) {
             savedLocations.forEach { saved ->
                 SavedLocationRow(
                     saved = saved,
@@ -157,7 +163,7 @@ private val DELETE_ICON_GAP = 8.dp
 private fun SavedLocationRow(saved: SavedLocation, isEditing: Boolean, onDeleteClick: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
     ) {
         Box(
             modifier = Modifier.width(DELETE_ICON_SIZE_UNITS.gridUnitsAsDp() + DELETE_ICON_GAP),

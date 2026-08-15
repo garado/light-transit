@@ -1,7 +1,7 @@
 package dev.garado.transit
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -25,26 +25,28 @@ import dev.garado.transit.formatClockTime
 fun StatusBar(modifier: Modifier = Modifier, onCancel: (() -> Unit)? = null) {
     val currentTimeSeconds by MinuteTimer.currentTimeSeconds.collectAsState()
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    Box(
         modifier = modifier
             .fillMaxWidth()
             .background(LightThemeTokens.colors.background)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp),
     ) {
         LightIcon(
             icon = LightIcons.CLOSE,
-            size = 1.2f,
+            size = 1f,
             modifier = Modifier
+                .align(Alignment.CenterStart)
                 .alpha(if (onCancel != null) 1f else 0f)
                 .lightClickable(enabled = onCancel != null, onClick = { onCancel?.invoke() }),
         )
         LightText(
             text = formatClockTime(currentTimeSeconds),
-            variant = LightTextVariant.Detail,
+            variant = LightTextVariant.Superfine,
             align = TextAlign.Center,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+              .align(Alignment.Center)
+              .padding(bottom = (if (onCancel != null) 4.dp else 4.dp)),
         )
-        LightIcon(icon = LightIcons.BATTERY_FULL, size = 1f) // TODO: real battery level
+        // LightIcon(icon = LightIcons.BATTERY_FULL, size = 1f, modifier = Modifier.align(Alignment.CenterEnd)) // TODO: real battery level
     }
 }

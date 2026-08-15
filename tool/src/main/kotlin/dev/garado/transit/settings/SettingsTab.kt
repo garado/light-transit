@@ -1,6 +1,8 @@
 package dev.garado.transit.settings
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,6 +21,7 @@ import com.thelightphone.sdk.ui.LightTextField
 import com.thelightphone.sdk.ui.LightTextInputEditor
 import com.thelightphone.sdk.ui.LightTextVariant
 import com.thelightphone.sdk.ui.lightClickable
+import dev.garado.transit.StatusBar
 import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
@@ -41,15 +44,19 @@ fun NameEditor(
         )
     }
 
-    LightTextInputEditor(
-        title = "Display Name",
-        state = nameFieldState,
-        onSubmit = onSubmit,
-        onBack = onBack,
-        keyboardOptionsFlow = keyboardOptionsFlow,
-        singleLine = true,
-        editorKey = editSessionId,
-    )
+    Column(modifier = Modifier.fillMaxSize()) {
+        StatusBar()
+        LightTextInputEditor(
+            title = "Display Name",
+            state = nameFieldState,
+            onSubmit = onSubmit,
+            onBack = onBack,
+            keyboardOptionsFlow = keyboardOptionsFlow,
+            singleLine = true,
+            editorKey = editSessionId,
+            modifier = Modifier.weight(1f),
+        )
+    }
 }
 
 @Composable
@@ -60,6 +67,7 @@ fun SettingsTabContent(
     onAboutClick: () -> Unit,
     onSavedLocationsClick: () -> Unit,
     onApiSettingsClick: () -> Unit,
+    onGtfsManagerClick: () -> Unit,
     onEditName: () -> Unit,
 ) {
     LazyColumn {
@@ -81,6 +89,13 @@ fun SettingsTabContent(
             SettingsNavigationRow(
                 label = "API Settings",
                 onClick = onApiSettingsClick,
+            )
+        }
+
+        item {
+            SettingsNavigationRow(
+                label = "Download route data",
+                onClick = onGtfsManagerClick,
             )
         }
 
@@ -112,14 +127,12 @@ private fun SettingsToggleRow(option: SettingsOption, onClick: () -> Unit) {
 
 @Composable
 private fun SettingsNavigationRow(label: String, onClick: () -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    LightText(
+        text = label,
+        variant = LightTextVariant.Copy,
         modifier = Modifier
             .fillMaxWidth()
             .lightClickable(onClick = onClick)
             .padding(vertical = 12.dp),
-    ) {
-        LightText(text = label, variant = LightTextVariant.Copy, modifier = Modifier.weight(1f))
-        LightIcon(icon = LightIcons.ARROW_RIGHT)
-    }
+    )
 }
