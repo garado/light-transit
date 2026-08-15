@@ -1,4 +1,4 @@
-package dev.garado.transit.api.nominatim
+package dev.garado.transit.data.api.nominatim
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body

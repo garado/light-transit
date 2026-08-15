@@ -31,7 +31,7 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
-import dev.garado.transit.api.transitapi.MockTransitApiSettings
+import dev.garado.transit.data.api.transitapi.MockTransitApiSettings
 import dev.garado.transit.gtfs.sources.clearGtfsDownloadCache
 import kotlinx.coroutines.launch
 

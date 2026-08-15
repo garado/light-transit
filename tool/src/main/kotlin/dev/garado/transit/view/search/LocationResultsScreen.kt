@@ -33,9 +33,9 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
-import dev.garado.transit.api.nominatim.NominatimClient
-import dev.garado.transit.api.nominatim.NominatimResult
-import dev.garado.transit.api.nominatim.toDisplayLine
+import dev.garado.transit.data.api.nominatim.NominatimClient
+import dev.garado.transit.data.api.nominatim.NominatimResult
+import dev.garado.transit.data.api.nominatim.toDisplayLine
 
 // TODO: dummy origin bias until the "From" location carries real coordinates
 private const val DUMMY_ORIGIN_LAT = 37.8044

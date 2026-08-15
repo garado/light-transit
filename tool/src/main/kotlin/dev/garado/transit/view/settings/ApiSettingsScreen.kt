@@ -22,7 +22,7 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import dev.garado.transit.view.home.StatusBar
-import dev.garado.transit.api.transitapi.TransitApiUsageTracker
+import dev.garado.transit.data.api.transitapi.TransitApiUsageTracker
 
 class ApiSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Unit>(sealedActivity) {
 

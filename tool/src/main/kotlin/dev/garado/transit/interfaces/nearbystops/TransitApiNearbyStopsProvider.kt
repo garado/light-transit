@@ -2,10 +2,10 @@ package dev.garado.transit.interfaces.nearbystops
 
 import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.models.TripStop
-import dev.garado.transit.api.transitapi.TransitApiClient
-import dev.garado.transit.api.transitapi.TransitEndpoint
-import dev.garado.transit.api.transitapi.models.NearbyStopsApiResponse
-import dev.garado.transit.api.transitapi.toTripStop
+import dev.garado.transit.data.api.transitapi.TransitApiClient
+import dev.garado.transit.data.api.transitapi.TransitEndpoint
+import dev.garado.transit.data.api.transitapi.models.NearbyStopsApiResponse
+import dev.garado.transit.data.api.transitapi.toTripStop
 
 class TransitApiNearbyStopsProvider(
     lightContext: SealedLightContext,

@@ -1,6 +1,6 @@
 package dev.garado.transit.search
 
-import dev.garado.transit.api.nominatim.NominatimResult
+import dev.garado.transit.data.api.nominatim.NominatimResult
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json

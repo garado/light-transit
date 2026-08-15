@@ -3,7 +3,7 @@
  * 1500 calls/month; 5 calls/min
  */
 
-package dev.garado.transit.api.transitapi
+package dev.garado.transit.data.api.transitapi
 
 import android.util.Log
 import com.thelightphone.sdk.SealedLightContext
