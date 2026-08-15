@@ -60,4 +60,6 @@ data class PlaceDto(
 data class EncodedPolylineDto(
     /** Google-encoded polyline */
     val points: String,
+    /** Decimal precision the polyline was encoded at */
+    val precision: Int,
 )

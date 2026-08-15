@@ -8,7 +8,8 @@ package dev.garado.transit.util
 import dev.garado.transit.models.LatLon
 
 /** Decodes polyline into lat/lon points */
-fun decodePolyline(encoded: String): List<LatLon> {
+fun decodePolyline(encoded: String, precision: Int = 5): List<LatLon> {
+    val factor = Math.pow(10.0, precision.toDouble())
     val points = mutableListOf<LatLon>()
     var index = 0
     var lat = 0
@@ -23,7 +24,7 @@ fun decodePolyline(encoded: String): List<LatLon> {
         lon += deltaLon
         index = indexAfterLon
 
-        points.add(LatLon(lat = lat / 1e5, lon = lon / 1e5))
+        points.add(LatLon(lat = lat / factor, lon = lon / factor))
     }
     return points
 }
@@ -44,14 +45,15 @@ private fun decodeSignedValue(encoded: String, startIndex: Int): Pair<Int, Int> 
 }
 
 /** Inverse of [decodePolyline] */
-fun encodePolyline(points: List<LatLon>): String {
+fun encodePolyline(points: List<LatLon>, precision: Int = 5): String {
+    val factor = Math.pow(10.0, precision.toDouble())
     val result = StringBuilder()
     var lastLat = 0
     var lastLon = 0
     for (point in points) {
         // each point is delta-encoded against the previous one, not absolute
-        val lat = Math.round(point.lat * 1e5).toInt()
-        val lon = Math.round(point.lon * 1e5).toInt()
+        val lat = Math.round(point.lat * factor).toInt()
+        val lon = Math.round(point.lon * factor).toInt()
         encodeSignedValue(lat - lastLat, result)
         encodeSignedValue(lon - lastLon, result)
         lastLat = lat

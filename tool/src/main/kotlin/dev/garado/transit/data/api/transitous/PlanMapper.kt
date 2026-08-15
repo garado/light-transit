@@ -1,11 +1,14 @@
 package dev.garado.transit.data.api.transitous
 
+import dev.garado.transit.data.api.transitous.models.EncodedPolylineDto
 import dev.garado.transit.data.api.transitous.models.LegDto
 import dev.garado.transit.data.api.transitous.models.PlaceDto
 import dev.garado.transit.data.api.transitous.models.PlanApiResponse
 import dev.garado.transit.models.TripLeg
 import dev.garado.transit.models.TripPlan
 import dev.garado.transit.models.TripStop
+import dev.garado.transit.util.decodePolyline
+import dev.garado.transit.util.encodePolyline
 import java.time.Instant
 
 fun PlanApiResponse.toTripPlans(): List<TripPlan> = itineraries.map { itinerary ->
@@ -24,7 +27,7 @@ private fun LegDto.toWalkLeg(): TripLeg.Walk = TripLeg.Walk(
     endTime = endTime.toEpochSeconds(),
     duration = duration,
     distance = distance ?: 0.0,
-    polyline = legGeometry?.points ?: "",
+    polyline = legGeometry?.toNormalizedPolyline() ?: "",
 )
 
 private fun LegDto.toTransitLeg(): TripLeg.Transit = TripLeg.Transit(
@@ -38,7 +41,7 @@ private fun LegDto.toTransitLeg(): TripLeg.Transit = TripLeg.Transit(
     headsign = headsign,
     nextDepartureTime = startTime.toEpochSeconds(),
     stops = intermediateStops.map { it.toTripStop() },
-    shape = legGeometry?.points,
+    shape = legGeometry?.toNormalizedPolyline(),
 )
 
 private fun PlaceDto.toTripStop() = TripStop(
@@ -47,5 +50,8 @@ private fun PlaceDto.toTripStop() = TripStop(
     lat = lat,
     lon = lon,
 )
+
+/** Transitous encodes polylines at its own reported precision (6, sometimes 7); re-encode at 5 to match the app's convention. */
+private fun EncodedPolylineDto.toNormalizedPolyline(): String = encodePolyline(decodePolyline(points, precision))
 
 private fun String.toEpochSeconds(): Long = Instant.parse(this).epochSecond
