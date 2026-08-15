@@ -34,8 +34,8 @@ import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
 import dev.garado.transit.api.models.StopDeparture
 import dev.garado.transit.api.models.TripRoute
-import dev.garado.transit.formatClockTime
-import dev.garado.transit.parseHexColor
+import dev.garado.transit.util.formatClockTime
+import dev.garado.transit.util.parseHexColor
 
 class StopDeparturesScreen(
     sealedActivity: SealedLightActivity,

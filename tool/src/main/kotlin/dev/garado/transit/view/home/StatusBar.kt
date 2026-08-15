@@ -1,6 +1,6 @@
 package dev.garado.transit.view.home
 
-import dev.garado.transit.MinuteTimer
+import dev.garado.transit.util.MinuteTimer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,7 +19,7 @@ import com.thelightphone.sdk.ui.LightText
 import com.thelightphone.sdk.ui.LightTextVariant
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.lightClickable
-import dev.garado.transit.formatClockTime
+import dev.garado.transit.util.formatClockTime
 
 /** Status bar with system information (battery, clock) + optional cancel button */
 @Composable

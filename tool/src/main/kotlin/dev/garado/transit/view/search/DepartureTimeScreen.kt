@@ -26,7 +26,7 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
-import dev.garado.transit.formatClockTime
+import dev.garado.transit.util.formatClockTime
 
 private val TAB_GAP = 32.dp
 

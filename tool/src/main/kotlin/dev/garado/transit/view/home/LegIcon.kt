@@ -1,6 +1,6 @@
 package dev.garado.transit.view.home
 
-import dev.garado.transit.parseHexColor
+import dev.garado.transit.util.parseHexColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset

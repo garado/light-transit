@@ -4,12 +4,12 @@
 
 package dev.garado.transit.view.map
 
-import dev.garado.transit.map.TILE_SIZE
-import dev.garado.transit.map.lonLatToOffset
-import dev.garado.transit.map.lonLatToTileFraction
-import dev.garado.transit.map.metersPerPixel
-import dev.garado.transit.map.tileFractionToOffset
-import dev.garado.transit.map.zoomToFit
+import dev.garado.transit.util.TILE_SIZE
+import dev.garado.transit.util.lonLatToOffset
+import dev.garado.transit.util.lonLatToTileFraction
+import dev.garado.transit.util.metersPerPixel
+import dev.garado.transit.util.tileFractionToOffset
+import dev.garado.transit.util.zoomToFit
 import dev.garado.transit.map.LatLon
 import dev.garado.transit.map.LatLonBounds
 import dev.garado.transit.map.MapOverlay

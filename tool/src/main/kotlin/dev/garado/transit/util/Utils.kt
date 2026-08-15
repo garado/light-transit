@@ -1,4 +1,4 @@
-package dev.garado.transit
+package dev.garado.transit.util
 
 import android.graphics.Color as AndroidColor
 import androidx.compose.ui.graphics.Color

@@ -1,6 +1,6 @@
 package dev.garado.transit.view.route
 
-import dev.garado.transit.route.decodePolyline
+import dev.garado.transit.util.decodePolyline
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -9,7 +9,7 @@ import dev.garado.transit.api.models.TripPlan
 import dev.garado.transit.map.LatLon
 import dev.garado.transit.map.LatLonBounds
 import dev.garado.transit.map.MapOverlay
-import dev.garado.transit.parseHexColor
+import dev.garado.transit.util.parseHexColor
 
 /** Maps a trip's legs to drawable map overlays: walk legs in [walkLegColor], transit legs in their route color. */
 fun TripPlan.toOverlays(walkLegColor: Color): List<MapOverlay.Polyline> = legs.mapNotNull { leg ->

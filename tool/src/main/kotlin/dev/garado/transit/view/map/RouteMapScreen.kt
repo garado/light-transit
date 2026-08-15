@@ -34,8 +34,8 @@ import dev.garado.transit.api.models.TripRoute
 import dev.garado.transit.api.models.TripStop
 import dev.garado.transit.interfaces.routestops.GtfsLocalRouteStopsProvider
 import dev.garado.transit.interfaces.stopdepartures.GtfsLocalStopDeparturesProvider
-import dev.garado.transit.parseHexColor
-import dev.garado.transit.route.decodePolyline
+import dev.garado.transit.util.parseHexColor
+import dev.garado.transit.util.decodePolyline
 import kotlinx.coroutines.launch
 
 class RouteMapScreen(

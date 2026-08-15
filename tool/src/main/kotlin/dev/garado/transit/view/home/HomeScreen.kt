@@ -1,7 +1,7 @@
 package dev.garado.transit.view.home
 
 import dev.garado.transit.view.gtfs.sources.GtfsManagerScreen
-import dev.garado.transit.formatClockTime
+import dev.garado.transit.util.formatClockTime
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize

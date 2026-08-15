@@ -11,6 +11,9 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.ui.geometry.Offset
+import dev.garado.transit.util.TILE_SIZE
+import dev.garado.transit.util.lonLatToTileFraction
+import dev.garado.transit.util.metersPerPixel
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.IntOffset

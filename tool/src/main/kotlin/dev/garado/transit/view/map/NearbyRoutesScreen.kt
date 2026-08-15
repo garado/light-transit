@@ -37,7 +37,7 @@ import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
 import dev.garado.transit.api.models.TripRoute
-import dev.garado.transit.parseHexColor
+import dev.garado.transit.util.parseHexColor
 import dev.garado.transit.view.search.LocationSearchScreen
 
 class NearbyRoutesScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, NearbyRoutesViewModel>(sealedActivity) {

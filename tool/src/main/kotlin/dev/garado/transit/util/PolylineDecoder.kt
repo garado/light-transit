@@ -3,7 +3,7 @@
  * https://developers.google.com/maps/documentation/utilities/polylinealgorithm
  */
 
-package dev.garado.transit.route
+package dev.garado.transit.util
 
 import dev.garado.transit.map.LatLon
 

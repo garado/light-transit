@@ -1,4 +1,4 @@
-package dev.garado.transit.route
+package dev.garado.transit.util
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

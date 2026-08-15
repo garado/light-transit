@@ -1,4 +1,4 @@
-package dev.garado.transit
+package dev.garado.transit.util
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

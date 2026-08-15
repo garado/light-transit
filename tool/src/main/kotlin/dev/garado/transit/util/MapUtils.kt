@@ -2,10 +2,11 @@
  * Map view utilities.
  */
 
-package dev.garado.transit.map
+package dev.garado.transit.util
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntSize
+import dev.garado.transit.map.LatLonBounds
 import kotlin.math.cos
 import kotlin.math.tan
 import kotlin.math.ln

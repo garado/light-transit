@@ -1,6 +1,6 @@
 package dev.garado.transit.search
 
-import dev.garado.transit.nextEpochSecondsFor
+import dev.garado.transit.util.nextEpochSecondsFor
 
 sealed interface DepartureSelection {
     data object Now : DepartureSelection

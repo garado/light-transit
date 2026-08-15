@@ -29,8 +29,8 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.api.models.TripLeg
 import dev.garado.transit.api.models.TripStop
-import dev.garado.transit.formatClockTime
-import dev.garado.transit.parseHexColor
+import dev.garado.transit.util.formatClockTime
+import dev.garado.transit.util.parseHexColor
 
 /**
  * Information on a single transit leg
