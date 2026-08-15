@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -30,8 +31,12 @@ import dev.garado.transit.models.GtfsDataset
 import dev.garado.transit.data.gtfs.GtfsDisplayNames
 import dev.garado.transit.models.formatFileSize
 import dev.garado.transit.data.gtfs.local.GtfsDatabaseHolder
+import dev.garado.transit.data.gtfs.sources.GtfsImportProgressTracker
+import dev.garado.transit.data.gtfs.sources.GtfsSource
 import dev.garado.transit.data.gtfs.sources.GtfsSourceDownloadState
 import dev.garado.transit.data.gtfs.sources.GtfsSourceStore
+import dev.garado.transit.data.gtfs.sources.label
+import kotlinx.coroutines.launch
 
 class GtfsDatasetListScreen(
     sealedActivity: SealedLightActivity,
@@ -49,11 +54,10 @@ class GtfsDatasetListScreen(
                 lightContext.filesDir,
             )
         }
+        val scope = rememberCoroutineScope()
         val sources by store.all.collectAsState(initial = emptyList())
-        val downloadedKeys = remember(sources) {
-            sources.filter { it.downloadState == GtfsSourceDownloadState.DOWNLOADED }
-                .map { it.key to it.regionCode }
-                .toSet()
+        val sourceByKey = remember(sources) {
+            sources.associateBy { it.key to it.regionCode }
         }
 
         LightTheme(colors = themeColors) {
@@ -70,32 +74,13 @@ class GtfsDatasetListScreen(
 
                 LightScrollView(modifier = Modifier.weight(1f)) {
                     datasets.forEach { dataset ->
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .lightClickable(onClick = { goBack(listOf(dataset)) })
-                                .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
-                        ) {
-                            LightText(
-                                text = displayNames.agencyName(dataset.key, dataset.regionCode),
-                                variant = LightTextVariant.Copy,
-                            )
-                            if (dataset.key to dataset.regionCode in downloadedKeys) {
-                                LightText(
-                                    text = "Downloaded",
-                                    variant = LightTextVariant.Detail,
-                                    lighten = true,
-                                    modifier = Modifier.padding(top = 2.dp),
-                                )
-                            } else if (dataset.sizeBytes != null) {
-                                LightText(
-                                    text = formatFileSize(dataset.sizeBytes),
-                                    variant = LightTextVariant.Detail,
-                                    lighten = true,
-                                    modifier = Modifier.padding(top = 2.dp),
-                                )
-                            }
-                        }
+                        val existingSource = sourceByKey[dataset.key to dataset.regionCode]
+                        DatasetRow(
+                            dataset = dataset,
+                            displayName = displayNames.agencyName(dataset.key, dataset.regionCode),
+                            existingSource = existingSource,
+                            onClick = { scope.launch { store.add(dataset) } },
+                        )
                     }
                 }
 
@@ -113,6 +98,40 @@ class GtfsDatasetListScreen(
                         }),
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun DatasetRow(
+    dataset: GtfsDataset,
+    displayName: String,
+    existingSource: GtfsSource?,
+    onClick: () -> Unit,
+) {
+    val progress by GtfsImportProgressTracker.progress.collectAsState()
+    val liveStage = existingSource?.let { progress[it.id] }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .lightClickable(onClick = onClick)
+            .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
+    ) {
+        LightText(text = displayName, variant = LightTextVariant.Copy)
+        val subLabel = when {
+            liveStage != null -> liveStage.label
+            existingSource?.downloadState == GtfsSourceDownloadState.DOWNLOADED -> "Downloaded"
+            existingSource?.downloadState?.statusLabel != null -> existingSource.downloadState.statusLabel
+            else -> dataset.sizeBytes?.let { formatFileSize(it) }
+        }
+        if (subLabel != null) {
+            LightText(
+                text = subLabel,
+                variant = LightTextVariant.Detail,
+                lighten = true,
+                modifier = Modifier.padding(top = 2.dp),
+            )
         }
     }
 }
