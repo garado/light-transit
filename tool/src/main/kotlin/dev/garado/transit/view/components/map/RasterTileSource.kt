@@ -5,7 +5,7 @@
  * - Cached to a local SQLite database
  */
 
-package dev.garado.transit.map
+package dev.garado.transit.view.components.map
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory

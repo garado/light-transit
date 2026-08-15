@@ -1,4 +1,4 @@
-package dev.garado.transit.map
+package dev.garado.transit.view.components.map
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp

@@ -3,8 +3,9 @@ package dev.garado.transit.view.map
 import dev.garado.transit.view.route.boundingBox
 import dev.garado.transit.models.LatLon
 import dev.garado.transit.models.LatLonBounds
-import dev.garado.transit.map.MapOverlay
-import dev.garado.transit.map.RasterTileSource
+import dev.garado.transit.view.components.map.MapOverlay
+import dev.garado.transit.view.components.map.RasterTileSource
+import dev.garado.transit.view.components.map.TransitMapView
 import dev.garado.transit.data.database.maptiles.TileCacheDatabase
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

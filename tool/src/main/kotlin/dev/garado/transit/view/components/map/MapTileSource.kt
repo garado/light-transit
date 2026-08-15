@@ -1,4 +1,4 @@
-package dev.garado.transit.map
+package dev.garado.transit.view.components.map
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.DrawScope

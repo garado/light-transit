@@ -2,7 +2,7 @@
  * Core map UI implementation; tile-format-agnostic
  */
 
-package dev.garado.transit.view.map
+package dev.garado.transit.view.components.map
 
 import dev.garado.transit.util.TILE_SIZE
 import dev.garado.transit.util.lonLatToOffset
@@ -12,9 +12,6 @@ import dev.garado.transit.util.tileFractionToOffset
 import dev.garado.transit.util.zoomToFit
 import dev.garado.transit.models.LatLon
 import dev.garado.transit.models.LatLonBounds
-import dev.garado.transit.map.MapOverlay
-import dev.garado.transit.map.MapTile
-import dev.garado.transit.map.MapTileSource
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures

@@ -46,9 +46,9 @@ import dev.garado.transit.models.TripStop
 import dev.garado.transit.util.formatClockTime
 import dev.garado.transit.util.formatDuration
 import dev.garado.transit.models.LatLon
-import dev.garado.transit.map.RasterTileSource
+import dev.garado.transit.view.components.map.RasterTileSource
 import dev.garado.transit.data.database.maptiles.TileCacheDatabase
-import dev.garado.transit.view.map.TransitMapView
+import dev.garado.transit.view.components.map.TransitMapView
 import dev.garado.transit.models.LocationResult
 
 private enum class NavigationViewMode { DIRECTIONS, MAP }

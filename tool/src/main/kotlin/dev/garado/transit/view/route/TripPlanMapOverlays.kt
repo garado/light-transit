@@ -8,7 +8,7 @@ import dev.garado.transit.models.TripLeg
 import dev.garado.transit.models.TripPlan
 import dev.garado.transit.models.LatLon
 import dev.garado.transit.models.LatLonBounds
-import dev.garado.transit.map.MapOverlay
+import dev.garado.transit.view.components.map.MapOverlay
 import dev.garado.transit.util.parseHexColor
 
 /** Maps a trip's legs to drawable map overlays: walk legs in [walkLegColor], transit legs in their route color. */

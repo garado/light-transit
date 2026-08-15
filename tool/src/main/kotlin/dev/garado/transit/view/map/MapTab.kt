@@ -1,6 +1,7 @@
 package dev.garado.transit.view.map
 
-import dev.garado.transit.map.RasterTileSource
+import dev.garado.transit.view.components.map.RasterTileSource
+import dev.garado.transit.view.components.map.TransitMapView
 import dev.garado.transit.data.database.maptiles.TileCacheDatabase
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
