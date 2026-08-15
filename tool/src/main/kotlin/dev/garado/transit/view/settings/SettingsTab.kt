@@ -94,7 +94,7 @@ fun SettingsTabContent(
 
         item {
             SettingsNavigationRow(
-                label = "Download route data",
+                label = "Manage Downloaded Data",
                 onClick = onGtfsManagerClick,
             )
         }
