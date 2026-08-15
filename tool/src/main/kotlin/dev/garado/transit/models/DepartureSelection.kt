@@ -1,0 +1,16 @@
+package dev.garado.transit.models
+
+import dev.garado.transit.util.nextEpochSecondsFor
+
+sealed interface DepartureSelection {
+    data object Now : DepartureSelection
+    data class LeaveAt(val hour24: Int, val minute: Int) : DepartureSelection
+    data class ArriveBy(val hour24: Int, val minute: Int) : DepartureSelection
+}
+
+/** (leaveTime, arrivalTime) epoch seconds to pass to [dev.garado.transit.interfaces.plan.PlanInterface.plan]. */
+fun DepartureSelection.toApiTimeParams(): Pair<Long?, Long?> = when (this) {
+    DepartureSelection.Now -> null to null
+    is DepartureSelection.LeaveAt -> nextEpochSecondsFor(hour24, minute) to null
+    is DepartureSelection.ArriveBy -> null to nextEpochSecondsFor(hour24, minute)
+}
