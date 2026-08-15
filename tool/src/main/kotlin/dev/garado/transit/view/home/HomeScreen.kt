@@ -132,7 +132,6 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                                 options = settingsOptions,
                                 displayName = displayName,
                                 onToggle = viewModel.settings::toggleSetting,
-                                onAboutClick = { navigateTo(::AboutScreen) },
                                 onSavedLocationsClick = { navigateTo(::SavedLocationsScreen) },
                                 onApiSettingsClick = { navigateTo(::ApiSettingsScreen) },
                                 onGtfsManagerClick = { navigateTo(::GtfsManagerScreen) },
