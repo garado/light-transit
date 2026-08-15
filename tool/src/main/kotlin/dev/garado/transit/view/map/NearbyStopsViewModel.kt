@@ -4,13 +4,14 @@ import dev.garado.transit.map.LatLon
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
-import dev.garado.transit.api.NearbyStopsProvider
-import dev.garado.transit.api.StopDeparturesProvider
 import dev.garado.transit.api.models.StopDeparture
 import dev.garado.transit.api.models.TripStop
-import dev.garado.transit.api.transit.TransitApiPlanProvider
 import dev.garado.transit.gtfs.local.GtfsLocalNearbyStopsProvider
 import dev.garado.transit.gtfs.local.GtfsLocalStopDeparturesProvider
+import dev.garado.transit.interfaces.nearbystops.NearbyStopsProvider
+import dev.garado.transit.interfaces.nearbystops.TransitApiNearbyStopsProvider
+import dev.garado.transit.interfaces.stopdepartures.StopDeparturesProvider
+import dev.garado.transit.interfaces.stopdepartures.TransitApiStopDeparturesProvider
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +26,8 @@ enum class NearbyStopsViewMode { MAP, LIST }
 
 class NearbyStopsViewModel(
     lightContext: SealedLightContext,
-    private val transitApiProvider: TransitApiPlanProvider = TransitApiPlanProvider(lightContext),
+    private val apiStopsProvider: NearbyStopsProvider = TransitApiNearbyStopsProvider(lightContext),
+    private val apiDeparturesProvider: StopDeparturesProvider = TransitApiStopDeparturesProvider(lightContext),
     private val localStopsProvider: NearbyStopsProvider = GtfsLocalNearbyStopsProvider(lightContext),
     private val localDeparturesProvider: StopDeparturesProvider = GtfsLocalStopDeparturesProvider(lightContext),
 ) : LightViewModel<Unit>() {
@@ -85,13 +87,13 @@ class NearbyStopsViewModel(
             _isSearching.value = true
             try {
                 val (apiStops, localStops) = coroutineScope {
-                    val apiDeferred = async { transitApiProvider.nearbyStops(location.lat, location.lon) }
+                    val apiDeferred = async { apiStopsProvider.nearbyStops(location.lat, location.lon) }
                     val localDeferred = async { localStopsProvider.nearbyStops(location.lat, location.lon) }
                     apiDeferred.await() to localDeferred.await()
                 }
                 _stops.value = apiStops + localStops
                 _departuresByStop.value = coroutineScope {
-                    val apiDeparturesDeferred = async { transitApiProvider.departures(apiStops.flatMap { it.groupedStopIds }) }
+                    val apiDeparturesDeferred = async { apiDeparturesProvider.departures(apiStops.flatMap { it.groupedStopIds }) }
                     val localDeparturesDeferred = async { localDeparturesProvider.departures(localStops.flatMap { it.groupedStopIds }) }
                     apiDeparturesDeferred.await() + localDeparturesDeferred.await()
                 }

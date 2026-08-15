@@ -8,7 +8,7 @@ sealed interface DepartureSelection {
     data class ArriveBy(val hour24: Int, val minute: Int) : DepartureSelection
 }
 
-/** (leaveTime, arrivalTime) epoch seconds to pass to [dev.garado.transit.api.PlanProvider.plan]. */
+/** (leaveTime, arrivalTime) epoch seconds to pass to [dev.garado.transit.interfaces.plan.PlanProvider.plan]. */
 fun DepartureSelection.toApiTimeParams(): Pair<Long?, Long?> = when (this) {
     DepartureSelection.Now -> null to null
     is DepartureSelection.LeaveAt -> nextEpochSecondsFor(hour24, minute) to null

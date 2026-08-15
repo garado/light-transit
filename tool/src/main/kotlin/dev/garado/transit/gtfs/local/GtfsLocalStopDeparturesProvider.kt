@@ -1,8 +1,8 @@
 package dev.garado.transit.gtfs.local
 
 import com.thelightphone.sdk.SealedLightContext
-import dev.garado.transit.api.StopDeparturesProvider
 import dev.garado.transit.api.models.StopDeparture
+import dev.garado.transit.interfaces.stopdepartures.StopDeparturesProvider
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
 

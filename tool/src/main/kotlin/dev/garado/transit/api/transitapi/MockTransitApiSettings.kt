@@ -1,4 +1,4 @@
-package dev.garado.transit.api.transit
+package dev.garado.transit.api.transitapi
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

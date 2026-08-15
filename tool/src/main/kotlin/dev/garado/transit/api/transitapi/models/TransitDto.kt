@@ -1,6 +1,6 @@
 /** DTOs for Transit API based on transit-api.json */
 
-package dev.garado.transit.api.transit.models
+package dev.garado.transit.api.transitapi.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

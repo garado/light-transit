@@ -1,18 +1,18 @@
-package dev.garado.transit.api.transit
+package dev.garado.transit.api.transitapi
 
 import dev.garado.transit.api.models.StopDeparture
 import dev.garado.transit.api.models.TripLeg
 import dev.garado.transit.api.models.TripPlan
 import dev.garado.transit.api.models.TripStop
-import dev.garado.transit.api.transit.models.DepartureDto
-import dev.garado.transit.api.transit.models.ItineraryDto
-import dev.garado.transit.api.transit.models.LegDto
-import dev.garado.transit.api.transit.models.PlanApiResponse
-import dev.garado.transit.api.transit.models.PlanResultDto
-import dev.garado.transit.api.transit.models.RouteDepartureDto
-import dev.garado.transit.api.transit.models.RouteDto
-import dev.garado.transit.api.transit.models.StopDeparturesApiResponse
-import dev.garado.transit.api.transit.models.StopDto
+import dev.garado.transit.api.transitapi.models.DepartureDto
+import dev.garado.transit.api.transitapi.models.ItineraryDto
+import dev.garado.transit.api.transitapi.models.LegDto
+import dev.garado.transit.api.transitapi.models.PlanApiResponse
+import dev.garado.transit.api.transitapi.models.PlanResultDto
+import dev.garado.transit.api.transitapi.models.RouteDepartureDto
+import dev.garado.transit.api.transitapi.models.RouteDto
+import dev.garado.transit.api.transitapi.models.StopDeparturesApiResponse
+import dev.garado.transit.api.transitapi.models.StopDto
 
 fun PlanApiResponse.toTripPlans(): List<TripPlan> = results.map(PlanResultDto::toTripPlan)
 

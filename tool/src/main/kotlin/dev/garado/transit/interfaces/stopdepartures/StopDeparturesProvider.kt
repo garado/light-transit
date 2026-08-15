@@ -1,4 +1,4 @@
-package dev.garado.transit.api
+package dev.garado.transit.interfaces.stopdepartures
 
 import dev.garado.transit.api.models.StopDeparture
 

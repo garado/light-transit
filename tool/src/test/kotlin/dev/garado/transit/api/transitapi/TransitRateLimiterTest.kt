@@ -1,4 +1,4 @@
-package dev.garado.transit.api.transit
+package dev.garado.transit.api.transitapi
 
 import kotlin.test.AfterTest
 import kotlin.test.Test

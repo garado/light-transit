@@ -1,4 +1,4 @@
-package dev.garado.transit.api.transit
+package dev.garado.transit.api.transitapi
 
 /**
  * Singleton clientside throttle for the Transit API

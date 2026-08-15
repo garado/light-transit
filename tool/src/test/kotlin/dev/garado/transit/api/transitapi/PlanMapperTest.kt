@@ -1,14 +1,14 @@
-package dev.garado.transit.api.transit
+package dev.garado.transit.api.transitapi
 
 import dev.garado.transit.api.models.TripLeg
-import dev.garado.transit.api.transit.models.DepartureDto
-import dev.garado.transit.api.transit.models.ItineraryDto
-import dev.garado.transit.api.transit.models.LegDto
-import dev.garado.transit.api.transit.models.PlanApiResponse
-import dev.garado.transit.api.transit.models.PlanDetailsDto
-import dev.garado.transit.api.transit.models.PlanResultDto
-import dev.garado.transit.api.transit.models.RouteDto
-import dev.garado.transit.api.transit.models.StopDto
+import dev.garado.transit.api.transitapi.models.DepartureDto
+import dev.garado.transit.api.transitapi.models.ItineraryDto
+import dev.garado.transit.api.transitapi.models.LegDto
+import dev.garado.transit.api.transitapi.models.PlanApiResponse
+import dev.garado.transit.api.transitapi.models.PlanDetailsDto
+import dev.garado.transit.api.transitapi.models.PlanResultDto
+import dev.garado.transit.api.transitapi.models.RouteDto
+import dev.garado.transit.api.transitapi.models.StopDto
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
