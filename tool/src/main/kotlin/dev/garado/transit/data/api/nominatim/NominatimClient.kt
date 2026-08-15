@@ -11,11 +11,12 @@ import io.ktor.client.request.parameter
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import android.util.Log
+import dev.garado.transit.BuildConfig
 
 /** Geocodes free-text search queries to coordinates via the public Nominatim (OpenStreetMap) API. */
 object NominatimClient {
     private const val BASE_URL = "https://nominatim.openstreetmap.org/search"
-    private const val USER_AGENT = "light-transit"
+    private val USER_AGENT = "light-transit/${BuildConfig.VERSION_NAME} (https://github.com/garado/light-transit)"
     private const val RESULT_LIMIT = "10"
     private const val CONNECT_TIMEOUT_MS = 5_000L
     private const val REQUEST_TIMEOUT_MS = 10_000L

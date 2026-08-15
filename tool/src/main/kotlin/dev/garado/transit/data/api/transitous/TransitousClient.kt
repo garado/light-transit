@@ -6,6 +6,7 @@ package dev.garado.transit.data.api.transitous
 
 import android.util.Log
 import com.thelightphone.sdk.SealedLightContext
+import dev.garado.transit.BuildConfig
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
@@ -59,6 +60,7 @@ class TransitousClient(internal val lightContext: SealedLightContext) {
         return try {
             val response: T = client.get(BASE_URL + endpoint.path) {
                 header("accept", "application/json")
+                header("User-Agent", USER_AGENT)
                 params.forEach { (key, value) -> parameter(key, value) }
             }.body()
             usageTracker.recordApiCall()
@@ -72,6 +74,7 @@ class TransitousClient(internal val lightContext: SealedLightContext) {
     internal companion object {
         const val TAG = "TransitousClient"
         const val BASE_URL = "https://api.transitous.org"
+        val USER_AGENT = "light-transit/${BuildConfig.VERSION_NAME} (https://github.com/garado/light-transit)"
         const val CONNECT_TIMEOUT_MS = 5_000L
         const val REQUEST_TIMEOUT_MS = 10_000L
 
