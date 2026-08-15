@@ -29,7 +29,7 @@ import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
 import dev.garado.transit.models.GtfsDataset
-import dev.garado.transit.gtfs.GtfsDisplayNames
+import dev.garado.transit.data.gtfs.GtfsDisplayNames
 
 class GtfsCountryListScreen(sealedActivity: SealedLightActivity) :
     LightScreen<List<GtfsDataset>, GtfsBrowserViewModel>(sealedActivity) {

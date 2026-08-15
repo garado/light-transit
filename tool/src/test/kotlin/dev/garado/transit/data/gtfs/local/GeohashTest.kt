@@ -1,4 +1,4 @@
-package dev.garado.transit.gtfs.local
+package dev.garado.transit.data.gtfs.local
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

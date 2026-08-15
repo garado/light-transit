@@ -1,6 +1,6 @@
 /** Database for locally-stored GTFS data */
 
-package dev.garado.transit.gtfs.local
+package dev.garado.transit.data.gtfs.local
 
 import androidx.room.ColumnInfo
 import androidx.room.Dao
@@ -18,7 +18,7 @@ import com.thelightphone.sdk.SealedLightContext
 import com.thelightphone.sdk.buildDatabase
 import dev.garado.transit.models.TripRoute
 import dev.garado.transit.models.TripStop
-import dev.garado.transit.gtfs.sources.GtfsSourceDownloadState
+import dev.garado.transit.data.gtfs.sources.GtfsSourceDownloadState
 import dev.garado.transit.models.LatLon
 import dev.garado.transit.util.encodePolyline
 import kotlin.math.ceil

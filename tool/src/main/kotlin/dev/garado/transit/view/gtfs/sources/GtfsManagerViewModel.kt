@@ -1,12 +1,12 @@
 package dev.garado.transit.view.gtfs.sources
 
-import dev.garado.transit.gtfs.sources.GtfsSource
-import dev.garado.transit.gtfs.sources.GtfsSourceStore
+import dev.garado.transit.data.gtfs.sources.GtfsSource
+import dev.garado.transit.data.gtfs.sources.GtfsSourceStore
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.models.GtfsDataset
-import dev.garado.transit.gtfs.local.GtfsDatabaseHolder
+import dev.garado.transit.data.gtfs.local.GtfsDatabaseHolder
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

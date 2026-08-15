@@ -1,4 +1,4 @@
-package dev.garado.transit.gtfs.local
+package dev.garado.transit.data.gtfs.local
 
 /** RFC4180 split (handle quoted fields with embedded commas/escaped quotes) for GTFS txt parsers */
 internal fun splitGtfsCsvLine(line: String): List<String> {

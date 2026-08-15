@@ -1,4 +1,4 @@
-package dev.garado.transit.gtfs.sources
+package dev.garado.transit.data.gtfs.sources
 
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow

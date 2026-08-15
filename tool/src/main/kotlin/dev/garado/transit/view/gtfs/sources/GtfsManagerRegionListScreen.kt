@@ -1,6 +1,6 @@
 package dev.garado.transit.view.gtfs.sources
 
-import dev.garado.transit.gtfs.sources.GtfsSourceStore
+import dev.garado.transit.data.gtfs.sources.GtfsSourceStore
 import dev.garado.transit.view.gtfs.browse.GtfsRegionListScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -37,8 +37,8 @@ import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
-import dev.garado.transit.gtfs.GtfsDisplayNames
-import dev.garado.transit.gtfs.local.GtfsDatabaseHolder
+import dev.garado.transit.data.gtfs.GtfsDisplayNames
+import dev.garado.transit.data.gtfs.local.GtfsDatabaseHolder
 import kotlinx.coroutines.launch
 
 /** Sub-regions of saved sources within one country, mirrors GtfsRegionListScreen. */

@@ -1,19 +1,19 @@
 /** Expose GtfsSource methods + data to rest of app */
 
-package dev.garado.transit.gtfs.sources
+package dev.garado.transit.data.gtfs.sources
 
 import android.util.Log
 import dev.garado.transit.data.api.transitous.GtfsDownloader
 import dev.garado.transit.models.GtfsDataset
-import dev.garado.transit.gtfs.local.GtfsCalendarTxtParser
-import dev.garado.transit.gtfs.local.GtfsDatabase
-import dev.garado.transit.gtfs.local.GtfsRoutesTxtParser
-import dev.garado.transit.gtfs.local.GtfsShapesTxtParser
-import dev.garado.transit.gtfs.local.GtfsSourceEntity
-import dev.garado.transit.gtfs.local.GtfsStopTimesTxtParser
-import dev.garado.transit.gtfs.local.GtfsStopsTxtParser
-import dev.garado.transit.gtfs.local.GtfsTripsTxtParser
-import dev.garado.transit.gtfs.local.GtfsZipExtractor
+import dev.garado.transit.data.gtfs.local.GtfsCalendarTxtParser
+import dev.garado.transit.data.gtfs.local.GtfsDatabase
+import dev.garado.transit.data.gtfs.local.GtfsRoutesTxtParser
+import dev.garado.transit.data.gtfs.local.GtfsShapesTxtParser
+import dev.garado.transit.data.gtfs.local.GtfsSourceEntity
+import dev.garado.transit.data.gtfs.local.GtfsStopTimesTxtParser
+import dev.garado.transit.data.gtfs.local.GtfsStopsTxtParser
+import dev.garado.transit.data.gtfs.local.GtfsTripsTxtParser
+import dev.garado.transit.data.gtfs.local.GtfsZipExtractor
 import java.io.File
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers

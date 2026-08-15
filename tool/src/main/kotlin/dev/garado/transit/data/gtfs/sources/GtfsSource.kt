@@ -1,4 +1,4 @@
-package dev.garado.transit.gtfs.sources
+package dev.garado.transit.data.gtfs.sources
 
 import dev.garado.transit.models.gtfsDownloadUrl
 

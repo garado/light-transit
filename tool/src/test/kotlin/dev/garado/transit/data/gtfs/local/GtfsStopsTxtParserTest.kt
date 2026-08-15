@@ -1,4 +1,4 @@
-package dev.garado.transit.gtfs.local
+package dev.garado.transit.data.gtfs.local
 
 import java.io.BufferedReader
 import java.io.StringReader

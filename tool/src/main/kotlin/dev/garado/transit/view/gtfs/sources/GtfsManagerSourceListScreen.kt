@@ -1,10 +1,10 @@
 package dev.garado.transit.view.gtfs.sources
 
-import dev.garado.transit.gtfs.sources.GtfsImportProgressTracker
-import dev.garado.transit.gtfs.sources.GtfsSource
-import dev.garado.transit.gtfs.sources.GtfsSourceDownloadState
-import dev.garado.transit.gtfs.sources.GtfsSourceStore
-import dev.garado.transit.gtfs.sources.label
+import dev.garado.transit.data.gtfs.sources.GtfsImportProgressTracker
+import dev.garado.transit.data.gtfs.sources.GtfsSource
+import dev.garado.transit.data.gtfs.sources.GtfsSourceDownloadState
+import dev.garado.transit.data.gtfs.sources.GtfsSourceStore
+import dev.garado.transit.data.gtfs.sources.label
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,8 +40,8 @@ import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
-import dev.garado.transit.gtfs.GtfsDisplayNames
-import dev.garado.transit.gtfs.local.GtfsDatabaseHolder
+import dev.garado.transit.data.gtfs.GtfsDisplayNames
+import dev.garado.transit.data.gtfs.local.GtfsDatabaseHolder
 import kotlinx.coroutines.launch
 
 class GtfsManagerSourceListScreen(

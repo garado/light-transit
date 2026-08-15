@@ -1,10 +1,10 @@
 /** (Developer settings) wipe all local GTFS state */
 
-package dev.garado.transit.gtfs.sources
+package dev.garado.transit.data.gtfs.sources
 
 import com.thelightphone.sdk.SealedLightContext
-import dev.garado.transit.gtfs.browse.GtfsCatalogDatabaseHolder
-import dev.garado.transit.gtfs.local.GtfsDatabaseHolder
+import dev.garado.transit.data.gtfs.browse.GtfsCatalogDatabaseHolder
+import dev.garado.transit.data.gtfs.local.GtfsDatabaseHolder
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

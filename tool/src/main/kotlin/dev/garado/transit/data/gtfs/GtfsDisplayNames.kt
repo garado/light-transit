@@ -1,6 +1,6 @@
 /** Loads human-readable country/region names from a bundled YAML asset */
 
-package dev.garado.transit.gtfs
+package dev.garado.transit.data.gtfs
 
 import com.thelightphone.sdk.SealedLightContext
 import org.yaml.snakeyaml.Yaml

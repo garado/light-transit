@@ -1,6 +1,6 @@
 /** Set up room db for the (parsed) Transitous dataset catalog */
 
-package dev.garado.transit.gtfs.browse
+package dev.garado.transit.data.gtfs.browse
 
 import androidx.room.ColumnInfo
 import androidx.room.Dao

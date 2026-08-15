@@ -1,6 +1,6 @@
 /** GTFS parsers for getting schedule information */
 
-package dev.garado.transit.gtfs.local
+package dev.garado.transit.data.gtfs.local
 
 import android.util.Log
 import java.io.BufferedReader
