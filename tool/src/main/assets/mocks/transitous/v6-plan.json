@@ -1,0 +1,990 @@
+{
+  "requestParameters": {
+    "property1": "string",
+    "property2": "string"
+  },
+  "debugOutput": {
+    "property1": 0,
+    "property2": 0
+  },
+  "from": {
+    "name": "string",
+    "stopId": "string",
+    "parentId": "string",
+    "importance": 0,
+    "lat": 0,
+    "lon": 0,
+    "level": 0,
+    "tz": "string",
+    "arrival": "2019-08-24T14:15:22Z",
+    "departure": "2019-08-24T14:15:22Z",
+    "scheduledArrival": "2019-08-24T14:15:22Z",
+    "scheduledDeparture": "2019-08-24T14:15:22Z",
+    "scheduledTrack": "string",
+    "track": "string",
+    "stopCode": "string",
+    "description": "string",
+    "vertexType": "NORMAL",
+    "pickupType": "NORMAL",
+    "dropoffType": "NORMAL",
+    "cancelled": true,
+    "alerts": [
+      {
+        "code": "string",
+        "communicationPeriod": [
+          {
+            "start": "2019-08-24T14:15:22Z",
+            "end": "2019-08-24T14:15:22Z"
+          }
+        ],
+        "impactPeriod": [
+          {
+            "start": "2019-08-24T14:15:22Z",
+            "end": "2019-08-24T14:15:22Z"
+          }
+        ],
+        "cause": "UNKNOWN_CAUSE",
+        "causeDetail": "string",
+        "effect": "NO_SERVICE",
+        "effectDetail": "string",
+        "url": "string",
+        "headerText": "string",
+        "descriptionText": "string",
+        "ttsHeaderText": "string",
+        "ttsDescriptionText": "string",
+        "severityLevel": "UNKNOWN_SEVERITY",
+        "imageUrl": "string",
+        "imageMediaType": "string",
+        "imageAlternativeText": "string"
+      }
+    ],
+    "flex": "string",
+    "flexId": "string",
+    "flexStartPickupDropOffWindow": "2019-08-24T14:15:22Z",
+    "flexEndPickupDropOffWindow": "2019-08-24T14:15:22Z",
+    "modes": [
+      "WALK"
+    ]
+  },
+  "to": {
+    "name": "string",
+    "stopId": "string",
+    "parentId": "string",
+    "importance": 0,
+    "lat": 0,
+    "lon": 0,
+    "level": 0,
+    "tz": "string",
+    "arrival": "2019-08-24T14:15:22Z",
+    "departure": "2019-08-24T14:15:22Z",
+    "scheduledArrival": "2019-08-24T14:15:22Z",
+    "scheduledDeparture": "2019-08-24T14:15:22Z",
+    "scheduledTrack": "string",
+    "track": "string",
+    "stopCode": "string",
+    "description": "string",
+    "vertexType": "NORMAL",
+    "pickupType": "NORMAL",
+    "dropoffType": "NORMAL",
+    "cancelled": true,
+    "alerts": [
+      {
+        "code": "string",
+        "communicationPeriod": [
+          {
+            "start": "2019-08-24T14:15:22Z",
+            "end": "2019-08-24T14:15:22Z"
+          }
+        ],
+        "impactPeriod": [
+          {
+            "start": "2019-08-24T14:15:22Z",
+            "end": "2019-08-24T14:15:22Z"
+          }
+        ],
+        "cause": "UNKNOWN_CAUSE",
+        "causeDetail": "string",
+        "effect": "NO_SERVICE",
+        "effectDetail": "string",
+        "url": "string",
+        "headerText": "string",
+        "descriptionText": "string",
+        "ttsHeaderText": "string",
+        "ttsDescriptionText": "string",
+        "severityLevel": "UNKNOWN_SEVERITY",
+        "imageUrl": "string",
+        "imageMediaType": "string",
+        "imageAlternativeText": "string"
+      }
+    ],
+    "flex": "string",
+    "flexId": "string",
+    "flexStartPickupDropOffWindow": "2019-08-24T14:15:22Z",
+    "flexEndPickupDropOffWindow": "2019-08-24T14:15:22Z",
+    "modes": [
+      "WALK"
+    ]
+  },
+  "direct": [
+    {
+      "duration": 0,
+      "startTime": "2019-08-24T14:15:22Z",
+      "endTime": "2019-08-24T14:15:22Z",
+      "transfers": 0,
+      "id": "string",
+      "legs": [
+        {
+          "mode": "WALK",
+          "from": {
+            "name": "string",
+            "stopId": "string",
+            "parentId": "string",
+            "importance": 0,
+            "lat": 0,
+            "lon": 0,
+            "level": 0,
+            "tz": "string",
+            "arrival": "2019-08-24T14:15:22Z",
+            "departure": "2019-08-24T14:15:22Z",
+            "scheduledArrival": "2019-08-24T14:15:22Z",
+            "scheduledDeparture": "2019-08-24T14:15:22Z",
+            "scheduledTrack": "string",
+            "track": "string",
+            "stopCode": "string",
+            "description": "string",
+            "vertexType": "NORMAL",
+            "pickupType": "NORMAL",
+            "dropoffType": "NORMAL",
+            "cancelled": true,
+            "alerts": [
+              {
+                "code": "string",
+                "communicationPeriod": [
+                  {}
+                ],
+                "impactPeriod": [
+                  {}
+                ],
+                "cause": "UNKNOWN_CAUSE",
+                "causeDetail": "string",
+                "effect": "NO_SERVICE",
+                "effectDetail": "string",
+                "url": "string",
+                "headerText": "string",
+                "descriptionText": "string",
+                "ttsHeaderText": "string",
+                "ttsDescriptionText": "string",
+                "severityLevel": "UNKNOWN_SEVERITY",
+                "imageUrl": "string",
+                "imageMediaType": "string",
+                "imageAlternativeText": "string"
+              }
+            ],
+            "flex": "string",
+            "flexId": "string",
+            "flexStartPickupDropOffWindow": "2019-08-24T14:15:22Z",
+            "flexEndPickupDropOffWindow": "2019-08-24T14:15:22Z",
+            "modes": [
+              "WALK"
+            ]
+          },
+          "to": {
+            "name": "string",
+            "stopId": "string",
+            "parentId": "string",
+            "importance": 0,
+            "lat": 0,
+            "lon": 0,
+            "level": 0,
+            "tz": "string",
+            "arrival": "2019-08-24T14:15:22Z",
+            "departure": "2019-08-24T14:15:22Z",
+            "scheduledArrival": "2019-08-24T14:15:22Z",
+            "scheduledDeparture": "2019-08-24T14:15:22Z",
+            "scheduledTrack": "string",
+            "track": "string",
+            "stopCode": "string",
+            "description": "string",
+            "vertexType": "NORMAL",
+            "pickupType": "NORMAL",
+            "dropoffType": "NORMAL",
+            "cancelled": true,
+            "alerts": [
+              {
+                "code": "string",
+                "communicationPeriod": [
+                  {}
+                ],
+                "impactPeriod": [
+                  {}
+                ],
+                "cause": "UNKNOWN_CAUSE",
+                "causeDetail": "string",
+                "effect": "NO_SERVICE",
+                "effectDetail": "string",
+                "url": "string",
+                "headerText": "string",
+                "descriptionText": "string",
+                "ttsHeaderText": "string",
+                "ttsDescriptionText": "string",
+                "severityLevel": "UNKNOWN_SEVERITY",
+                "imageUrl": "string",
+                "imageMediaType": "string",
+                "imageAlternativeText": "string"
+              }
+            ],
+            "flex": "string",
+            "flexId": "string",
+            "flexStartPickupDropOffWindow": "2019-08-24T14:15:22Z",
+            "flexEndPickupDropOffWindow": "2019-08-24T14:15:22Z",
+            "modes": [
+              "WALK"
+            ]
+          },
+          "duration": 0,
+          "startTime": "2019-08-24T14:15:22Z",
+          "endTime": "2019-08-24T14:15:22Z",
+          "scheduledStartTime": "2019-08-24T14:15:22Z",
+          "scheduledEndTime": "2019-08-24T14:15:22Z",
+          "realTime": true,
+          "scheduled": true,
+          "distance": 0,
+          "interlineWithPreviousLeg": true,
+          "headsign": "string",
+          "tripFrom": {
+            "name": "string",
+            "stopId": "string",
+            "parentId": "string",
+            "importance": 0,
+            "lat": 0,
+            "lon": 0,
+            "level": 0,
+            "tz": "string",
+            "arrival": "2019-08-24T14:15:22Z",
+            "departure": "2019-08-24T14:15:22Z",
+            "scheduledArrival": "2019-08-24T14:15:22Z",
+            "scheduledDeparture": "2019-08-24T14:15:22Z",
+            "scheduledTrack": "string",
+            "track": "string",
+            "stopCode": "string",
+            "description": "string",
+            "vertexType": "NORMAL",
+            "pickupType": "NORMAL",
+            "dropoffType": "NORMAL",
+            "cancelled": true,
+            "alerts": [
+              {
+                "code": "string",
+                "communicationPeriod": [
+                  {}
+                ],
+                "impactPeriod": [
+                  {}
+                ],
+                "cause": "UNKNOWN_CAUSE",
+                "causeDetail": "string",
+                "effect": "NO_SERVICE",
+                "effectDetail": "string",
+                "url": "string",
+                "headerText": "string",
+                "descriptionText": "string",
+                "ttsHeaderText": "string",
+                "ttsDescriptionText": "string",
+                "severityLevel": "UNKNOWN_SEVERITY",
+                "imageUrl": "string",
+                "imageMediaType": "string",
+                "imageAlternativeText": "string"
+              }
+            ],
+            "flex": "string",
+            "flexId": "string",
+            "flexStartPickupDropOffWindow": "2019-08-24T14:15:22Z",
+            "flexEndPickupDropOffWindow": "2019-08-24T14:15:22Z",
+            "modes": [
+              "WALK"
+            ]
+          },
+          "tripTo": {
+            "name": "string",
+            "stopId": "string",
+            "parentId": "string",
+            "importance": 0,
+            "lat": 0,
+            "lon": 0,
+            "level": 0,
+            "tz": "string",
+            "arrival": "2019-08-24T14:15:22Z",
+            "departure": "2019-08-24T14:15:22Z",
+            "scheduledArrival": "2019-08-24T14:15:22Z",
+            "scheduledDeparture": "2019-08-24T14:15:22Z",
+            "scheduledTrack": "string",
+            "track": "string",
+            "stopCode": "string",
+            "description": "string",
+            "vertexType": "NORMAL",
+            "pickupType": "NORMAL",
+            "dropoffType": "NORMAL",
+            "cancelled": true,
+            "alerts": [
+              {
+                "code": "string",
+                "communicationPeriod": [
+                  {}
+                ],
+                "impactPeriod": [
+                  {}
+                ],
+                "cause": "UNKNOWN_CAUSE",
+                "causeDetail": "string",
+                "effect": "NO_SERVICE",
+                "effectDetail": "string",
+                "url": "string",
+                "headerText": "string",
+                "descriptionText": "string",
+                "ttsHeaderText": "string",
+                "ttsDescriptionText": "string",
+                "severityLevel": "UNKNOWN_SEVERITY",
+                "imageUrl": "string",
+                "imageMediaType": "string",
+                "imageAlternativeText": "string"
+              }
+            ],
+            "flex": "string",
+            "flexId": "string",
+            "flexStartPickupDropOffWindow": "2019-08-24T14:15:22Z",
+            "flexEndPickupDropOffWindow": "2019-08-24T14:15:22Z",
+            "modes": [
+              "WALK"
+            ]
+          },
+          "category": {
+            "id": "string",
+            "name": "string",
+            "shortName": "string"
+          },
+          "routeId": "string",
+          "routeUrl": "string",
+          "directionId": "string",
+          "routeColor": "string",
+          "routeTextColor": "string",
+          "routeType": 0,
+          "agencyName": "string",
+          "agencyUrl": "string",
+          "agencyId": "string",
+          "tripId": "string",
+          "routeShortName": "string",
+          "routeLongName": "string",
+          "tripShortName": "string",
+          "displayName": "string",
+          "cancelled": true,
+          "source": "string",
+          "intermediateStops": [
+            {
+              "name": "string",
+              "stopId": "string",
+              "parentId": "string",
+              "importance": 0,
+              "lat": 0,
+              "lon": 0,
+              "level": 0,
+              "tz": "string",
+              "arrival": "2019-08-24T14:15:22Z",
+              "departure": "2019-08-24T14:15:22Z",
+              "scheduledArrival": "2019-08-24T14:15:22Z",
+              "scheduledDeparture": "2019-08-24T14:15:22Z",
+              "scheduledTrack": "string",
+              "track": "string",
+              "stopCode": "string",
+              "description": "string",
+              "vertexType": "NORMAL",
+              "pickupType": "NORMAL",
+              "dropoffType": "NORMAL",
+              "cancelled": true,
+              "alerts": [
+                {
+                  "code": "string",
+                  "communicationPeriod": [
+                    null
+                  ],
+                  "impactPeriod": [
+                    null
+                  ],
+                  "cause": "UNKNOWN_CAUSE",
+                  "causeDetail": "string",
+                  "effect": "NO_SERVICE",
+                  "effectDetail": "string",
+                  "url": "string",
+                  "headerText": "string",
+                  "descriptionText": "string",
+                  "ttsHeaderText": "string",
+                  "ttsDescriptionText": "string",
+                  "severityLevel": "UNKNOWN_SEVERITY",
+                  "imageUrl": "string",
+                  "imageMediaType": "string",
+                  "imageAlternativeText": "string"
+                }
+              ],
+              "flex": "string",
+              "flexId": "string",
+              "flexStartPickupDropOffWindow": "2019-08-24T14:15:22Z",
+              "flexEndPickupDropOffWindow": "2019-08-24T14:15:22Z",
+              "modes": [
+                "WALK"
+              ]
+            }
+          ],
+          "legGeometry": {
+            "points": "string",
+            "precision": 0,
+            "length": 0
+          },
+          "steps": [
+            {
+              "relativeDirection": "DEPART",
+              "distance": 0,
+              "fromLevel": 0,
+              "toLevel": 0,
+              "osmWay": 0,
+              "polyline": {
+                "points": "string",
+                "precision": 0,
+                "length": 0
+              },
+              "streetName": "string",
+              "exit": "string",
+              "stayOn": true,
+              "area": true,
+              "toll": true,
+              "accessRestriction": "string",
+              "elevationUp": 0,
+              "elevationDown": 0
+            }
+          ],
+          "rental": {
+            "providerId": "string",
+            "providerGroupId": "string",
+            "systemId": "string",
+            "systemName": "string",
+            "url": "string",
+            "color": "string",
+            "stationName": "string",
+            "fromStationName": "string",
+            "toStationName": "string",
+            "rentalUriAndroid": "string",
+            "rentalUriIOS": "string",
+            "rentalUriWeb": "string",
+            "formFactor": "BICYCLE",
+            "propulsionType": "HUMAN",
+            "returnConstraint": "NONE"
+          },
+          "fareTransferIndex": 0,
+          "effectiveFareLegIndex": 0,
+          "alerts": [
+            {
+              "code": "string",
+              "communicationPeriod": [
+                {
+                  "start": "2019-08-24T14:15:22Z",
+                  "end": "2019-08-24T14:15:22Z"
+                }
+              ],
+              "impactPeriod": [
+                {
+                  "start": "2019-08-24T14:15:22Z",
+                  "end": "2019-08-24T14:15:22Z"
+                }
+              ],
+              "cause": "UNKNOWN_CAUSE",
+              "causeDetail": "string",
+              "effect": "NO_SERVICE",
+              "effectDetail": "string",
+              "url": "string",
+              "headerText": "string",
+              "descriptionText": "string",
+              "ttsHeaderText": "string",
+              "ttsDescriptionText": "string",
+              "severityLevel": "UNKNOWN_SEVERITY",
+              "imageUrl": "string",
+              "imageMediaType": "string",
+              "imageAlternativeText": "string"
+            }
+          ],
+          "loopedCalendarSince": "2019-08-24T14:15:22Z",
+          "bikesAllowed": true,
+          "wheelchairAccessible": "ACCESSIBLE",
+          "alternatives": [
+            [
+              {}
+            ]
+          ]
+        }
+      ],
+      "fareTransfers": [
+        {
+          "rule": "A_AB",
+          "transferProducts": [
+            {
+              "name": "string",
+              "amount": 0,
+              "currency": "string",
+              "riderCategory": {
+                "riderCategoryName": "string",
+                "isDefaultFareCategory": true,
+                "eligibilityUrl": "string"
+              },
+              "media": {
+                "fareMediaName": "string",
+                "fareMediaType": "NONE"
+              }
+            }
+          ],
+          "effectiveFareLegProducts": [
+            [
+              [
+                {
+                  "name": "string",
+                  "amount": 0,
+                  "currency": "string",
+                  "riderCategory": {},
+                  "media": {}
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "itineraries": [
+    {
+      "duration": 0,
+      "startTime": "2019-08-24T14:15:22Z",
+      "endTime": "2019-08-24T14:15:22Z",
+      "transfers": 0,
+      "id": "string",
+      "legs": [
+        {
+          "mode": "WALK",
+          "from": {
+            "name": "string",
+            "stopId": "string",
+            "parentId": "string",
+            "importance": 0,
+            "lat": 0,
+            "lon": 0,
+            "level": 0,
+            "tz": "string",
+            "arrival": "2019-08-24T14:15:22Z",
+            "departure": "2019-08-24T14:15:22Z",
+            "scheduledArrival": "2019-08-24T14:15:22Z",
+            "scheduledDeparture": "2019-08-24T14:15:22Z",
+            "scheduledTrack": "string",
+            "track": "string",
+            "stopCode": "string",
+            "description": "string",
+            "vertexType": "NORMAL",
+            "pickupType": "NORMAL",
+            "dropoffType": "NORMAL",
+            "cancelled": true,
+            "alerts": [
+              {
+                "code": "string",
+                "communicationPeriod": [
+                  {}
+                ],
+                "impactPeriod": [
+                  {}
+                ],
+                "cause": "UNKNOWN_CAUSE",
+                "causeDetail": "string",
+                "effect": "NO_SERVICE",
+                "effectDetail": "string",
+                "url": "string",
+                "headerText": "string",
+                "descriptionText": "string",
+                "ttsHeaderText": "string",
+                "ttsDescriptionText": "string",
+                "severityLevel": "UNKNOWN_SEVERITY",
+                "imageUrl": "string",
+                "imageMediaType": "string",
+                "imageAlternativeText": "string"
+              }
+            ],
+            "flex": "string",
+            "flexId": "string",
+            "flexStartPickupDropOffWindow": "2019-08-24T14:15:22Z",
+            "flexEndPickupDropOffWindow": "2019-08-24T14:15:22Z",
+            "modes": [
+              "WALK"
+            ]
+          },
+          "to": {
+            "name": "string",
+            "stopId": "string",
+            "parentId": "string",
+            "importance": 0,
+            "lat": 0,
+            "lon": 0,
+            "level": 0,
+            "tz": "string",
+            "arrival": "2019-08-24T14:15:22Z",
+            "departure": "2019-08-24T14:15:22Z",
+            "scheduledArrival": "2019-08-24T14:15:22Z",
+            "scheduledDeparture": "2019-08-24T14:15:22Z",
+            "scheduledTrack": "string",
+            "track": "string",
+            "stopCode": "string",
+            "description": "string",
+            "vertexType": "NORMAL",
+            "pickupType": "NORMAL",
+            "dropoffType": "NORMAL",
+            "cancelled": true,
+            "alerts": [
+              {
+                "code": "string",
+                "communicationPeriod": [
+                  {}
+                ],
+                "impactPeriod": [
+                  {}
+                ],
+                "cause": "UNKNOWN_CAUSE",
+                "causeDetail": "string",
+                "effect": "NO_SERVICE",
+                "effectDetail": "string",
+                "url": "string",
+                "headerText": "string",
+                "descriptionText": "string",
+                "ttsHeaderText": "string",
+                "ttsDescriptionText": "string",
+                "severityLevel": "UNKNOWN_SEVERITY",
+                "imageUrl": "string",
+                "imageMediaType": "string",
+                "imageAlternativeText": "string"
+              }
+            ],
+            "flex": "string",
+            "flexId": "string",
+            "flexStartPickupDropOffWindow": "2019-08-24T14:15:22Z",
+            "flexEndPickupDropOffWindow": "2019-08-24T14:15:22Z",
+            "modes": [
+              "WALK"
+            ]
+          },
+          "duration": 0,
+          "startTime": "2019-08-24T14:15:22Z",
+          "endTime": "2019-08-24T14:15:22Z",
+          "scheduledStartTime": "2019-08-24T14:15:22Z",
+          "scheduledEndTime": "2019-08-24T14:15:22Z",
+          "realTime": true,
+          "scheduled": true,
+          "distance": 0,
+          "interlineWithPreviousLeg": true,
+          "headsign": "string",
+          "tripFrom": {
+            "name": "string",
+            "stopId": "string",
+            "parentId": "string",
+            "importance": 0,
+            "lat": 0,
+            "lon": 0,
+            "level": 0,
+            "tz": "string",
+            "arrival": "2019-08-24T14:15:22Z",
+            "departure": "2019-08-24T14:15:22Z",
+            "scheduledArrival": "2019-08-24T14:15:22Z",
+            "scheduledDeparture": "2019-08-24T14:15:22Z",
+            "scheduledTrack": "string",
+            "track": "string",
+            "stopCode": "string",
+            "description": "string",
+            "vertexType": "NORMAL",
+            "pickupType": "NORMAL",
+            "dropoffType": "NORMAL",
+            "cancelled": true,
+            "alerts": [
+              {
+                "code": "string",
+                "communicationPeriod": [
+                  {}
+                ],
+                "impactPeriod": [
+                  {}
+                ],
+                "cause": "UNKNOWN_CAUSE",
+                "causeDetail": "string",
+                "effect": "NO_SERVICE",
+                "effectDetail": "string",
+                "url": "string",
+                "headerText": "string",
+                "descriptionText": "string",
+                "ttsHeaderText": "string",
+                "ttsDescriptionText": "string",
+                "severityLevel": "UNKNOWN_SEVERITY",
+                "imageUrl": "string",
+                "imageMediaType": "string",
+                "imageAlternativeText": "string"
+              }
+            ],
+            "flex": "string",
+            "flexId": "string",
+            "flexStartPickupDropOffWindow": "2019-08-24T14:15:22Z",
+            "flexEndPickupDropOffWindow": "2019-08-24T14:15:22Z",
+            "modes": [
+              "WALK"
+            ]
+          },
+          "tripTo": {
+            "name": "string",
+            "stopId": "string",
+            "parentId": "string",
+            "importance": 0,
+            "lat": 0,
+            "lon": 0,
+            "level": 0,
+            "tz": "string",
+            "arrival": "2019-08-24T14:15:22Z",
+            "departure": "2019-08-24T14:15:22Z",
+            "scheduledArrival": "2019-08-24T14:15:22Z",
+            "scheduledDeparture": "2019-08-24T14:15:22Z",
+            "scheduledTrack": "string",
+            "track": "string",
+            "stopCode": "string",
+            "description": "string",
+            "vertexType": "NORMAL",
+            "pickupType": "NORMAL",
+            "dropoffType": "NORMAL",
+            "cancelled": true,
+            "alerts": [
+              {
+                "code": "string",
+                "communicationPeriod": [
+                  {}
+                ],
+                "impactPeriod": [
+                  {}
+                ],
+                "cause": "UNKNOWN_CAUSE",
+                "causeDetail": "string",
+                "effect": "NO_SERVICE",
+                "effectDetail": "string",
+                "url": "string",
+                "headerText": "string",
+                "descriptionText": "string",
+                "ttsHeaderText": "string",
+                "ttsDescriptionText": "string",
+                "severityLevel": "UNKNOWN_SEVERITY",
+                "imageUrl": "string",
+                "imageMediaType": "string",
+                "imageAlternativeText": "string"
+              }
+            ],
+            "flex": "string",
+            "flexId": "string",
+            "flexStartPickupDropOffWindow": "2019-08-24T14:15:22Z",
+            "flexEndPickupDropOffWindow": "2019-08-24T14:15:22Z",
+            "modes": [
+              "WALK"
+            ]
+          },
+          "category": {
+            "id": "string",
+            "name": "string",
+            "shortName": "string"
+          },
+          "routeId": "string",
+          "routeUrl": "string",
+          "directionId": "string",
+          "routeColor": "string",
+          "routeTextColor": "string",
+          "routeType": 0,
+          "agencyName": "string",
+          "agencyUrl": "string",
+          "agencyId": "string",
+          "tripId": "string",
+          "routeShortName": "string",
+          "routeLongName": "string",
+          "tripShortName": "string",
+          "displayName": "string",
+          "cancelled": true,
+          "source": "string",
+          "intermediateStops": [
+            {
+              "name": "string",
+              "stopId": "string",
+              "parentId": "string",
+              "importance": 0,
+              "lat": 0,
+              "lon": 0,
+              "level": 0,
+              "tz": "string",
+              "arrival": "2019-08-24T14:15:22Z",
+              "departure": "2019-08-24T14:15:22Z",
+              "scheduledArrival": "2019-08-24T14:15:22Z",
+              "scheduledDeparture": "2019-08-24T14:15:22Z",
+              "scheduledTrack": "string",
+              "track": "string",
+              "stopCode": "string",
+              "description": "string",
+              "vertexType": "NORMAL",
+              "pickupType": "NORMAL",
+              "dropoffType": "NORMAL",
+              "cancelled": true,
+              "alerts": [
+                {
+                  "code": "string",
+                  "communicationPeriod": [
+                    null
+                  ],
+                  "impactPeriod": [
+                    null
+                  ],
+                  "cause": "UNKNOWN_CAUSE",
+                  "causeDetail": "string",
+                  "effect": "NO_SERVICE",
+                  "effectDetail": "string",
+                  "url": "string",
+                  "headerText": "string",
+                  "descriptionText": "string",
+                  "ttsHeaderText": "string",
+                  "ttsDescriptionText": "string",
+                  "severityLevel": "UNKNOWN_SEVERITY",
+                  "imageUrl": "string",
+                  "imageMediaType": "string",
+                  "imageAlternativeText": "string"
+                }
+              ],
+              "flex": "string",
+              "flexId": "string",
+              "flexStartPickupDropOffWindow": "2019-08-24T14:15:22Z",
+              "flexEndPickupDropOffWindow": "2019-08-24T14:15:22Z",
+              "modes": [
+                "WALK"
+              ]
+            }
+          ],
+          "legGeometry": {
+            "points": "string",
+            "precision": 0,
+            "length": 0
+          },
+          "steps": [
+            {
+              "relativeDirection": "DEPART",
+              "distance": 0,
+              "fromLevel": 0,
+              "toLevel": 0,
+              "osmWay": 0,
+              "polyline": {
+                "points": "string",
+                "precision": 0,
+                "length": 0
+              },
+              "streetName": "string",
+              "exit": "string",
+              "stayOn": true,
+              "area": true,
+              "toll": true,
+              "accessRestriction": "string",
+              "elevationUp": 0,
+              "elevationDown": 0
+            }
+          ],
+          "rental": {
+            "providerId": "string",
+            "providerGroupId": "string",
+            "systemId": "string",
+            "systemName": "string",
+            "url": "string",
+            "color": "string",
+            "stationName": "string",
+            "fromStationName": "string",
+            "toStationName": "string",
+            "rentalUriAndroid": "string",
+            "rentalUriIOS": "string",
+            "rentalUriWeb": "string",
+            "formFactor": "BICYCLE",
+            "propulsionType": "HUMAN",
+            "returnConstraint": "NONE"
+          },
+          "fareTransferIndex": 0,
+          "effectiveFareLegIndex": 0,
+          "alerts": [
+            {
+              "code": "string",
+              "communicationPeriod": [
+                {
+                  "start": "2019-08-24T14:15:22Z",
+                  "end": "2019-08-24T14:15:22Z"
+                }
+              ],
+              "impactPeriod": [
+                {
+                  "start": "2019-08-24T14:15:22Z",
+                  "end": "2019-08-24T14:15:22Z"
+                }
+              ],
+              "cause": "UNKNOWN_CAUSE",
+              "causeDetail": "string",
+              "effect": "NO_SERVICE",
+              "effectDetail": "string",
+              "url": "string",
+              "headerText": "string",
+              "descriptionText": "string",
+              "ttsHeaderText": "string",
+              "ttsDescriptionText": "string",
+              "severityLevel": "UNKNOWN_SEVERITY",
+              "imageUrl": "string",
+              "imageMediaType": "string",
+              "imageAlternativeText": "string"
+            }
+          ],
+          "loopedCalendarSince": "2019-08-24T14:15:22Z",
+          "bikesAllowed": true,
+          "wheelchairAccessible": "ACCESSIBLE",
+          "alternatives": [
+            [
+              {}
+            ]
+          ]
+        }
+      ],
+      "fareTransfers": [
+        {
+          "rule": "A_AB",
+          "transferProducts": [
+            {
+              "name": "string",
+              "amount": 0,
+              "currency": "string",
+              "riderCategory": {
+                "riderCategoryName": "string",
+                "isDefaultFareCategory": true,
+                "eligibilityUrl": "string"
+              },
+              "media": {
+                "fareMediaName": "string",
+                "fareMediaType": "NONE"
+              }
+            }
+          ],
+          "effectiveFareLegProducts": [
+            [
+              [
+                {
+                  "name": "string",
+                  "amount": 0,
+                  "currency": "string",
+                  "riderCategory": {},
+                  "media": {}
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "previousPageCursor": "string",
+  "nextPageCursor": "string"
+}
