@@ -1,5 +1,7 @@
-package dev.garado.transit.gtfs.sources
+package dev.garado.transit.view.gtfs.sources
 
+import dev.garado.transit.gtfs.sources.GtfsSourceStore
+import dev.garado.transit.view.gtfs.browse.GtfsRegionListScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,10 +41,10 @@ import dev.garado.transit.gtfs.GtfsDisplayNames
 import dev.garado.transit.gtfs.local.GtfsDatabaseHolder
 import kotlinx.coroutines.launch
 
-class GtfsManagerSourceListScreen(
+/** Sub-regions of saved sources within one country, mirrors GtfsRegionListScreen. */
+class GtfsManagerRegionListScreen(
     sealedActivity: SealedLightActivity,
     private val countryCode: String,
-    private val regionCode: String,
 ) : SimpleLightScreen<Unit>(sealedActivity) {
 
     @Composable
@@ -56,11 +58,15 @@ class GtfsManagerSourceListScreen(
         }
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
         val scope = rememberCoroutineScope()
-        val allSources by store.all.collectAsState(initial = null)
+        val sources by store.all.collectAsState(initial = emptyList())
         var isEditing by remember { mutableStateOf(false) }
 
-        val sources = remember(allSources) {
-            allSources?.filter { it.regionCode == regionCode }
+        val byRegion = remember(sources) {
+            sources
+                .filter { it.regionCode.substringBefore("-") == countryCode }
+                .groupBy { it.regionCode }
+                .toList()
+                .sortedBy { (regionCode, _) -> displayNames.regionName(regionCode) }
         }
 
         LightTheme(colors = themeColors) {
@@ -72,32 +78,26 @@ class GtfsManagerSourceListScreen(
                 StatusBar()
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
-                    center = LightTopBarCenter.Text(displayNames.regionName(regionCode)),
+                    center = LightTopBarCenter.Text(displayNames.countryName(countryCode)),
                 )
 
-                if (sources.isNullOrEmpty()) {
-                    Box(modifier = Modifier.weight(1f).fillMaxSize(), contentAlignment = Alignment.Center) {
-                        if (sources != null) {
-                            LightText(
-                                text = "No sources added",
-                                variant = LightTextVariant.Paragraph,
-                                lighten = true,
-                            )
-                        }
+                LightScrollView(modifier = Modifier.weight(1f)) {
+                    byRegion.forEach { (regionCode, srcs) ->
+                        RegionRow(
+                            regionName = displayNames.regionName(regionCode),
+                            count = srcs.size,
+                            isEditing = isEditing,
+                            onDeleteClick = { scope.launch { store.deleteAll(srcs) } },
+                            onClick = {
+                                navigateTo({ activity ->
+                                    GtfsManagerSourceListScreen(activity, countryCode, regionCode)
+                                })
+                            },
+                        )
                     }
-                } else {
-                    LightScrollView(modifier = Modifier.weight(1f)) {
-                        sources.forEach { source ->
-                            GtfsSourceRow(
-                                source = source,
-                                displayName = displayNames.agencyName(source.key, source.regionCode),
-                                isEditing = isEditing,
-                                onDeleteClick = { scope.launch { store.delete(source) } },
-                                onRetryClick = { scope.launch { store.retryDownload(source) } },
-                            )
-                        }
-                    }
+                }
 
+                if (byRegion.isNotEmpty()) {
                     LightText(
                         text = if (isEditing) "DONE" else "EDIT",
                         variant = LightTextVariant.Button,
@@ -117,22 +117,25 @@ private val DELETE_ICON_SIZE_UNITS = 1.25f
 private val DELETE_ICON_GAP = 8.dp
 
 @Composable
-private fun GtfsSourceRow(
-    source: GtfsSource,
-    displayName: String,
+private fun RegionRow(
+    regionName: String,
+    count: Int,
     isEditing: Boolean,
     onDeleteClick: () -> Unit,
-    onRetryClick: () -> Unit,
+    onClick: () -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .lightClickable(onClick = onClick)
+            .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
     ) {
-        Box(
-            modifier = Modifier.width(DELETE_ICON_SIZE_UNITS.gridUnitsAsDp() + DELETE_ICON_GAP),
-            contentAlignment = Alignment.CenterStart,
-        ) {
-            if (isEditing) {
+        if (isEditing) {
+            Box(
+                modifier = Modifier.width(DELETE_ICON_SIZE_UNITS.gridUnitsAsDp() + DELETE_ICON_GAP),
+                contentAlignment = Alignment.CenterStart,
+            ) {
                 LightIcon(
                     icon = LightIcons.DELETE,
                     size = DELETE_ICON_SIZE_UNITS,
@@ -140,23 +143,14 @@ private fun GtfsSourceRow(
                 )
             }
         }
-        Column {
-            LightText(text = displayName, variant = LightTextVariant.Copy)
-            DownloadStateLabel(source.id, source.downloadState, onRetryClick)
+        Column(modifier = Modifier.weight(1f)) {
+            LightText(text = regionName, variant = LightTextVariant.Copy)
+            LightText(
+                text = "$count source${if (count == 1) "" else "s"}",
+                variant = LightTextVariant.Detail,
+                lighten = true,
+                modifier = Modifier.padding(top = 2.dp),
+            )
         }
     }
-}
-
-@Composable
-private fun DownloadStateLabel(sourceId: Long, state: GtfsSourceDownloadState, onRetryClick: () -> Unit) {
-    val progress by GtfsImportProgressTracker.progress.collectAsState()
-    val liveStage = progress[sourceId]
-    val text = liveStage?.label ?: state.statusLabel ?: return
-    val baseModifier = Modifier.padding(top = 2.dp)
-    LightText(
-        text = text,
-        variant = LightTextVariant.Detail,
-        lighten = true,
-        modifier = if (liveStage == null && state.isRetryable) baseModifier.lightClickable(onClick = onRetryClick) else baseModifier,
-    )
 }

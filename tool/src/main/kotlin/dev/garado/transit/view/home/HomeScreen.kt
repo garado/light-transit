@@ -1,5 +1,6 @@
 package dev.garado.transit.view.home
 
+import dev.garado.transit.view.gtfs.sources.GtfsManagerScreen
 import dev.garado.transit.formatClockTime
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -23,7 +24,6 @@ import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
-import dev.garado.transit.gtfs.sources.GtfsManagerScreen
 import dev.garado.transit.view.map.MapMenuScreen
 import dev.garado.transit.view.route.RouteSelectScreen
 import dev.garado.transit.search.DepartureSelection

@@ -1,4 +1,4 @@
-package dev.garado.transit.gtfs.browse
+package dev.garado.transit.view.gtfs.browse
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

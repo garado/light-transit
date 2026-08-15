@@ -2,6 +2,7 @@
 
 package dev.garado.transit.view.settings
 
+import dev.garado.transit.view.gtfs.sources.GtfsClearCacheConfirmScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,7 +32,6 @@ import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
 import dev.garado.transit.api.transit.MockTransitApiSettings
-import dev.garado.transit.gtfs.sources.GtfsClearCacheConfirmScreen
 import dev.garado.transit.gtfs.sources.clearGtfsDownloadCache
 import kotlinx.coroutines.launch
 

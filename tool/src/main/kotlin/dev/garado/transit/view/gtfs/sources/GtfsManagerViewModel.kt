@@ -1,5 +1,7 @@
-package dev.garado.transit.gtfs.sources
+package dev.garado.transit.view.gtfs.sources
 
+import dev.garado.transit.gtfs.sources.GtfsSource
+import dev.garado.transit.gtfs.sources.GtfsSourceStore
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
