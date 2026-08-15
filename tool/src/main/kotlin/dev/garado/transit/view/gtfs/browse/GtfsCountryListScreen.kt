@@ -6,10 +6,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -79,7 +82,11 @@ class GtfsCountryListScreen(sealedActivity: SealedLightActivity) :
                         modifier = Modifier.weight(1f),
                     )
                     else -> {
-                        LightScrollView(modifier = Modifier.weight(1f)) {
+                        val scrollState = rememberScrollState(initial = viewModel.savedScrollOffset)
+                        LaunchedEffect(scrollState) {
+                            snapshotFlow { scrollState.value }.collect { viewModel.savedScrollOffset = it }
+                        }
+                        LightScrollView(modifier = Modifier.weight(1f), scrollState = scrollState) {
                             regionsByCountry.forEach { (countryCode, regions) ->
                                 CountryRow(
                                     countryCode = countryCode,

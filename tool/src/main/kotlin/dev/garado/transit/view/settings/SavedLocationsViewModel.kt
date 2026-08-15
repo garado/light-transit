@@ -18,6 +18,8 @@ class SavedLocationsViewModel(lightContext: SealedLightContext) : LightViewModel
     val savedLocations: StateFlow<List<SavedLocation>> =
         store.all.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    var savedScrollOffset: Int = 0
+
     fun add(displayName: String, result: LocationResult) {
         viewModelScope.launch { store.add(displayName, result) }
     }

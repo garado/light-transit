@@ -35,6 +35,8 @@ class NearbyStopsViewModel internal constructor(
     private val _stops = MutableStateFlow<List<TripStop>>(emptyList())
     val stops: StateFlow<List<TripStop>> = _stops.asStateFlow()
 
+    var savedScrollOffset: Int = 0
+
     /** Whether [search] has completed at least once */
     private val _hasSearched = MutableStateFlow(false)
     val hasSearched: StateFlow<Boolean> = _hasSearched.asStateFlow()

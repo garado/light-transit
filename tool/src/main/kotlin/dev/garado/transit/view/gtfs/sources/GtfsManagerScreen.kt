@@ -9,12 +9,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -88,7 +91,11 @@ class GtfsManagerScreen(sealedActivity: SealedLightActivity) :
                         }
                     }
                 } else {
-                    LightScrollView(modifier = Modifier.weight(1f)) {
+                    val scrollState = rememberScrollState(initial = viewModel.savedScrollOffset)
+                    LaunchedEffect(scrollState) {
+                        snapshotFlow { scrollState.value }.collect { viewModel.savedScrollOffset = it }
+                    }
+                    LightScrollView(modifier = Modifier.weight(1f), scrollState = scrollState) {
                         byCountry.forEach { (countryCode, srcs) ->
                             val regionCodes = srcs.map { it.regionCode }.distinct()
                             CountryRow(

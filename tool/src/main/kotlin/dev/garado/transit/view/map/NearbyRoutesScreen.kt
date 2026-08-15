@@ -12,12 +12,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -102,8 +105,14 @@ class NearbyRoutesScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit
                         NearbyRoutesViewMode.LIST -> when {
                             !hasSearched -> CenteredMessage("Searching...", modifier = Modifier.weight(1f))
                             routes.isEmpty() -> CenteredMessage("No nearby routes found", modifier = Modifier.weight(1f))
-                            else -> LightScrollView(modifier = Modifier.weight(1f)) {
-                                routes.forEach { route -> RouteRow(route, onClick = { onRouteSelected(route) }) }
+                            else -> {
+                                val scrollState = rememberScrollState(initial = viewModel.savedScrollOffset)
+                                LaunchedEffect(scrollState) {
+                                    snapshotFlow { scrollState.value }.collect { viewModel.savedScrollOffset = it }
+                                }
+                                LightScrollView(modifier = Modifier.weight(1f), scrollState = scrollState) {
+                                    routes.forEach { route -> RouteRow(route, onClick = { onRouteSelected(route) }) }
+                                }
                             }
                         }
                     }
