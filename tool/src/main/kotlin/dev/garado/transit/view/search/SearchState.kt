@@ -1,9 +1,8 @@
-package dev.garado.transit.search
+package dev.garado.transit.view.search
 
 import dev.garado.transit.models.DepartureSelection
 import dev.garado.transit.models.LocationResult
 import dev.garado.transit.util.MinuteTimer
-import dev.garado.transit.view.search.TimeSelection
 import java.time.Instant
 import java.time.ZoneId
 import kotlinx.coroutines.flow.MutableStateFlow

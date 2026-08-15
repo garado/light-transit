@@ -1,6 +1,5 @@
 package dev.garado.transit.view.settings
 
-import dev.garado.transit.settings.SettingsOption
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize

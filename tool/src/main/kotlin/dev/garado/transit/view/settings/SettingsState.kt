@@ -1,4 +1,4 @@
-package dev.garado.transit.settings
+package dev.garado.transit.view.settings
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

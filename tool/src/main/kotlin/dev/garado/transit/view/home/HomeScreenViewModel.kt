@@ -1,8 +1,8 @@
 package dev.garado.transit.view.home
 
 import com.thelightphone.sdk.LightViewModel
-import dev.garado.transit.search.SearchState
-import dev.garado.transit.settings.SettingsState
+import dev.garado.transit.view.search.SearchState
+import dev.garado.transit.view.settings.SettingsState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
