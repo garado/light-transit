@@ -12,8 +12,6 @@ import dev.garado.transit.interfaces.nearbystops.NearbyStopsInterface
 import dev.garado.transit.interfaces.nearbystops.TransitApiNearbyStopsProvider
 import dev.garado.transit.interfaces.stopdepartures.StopDeparturesInterface
 import dev.garado.transit.interfaces.stopdepartures.TransitApiStopDeparturesProvider
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,12 +22,15 @@ internal val DEMO_LOCATION = LatLon(lat = 37.8288, lon = -122.2673)
 
 enum class NearbyStopsViewMode { MAP, LIST }
 
+/** A stops backend and its matching departures backend */
+private data class StopsBackend(val stops: NearbyStopsInterface, val departures: StopDeparturesInterface)
+
 class NearbyStopsViewModel(
     lightContext: SealedLightContext,
-    private val apiStopsProvider: NearbyStopsInterface = TransitApiNearbyStopsProvider(lightContext),
-    private val apiDeparturesProvider: StopDeparturesInterface = TransitApiStopDeparturesProvider(lightContext),
-    private val localStopsProvider: NearbyStopsInterface = GtfsLocalNearbyStopsProvider(lightContext),
-    private val localDeparturesProvider: StopDeparturesInterface = GtfsLocalStopDeparturesProvider(lightContext),
+    private val backends: List<StopsBackend> = listOf(
+        StopsBackend(GtfsLocalNearbyStopsProvider(lightContext), GtfsLocalStopDeparturesProvider(lightContext)),
+        StopsBackend(TransitApiNearbyStopsProvider(lightContext), TransitApiStopDeparturesProvider(lightContext)),
+    ),
 ) : LightViewModel<Unit>() {
     private val _stops = MutableStateFlow<List<TripStop>>(emptyList())
     val stops: StateFlow<List<TripStop>> = _stops.asStateFlow()
@@ -76,27 +77,24 @@ class NearbyStopsViewModel(
         _hasSearched.value = false
     }
 
-    /**
-     * Fetch NearbyStops and StopDepartures centered on wherever the map is now.
-     * Merges live API results with stops from any locally-downloaded GTFS feeds.
-     */
+    /** Fetch NearbyStops and StopDepartures centered on wherever the map is now */
     fun search() {
         if (_isSearching.value) return
         val location = _liveCenter.value
         viewModelScope.launch {
             _isSearching.value = true
             try {
-                val (apiStops, localStops) = coroutineScope {
-                    val apiDeferred = async { apiStopsProvider.nearbyStops(location.lat, location.lon) }
-                    val localDeferred = async { localStopsProvider.nearbyStops(location.lat, location.lon) }
-                    apiDeferred.await() to localDeferred.await()
+                var stops = emptyList<TripStop>()
+                var departuresProvider: StopDeparturesInterface? = null
+                for (backend in backends) {
+                    stops = backend.stops.nearbyStops(location.lat, location.lon)
+                    if (stops.isNotEmpty()) {
+                        departuresProvider = backend.departures
+                        break
+                    }
                 }
-                _stops.value = apiStops + localStops
-                _departuresByStop.value = coroutineScope {
-                    val apiDeparturesDeferred = async { apiDeparturesProvider.departures(apiStops.flatMap { it.groupedStopIds }) }
-                    val localDeparturesDeferred = async { localDeparturesProvider.departures(localStops.flatMap { it.groupedStopIds }) }
-                    apiDeparturesDeferred.await() + localDeparturesDeferred.await()
-                }
+                _stops.value = stops
+                _departuresByStop.value = departuresProvider?.departures(stops.flatMap { it.groupedStopIds }) ?: emptyMap()
                 _hasSearched.value = true
             } finally {
                 _isSearching.value = false
