@@ -27,7 +27,7 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
-import dev.garado.transit.StatusBar
+import dev.garado.transit.view.home.StatusBar
 import dev.garado.transit.gtfs.GtfsDataset
 import dev.garado.transit.gtfs.GtfsDisplayNames
 

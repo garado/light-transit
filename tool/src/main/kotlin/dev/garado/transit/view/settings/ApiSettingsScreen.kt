@@ -1,15 +1,14 @@
-package dev.garado.transit.gtfs.browse
+package dev.garado.transit.view.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.SimpleLightScreen
@@ -22,20 +21,17 @@ import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
-import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
-import dev.garado.transit.gtfs.GtfsDataset
-import dev.garado.transit.gtfs.formatFileSize
-import dev.garado.transit.gtfs.totalSizeBytes
+import dev.garado.transit.api.transit.TransitApiUsageTracker
 
-class GtfsBulkAddConfirmScreen(
-    sealedActivity: SealedLightActivity,
-    private val datasets: List<GtfsDataset>,
-) : SimpleLightScreen<List<GtfsDataset>>(sealedActivity) {
+class ApiSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Unit>(sealedActivity) {
 
     @Composable
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
+
+        val tracker = remember { TransitApiUsageTracker(lightContext.dataStore) }
+        val callCount by tracker.callCountThisMonth.collectAsState(initial = 0)
 
         LightTheme(colors = themeColors) {
             Column(
@@ -46,31 +42,19 @@ class GtfsBulkAddConfirmScreen(
                 StatusBar()
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
-                    center = LightTopBarCenter.Text("Confirm"),
+                    center = LightTopBarCenter.Text("API Settings"),
                 )
 
-                Column(modifier = Modifier.weight(1f).padding(horizontal = 32.dp, vertical = 16.dp)) {
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     LightText(
-                        text = "Add ${datasets.size} source${if (datasets.size == 1) "" else "s"}?",
-                        variant = LightTextVariant.Paragraph,
+                        text = "Transit API calls this month",
+                        variant = LightTextVariant.Detail,
                     )
                     LightText(
-                        text = "Total size: ${formatFileSize(datasets.totalSizeBytes())}",
-                        variant = LightTextVariant.Detail,
-                        lighten = true,
-                        modifier = Modifier.padding(top = 8.dp),
+                        text = "$callCount / ${TransitApiUsageTracker.MONTHLY_CALL_LIMIT}",
+                        variant = LightTextVariant.Copy,
                     )
                 }
-
-                LightText(
-                    text = "ADD",
-                    variant = LightTextVariant.Button,
-                    align = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 16.dp)
-                        .lightClickable(onClick = { goBack(datasets) }),
-                )
             }
         }
     }

@@ -1,4 +1,4 @@
-package dev.garado.transit.gtfs.sources
+package dev.garado.transit.view.map
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.SimpleLightScreen
@@ -25,8 +24,7 @@ import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
 
-/** Confirmation before wiping gtfs db */
-class GtfsClearCacheConfirmScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Boolean>(sealedActivity) {
+class MapMenuScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Unit>(sealedActivity) {
 
     @Composable
     override fun Content() {
@@ -40,33 +38,35 @@ class GtfsClearCacheConfirmScreen(sealedActivity: SealedLightActivity) : SimpleL
             ) {
                 StatusBar()
                 LightTopBar(
-                    leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
-                    center = LightTopBarCenter.Text("Confirm"),
+                    leftButton = LightBarButton.LightIcon(
+                      icon = LightIcons.BACK,
+                      sizeUnits = 1.5f,
+                      onClick = { goBack() }
+                    ),
+                    center = LightTopBarCenter.Text("Map"),
                 )
 
-                Column(modifier = Modifier.weight(1f).padding(horizontal = 32.dp, vertical = 16.dp)) {
-                    LightText(
-                        text = "Clear GTFS cache and downloads?",
-                        variant = LightTextVariant.Paragraph,
-                    )
-                    LightText(
-                        text = "Deletes the browse cache and every downloaded .gtfs.zip. Saved sources are kept, but will need to be re-downloaded.",
-                        variant = LightTextVariant.Detail,
-                        lighten = true,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    MapMenuRow(label = "Search on map", onClick = {}, lighten = true)
+                    MapMenuRow(label = "Saved routes", onClick = {}, lighten = true)
+                    MapMenuRow(label = "Nearby stops", onClick = { navigateTo(::NearbyStopsScreen) })
+                    MapMenuRow(label = "Nearby routes", onClick = { navigateTo(::NearbyRoutesScreen) })
+                    MapMenuRow(label = "Bikeshare", onClick = {}, lighten = true)
                 }
-
-                LightText(
-                    text = "CLEAR",
-                    variant = LightTextVariant.Button,
-                    align = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 16.dp)
-                        .lightClickable(onClick = { goBack(true) }),
-                )
             }
         }
     }
+}
+
+@Composable
+private fun MapMenuRow(label: String, onClick: () -> Unit, lighten: Boolean = false) {
+    LightText(
+        text = label,
+        variant = LightTextVariant.Copy,
+        lighten = lighten,
+        modifier = Modifier
+            .fillMaxWidth()
+            .lightClickable(onClick = onClick)
+            .padding(top = 12.dp, bottom = 12.dp),
+    )
 }
