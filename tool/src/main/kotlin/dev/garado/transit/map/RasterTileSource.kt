@@ -11,6 +11,9 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.ui.geometry.Offset
+import dev.garado.transit.data.database.maptiles.TileCacheDatabase
+import dev.garado.transit.data.database.maptiles.TileDao
+import dev.garado.transit.data.database.maptiles.TileEntity
 import dev.garado.transit.util.TILE_SIZE
 import dev.garado.transit.util.lonLatToTileFraction
 import dev.garado.transit.util.metersPerPixel

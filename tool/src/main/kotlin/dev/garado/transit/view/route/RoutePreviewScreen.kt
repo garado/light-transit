@@ -37,7 +37,7 @@ import dev.garado.transit.models.TripPlan
 import dev.garado.transit.util.formatDuration
 import dev.garado.transit.util.formatTimeRange
 import dev.garado.transit.map.RasterTileSource
-import dev.garado.transit.map.TileCacheDatabase
+import dev.garado.transit.data.database.maptiles.TileCacheDatabase
 import dev.garado.transit.view.map.TransitMapView
 import dev.garado.transit.view.navigation.NavigationScreen
 import dev.garado.transit.models.LocationResult

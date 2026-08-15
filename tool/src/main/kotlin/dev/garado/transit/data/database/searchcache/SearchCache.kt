@@ -1,4 +1,4 @@
-package dev.garado.transit.search
+package dev.garado.transit.data.database.searchcache
 
 import dev.garado.transit.data.api.nominatim.NominatimResult
 import kotlinx.serialization.decodeFromString

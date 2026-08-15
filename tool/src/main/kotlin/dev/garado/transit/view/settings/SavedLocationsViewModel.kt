@@ -5,8 +5,8 @@ import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.models.LocationResult
 import dev.garado.transit.models.SavedLocation
-import dev.garado.transit.search.SavedLocationDatabaseHolder
-import dev.garado.transit.search.SavedLocationStore
+import dev.garado.transit.data.database.savedlocations.SavedLocationDatabaseHolder
+import dev.garado.transit.data.database.savedlocations.SavedLocationStore
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn

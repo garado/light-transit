@@ -1,9 +1,9 @@
 package dev.garado.transit.view.search
 
-import dev.garado.transit.search.SavedLocationDatabaseHolder
+import dev.garado.transit.data.database.savedlocations.SavedLocationDatabaseHolder
 import dev.garado.transit.models.LocationResult
 import dev.garado.transit.models.SavedLocation
-import dev.garado.transit.search.SavedLocationStore
+import dev.garado.transit.data.database.savedlocations.SavedLocationStore
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize

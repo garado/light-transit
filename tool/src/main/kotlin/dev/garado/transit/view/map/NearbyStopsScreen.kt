@@ -5,7 +5,7 @@ import dev.garado.transit.models.LatLon
 import dev.garado.transit.models.LatLonBounds
 import dev.garado.transit.map.MapOverlay
 import dev.garado.transit.map.RasterTileSource
-import dev.garado.transit.map.TileCacheDatabase
+import dev.garado.transit.data.database.maptiles.TileCacheDatabase
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

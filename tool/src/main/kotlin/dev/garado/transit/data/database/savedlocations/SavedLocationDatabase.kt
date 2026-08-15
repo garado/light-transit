@@ -1,6 +1,6 @@
 /** Set up room db for saved locations */
 
-package dev.garado.transit.search
+package dev.garado.transit.data.database.savedlocations
 
 import androidx.room.ColumnInfo
 import androidx.room.Dao

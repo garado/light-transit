@@ -1,4 +1,4 @@
-package dev.garado.transit.search
+package dev.garado.transit.data.database.searchcache
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

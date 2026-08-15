@@ -1,6 +1,6 @@
 /** Expose SavedLocation methods + data to rest of app */
 
-package dev.garado.transit.search
+package dev.garado.transit.data.database.savedlocations
 
 import dev.garado.transit.models.LocationResult
 import dev.garado.transit.models.SavedLocation

@@ -1,4 +1,4 @@
-package dev.garado.transit.map
+package dev.garado.transit.data.database.maptiles
 
 import androidx.room.Dao
 import androidx.room.Insert
