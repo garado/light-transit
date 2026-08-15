@@ -31,6 +31,7 @@ import dev.garado.transit.view.search.DepartureTimeScreen
 import dev.garado.transit.view.search.LocationSearchScreen
 import dev.garado.transit.view.search.SearchTabContent
 import dev.garado.transit.view.settings.ApiSettingsScreen
+import dev.garado.transit.view.settings.AttributionScreen
 import dev.garado.transit.view.settings.DeveloperSettingsScreen
 import dev.garado.transit.view.settings.NameEditor
 import dev.garado.transit.view.settings.SavedLocationsScreen
@@ -135,6 +136,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                                 onSavedLocationsClick = { navigateTo(::SavedLocationsScreen) },
                                 onApiSettingsClick = { navigateTo(::ApiSettingsScreen) },
                                 onGtfsManagerClick = { navigateTo(::GtfsManagerScreen) },
+                                onAttributionClick = { navigateTo(::AttributionScreen) },
                                 onEditName = { viewModel.settings.startEditingName() },
                             )
                         }
