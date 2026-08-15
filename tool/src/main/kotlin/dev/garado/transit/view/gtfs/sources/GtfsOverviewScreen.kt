@@ -59,6 +59,14 @@ class GtfsOverviewScreen(sealedActivity: SealedLightActivity) :
                 )
 
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    LightText(
+                        text = "Add and edit sources",
+                        variant = LightTextVariant.Copy,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .lightClickable(onClick = { navigateTo(::GtfsManagerScreen) })
+                            .padding(vertical = 16.dp),
+                    )
                     StatRow(
                         value = "${sources.size} saved source${if (sources.size == 1) "" else "s"}",
                         subLabel = statusParts.joinToString(" / ").takeIf { it.isNotEmpty() },
@@ -67,14 +75,6 @@ class GtfsOverviewScreen(sealedActivity: SealedLightActivity) :
                     StatRow(
                         value = spaceUsedBytes?.let { formatFileSize(it) } ?: "…",
                         subLabel = "Space used",
-                    )
-                    LightText(
-                        text = "Edit sources",
-                        variant = LightTextVariant.Copy,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .lightClickable(onClick = { navigateTo(::GtfsManagerScreen) })
-                            .padding(vertical = 16.dp),
                     )
                 }
             }
