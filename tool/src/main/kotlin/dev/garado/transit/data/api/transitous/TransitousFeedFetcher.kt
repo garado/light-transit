@@ -1,4 +1,4 @@
-package dev.garado.transit.gtfs.browse
+package dev.garado.transit.data.api.transitous
 
 import android.util.Log
 import dev.garado.transit.models.GtfsDataset

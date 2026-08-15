@@ -1,4 +1,4 @@
-package dev.garado.transit.gtfs.sources
+package dev.garado.transit.data.api.transitous
 
 import android.util.Log
 import io.ktor.client.HttpClient

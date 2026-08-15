@@ -1,7 +1,7 @@
 package dev.garado.transit.view.gtfs.browse
 
 import dev.garado.transit.gtfs.browse.GtfsCatalogDatabaseHolder
-import dev.garado.transit.gtfs.browse.TransitousFeedFetcher
+import dev.garado.transit.data.api.transitous.TransitousFeedFetcher
 import dev.garado.transit.gtfs.browse.toEntity
 import dev.garado.transit.gtfs.browse.toGtfsDataset
 import androidx.lifecycle.viewModelScope

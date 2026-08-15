@@ -3,6 +3,7 @@
 package dev.garado.transit.gtfs.sources
 
 import android.util.Log
+import dev.garado.transit.data.api.transitous.GtfsDownloader
 import dev.garado.transit.models.GtfsDataset
 import dev.garado.transit.gtfs.local.GtfsCalendarTxtParser
 import dev.garado.transit.gtfs.local.GtfsDatabase
