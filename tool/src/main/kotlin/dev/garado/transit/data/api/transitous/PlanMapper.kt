@@ -40,7 +40,7 @@ private fun LegDto.toTransitLeg(): TripLeg.Transit = TripLeg.Transit(
     modeName = mode,
     headsign = headsign,
     nextDepartureTime = startTime.toEpochSeconds(),
-    stops = intermediateStops.map { it.toTripStop() },
+    stops = listOf(from.toTripStop()) + intermediateStops.map { it.toTripStop() } + to.toTripStop(),
     shape = legGeometry?.toNormalizedPolyline(),
 )
 
