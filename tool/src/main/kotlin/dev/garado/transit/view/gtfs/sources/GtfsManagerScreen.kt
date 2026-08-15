@@ -67,7 +67,7 @@ class GtfsManagerScreen(sealedActivity: SealedLightActivity) :
                 StatusBar()
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
-                    center = LightTopBarCenter.Text("Route data"),
+                    center = LightTopBarCenter.Text("Manage Route Data"),
                     rightButton = LightBarButton.LightIcon(
                         icon = LightIcons.ADD,
                         onClick = {
