@@ -17,6 +17,7 @@ import dev.garado.transit.data.gtfs.local.GtfsZipExtractor
 import java.io.File
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -71,42 +72,48 @@ internal class GtfsSourceStore(
         sources.forEach { localFile(it.id).delete() }
     }
 
-    /** Always resolves to DOWNLOADED or FAILED, unless cancelled */
+    /** Always resolves to DOWNLOADED or FAILED, even if cancelled mid-flight */
     private suspend fun downloadFile(id: Long, url: String): Unit = coroutineScope {
         val job = launch {
             dao.updateDownloadState(id, GtfsSourceDownloadState.DOWNLOADING.name)
             val destination = localFile(id)
             Log.d(TAG, "download started for source $id ($url)")
             GtfsImportProgressTracker.update(id, GtfsImportStage.Downloading(percent = null))
-            val success = try {
-                downloader.download(url, destination) { percent ->
-                    GtfsImportProgressTracker.update(id, GtfsImportStage.Downloading(percent))
-                }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.e(TAG, "Download failed for source $id", e)
-                false
-            }
-            Log.d(TAG, "download stopped for source $id, success=$success")
-            if (success) {
-                try {
-                    importStops(id, destination)
+            var success = false
+            try {
+                success = try {
+                    downloader.download(url, destination) { percent ->
+                        GtfsImportProgressTracker.update(id, GtfsImportStage.Downloading(percent))
+                    }
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    Log.e(TAG, "stops.txt import failed for source $id", e)
+                    Log.e(TAG, "Download failed for source $id", e)
+                    false
                 }
-                try {
-                    importSchedule(id, destination)
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    Log.e(TAG, "schedule import failed for source $id", e)
+                Log.d(TAG, "download stopped for source $id, success=$success")
+                if (success) {
+                    try {
+                        importStops(id, destination)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Log.e(TAG, "stops.txt import failed for source $id", e)
+                    }
+                    try {
+                        importSchedule(id, destination)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Log.e(TAG, "schedule import failed for source $id", e)
+                    }
+                }
+            } finally {
+                withContext(NonCancellable) {
+                    dao.updateDownloadState(id, (if (success) GtfsSourceDownloadState.DOWNLOADED else GtfsSourceDownloadState.FAILED).name)
+                    GtfsImportProgressTracker.clear(id)
                 }
             }
-            dao.updateDownloadState(id, (if (success) GtfsSourceDownloadState.DOWNLOADED else GtfsSourceDownloadState.FAILED).name)
-            GtfsImportProgressTracker.clear(id)
         }
         GtfsImportProgressTracker.registerJob(id, job)
         job.invokeOnCompletion { GtfsImportProgressTracker.unregisterJob(id) }

@@ -43,6 +43,7 @@ class GtfsOverviewScreen(sealedActivity: SealedLightActivity) :
         val statusParts = buildList {
             if (downloading > 0) add("$downloading downloading")
             if (failed > 0) add("$failed failed")
+            if (failed > 0) add("Tap to retry all")
         }
 
         LightTheme(colors = themeColors) {
@@ -60,7 +61,8 @@ class GtfsOverviewScreen(sealedActivity: SealedLightActivity) :
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     StatRow(
                         value = "${sources.size} saved source${if (sources.size == 1) "" else "s"}",
-                        subLabel = statusParts.joinToString(", ").takeIf { it.isNotEmpty() },
+                        subLabel = statusParts.joinToString(" / ").takeIf { it.isNotEmpty() },
+                        onClick = if (failed > 0) viewModel::retryAllFailed else null,
                     )
                     StatRow(
                         value = spaceUsedBytes?.let { formatFileSize(it) } ?: "…",
@@ -81,8 +83,12 @@ class GtfsOverviewScreen(sealedActivity: SealedLightActivity) :
 }
 
 @Composable
-private fun StatRow(value: String, subLabel: String?) {
-    Column(modifier = Modifier.padding(vertical = 12.dp)) {
+private fun StatRow(value: String, subLabel: String?, onClick: (() -> Unit)? = null) {
+    Column(
+        modifier = Modifier
+            .padding(vertical = 12.dp)
+            .let { if (onClick != null) it.lightClickable(onClick = onClick) else it },
+    ) {
         LightText(text = value, variant = LightTextVariant.Copy)
         if (subLabel != null) {
             LightText(

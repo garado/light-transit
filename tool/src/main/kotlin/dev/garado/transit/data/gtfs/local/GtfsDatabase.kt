@@ -23,7 +23,10 @@ import dev.garado.transit.models.LatLon
 import dev.garado.transit.util.encodePolyline
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
 // SOURCES ------------------------
 
@@ -58,6 +61,9 @@ internal interface GtfsSourceDao {
 
     @Query("UPDATE gtfs_sources SET download_state = :state")
     suspend fun resetAllDownloadStates(state: String)
+
+    @Query("UPDATE gtfs_sources SET download_state = :toState WHERE download_state = :fromState")
+    suspend fun resetDownloadState(fromState: String, toState: String)
 }
 
 // STOPS ------------------------
@@ -549,6 +555,16 @@ internal object GtfsDatabaseHolder {
     fun get(lightContext: SealedLightContext): GtfsDatabase =
         instance ?: synchronized(this) {
             instance ?: lightContext.buildDatabase(GtfsDatabase::class.java, "gtfs.db")
-                .also { instance = it }
+                .also { db ->
+                    instance = db
+                    // A source stuck DOWNLOADING can only be from a process that's no longer running
+                    // (a real in-flight download would have re-registered itself by now)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        db.gtfsSourceDao().resetDownloadState(
+                            fromState = GtfsSourceDownloadState.DOWNLOADING.name,
+                            toState = GtfsSourceDownloadState.FAILED.name,
+                        )
+                    }
+                }
         }
 }

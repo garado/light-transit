@@ -5,6 +5,7 @@ import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.data.gtfs.local.GtfsDatabaseHolder
 import dev.garado.transit.data.gtfs.sources.GtfsSource
+import dev.garado.transit.data.gtfs.sources.GtfsSourceDownloadState
 import dev.garado.transit.data.gtfs.sources.GtfsSourceStore
 import java.io.File
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +37,14 @@ class GtfsOverviewViewModel(lightContext: SealedLightContext) : LightViewModel<U
                     .sumOf { File(dbDir, it).let { f -> if (f.exists()) f.length() else 0L } }
                 zipBytes + dbBytes
             }
+        }
+    }
+
+    fun retryAllFailed() {
+        viewModelScope.launch {
+            sources.value
+                .filter { it.downloadState == GtfsSourceDownloadState.FAILED }
+                .forEach { store.retryDownload(it) }
         }
     }
 }
