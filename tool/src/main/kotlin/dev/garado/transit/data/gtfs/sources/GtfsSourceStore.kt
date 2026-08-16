@@ -16,12 +16,18 @@ import dev.garado.transit.data.gtfs.local.GtfsTripsTxtParser
 import dev.garado.transit.data.gtfs.local.GtfsZipExtractor
 import java.io.File
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 private const val TAG = "GtfsSourceStore"
@@ -38,6 +44,16 @@ internal class GtfsSourceStore(
 
     val all: Flow<List<GtfsSource>> = dao.getAll().map { entities -> entities.map(GtfsSourceEntity::toGtfsSource) }
 
+    /** Survives the triggering screen's rememberCoroutineScope() being cancelled on navigation */
+    fun addDetached(dataset: GtfsDataset) {
+        detachedScope.launch { add(dataset) }
+    }
+
+    /** Downloads run concurrently. Parsing+DB-writes are serialized */
+    fun addAllDetached(datasets: List<GtfsDataset>) {
+        detachedScope.launch { datasets.map { async { add(it) } }.awaitAll() }
+    }
+
     suspend fun add(dataset: GtfsDataset) {
         val existing = dao.findByKeyAndRegion(dataset.key, dataset.regionCode)
         if (existing != null) {
@@ -47,6 +63,7 @@ internal class GtfsSourceStore(
                 Log.d(TAG, "source ${dataset.key}/${dataset.regionCode} already $state (id=${existing.id}), skipping duplicate add")
                 return
             }
+
             // NOT_DOWNLOADED or FAILED - retry the existing row instead of inserting a duplicate
             downloadFile(existing.id, dataset.downloadUrl)
             return
@@ -93,19 +110,22 @@ internal class GtfsSourceStore(
                 }
                 Log.d(TAG, "download stopped for source $id, success=$success")
                 if (success) {
-                    try {
-                        importStops(id, destination)
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (e: Exception) {
-                        Log.e(TAG, "stops.txt import failed for source $id", e)
-                    }
-                    try {
-                        importSchedule(id, destination)
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (e: Exception) {
-                        Log.e(TAG, "schedule import failed for source $id", e)
+                    // Downloads run concurrently, but only one source writes to the DB at a time.
+                    importMutex.withLock {
+                        try {
+                            importStops(id, destination)
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            Log.e(TAG, "stops.txt import failed for source $id", e)
+                        }
+                        try {
+                            importSchedule(id, destination)
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            Log.e(TAG, "schedule import failed for source $id", e)
+                        }
                     }
                 }
             } finally {
@@ -210,6 +230,14 @@ internal class GtfsSourceStore(
     }
 
     private fun localFile(id: Long) = File(File(filesDir, "gtfs"), "$id.gtfs.zip")
+
+    private companion object {
+        /** Process-wide, never tied to any single screen's lifecycle */
+        val detachedScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+        /** Serializes parsing+DB-writes across all sources, even ones downloading concurrently */
+        val importMutex = Mutex()
+    }
 }
 
 private fun GtfsSourceEntity.toGtfsSource() = GtfsSource(

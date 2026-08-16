@@ -33,6 +33,8 @@ import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
 import dev.garado.transit.models.GtfsDataset
 import dev.garado.transit.data.gtfs.GtfsDisplayNames
+import dev.garado.transit.data.gtfs.local.GtfsDatabaseHolder
+import dev.garado.transit.data.gtfs.sources.GtfsSourceStore
 
 class GtfsCountryListScreen(sealedActivity: SealedLightActivity) :
     LightScreen<List<GtfsDataset>, GtfsBrowserViewModel>(sealedActivity) {
@@ -48,6 +50,7 @@ class GtfsCountryListScreen(sealedActivity: SealedLightActivity) :
         val isRefreshing by viewModel.isRefreshing.collectAsState()
 
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
+        val store = remember { GtfsSourceStore(GtfsDatabaseHolder.get(lightContext), lightContext.filesDir) }
         val regionsByCountry = remember(datasetsByRegion) {
             datasetsByRegion.entries
                 .groupBy({ it.key.substringBefore("-") }, { it.key to it.value })
@@ -97,11 +100,11 @@ class GtfsCountryListScreen(sealedActivity: SealedLightActivity) :
                                             val datasets = regions.values.first()
                                             navigateTo({ activity ->
                                                 GtfsDatasetListScreen(activity, countryCode, datasets)
-                                            }) { picked -> goBack(picked) }
+                                            })
                                         } else {
                                             navigateTo({ activity ->
                                                 GtfsRegionListScreen(activity, countryCode, regions)
-                                            }) { picked -> goBack(picked) }
+                                            })
                                         }
                                     },
                                 )
@@ -118,7 +121,7 @@ class GtfsCountryListScreen(sealedActivity: SealedLightActivity) :
                                 .lightClickable(onClick = {
                                     navigateTo({ activity ->
                                         GtfsBulkAddConfirmScreen(activity, allVisible)
-                                    }) { datasets -> goBack(datasets) }
+                                    }) { picked -> store.addAllDetached(picked) }
                                 }),
                         )
                     }

@@ -73,9 +73,7 @@ class GtfsManagerScreen(sealedActivity: SealedLightActivity) :
                     center = LightTopBarCenter.Text("Manage Route Data"),
                     rightButton = LightBarButton.LightIcon(
                         icon = LightIcons.ADD,
-                        onClick = {
-                            navigateTo(::GtfsCountryListScreen) { datasets -> viewModel.addAll(datasets) }
-                        },
+                        onClick = { navigateTo(::GtfsCountryListScreen) },
                         sizeUnits = 1.5f,
                     ),
                 )

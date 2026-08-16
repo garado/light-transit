@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -36,7 +35,6 @@ import dev.garado.transit.data.gtfs.sources.GtfsSource
 import dev.garado.transit.data.gtfs.sources.GtfsSourceDownloadState
 import dev.garado.transit.data.gtfs.sources.GtfsSourceStore
 import dev.garado.transit.data.gtfs.sources.label
-import kotlinx.coroutines.launch
 
 class GtfsDatasetListScreen(
     sealedActivity: SealedLightActivity,
@@ -54,7 +52,6 @@ class GtfsDatasetListScreen(
                 lightContext.filesDir,
             )
         }
-        val scope = rememberCoroutineScope()
         val sources by store.all.collectAsState(initial = emptyList())
         val sourceByKey = remember(sources) {
             sources.associateBy { it.key to it.regionCode }
@@ -79,7 +76,7 @@ class GtfsDatasetListScreen(
                             dataset = dataset,
                             displayName = displayNames.agencyName(dataset.key, dataset.regionCode),
                             existingSource = existingSource,
-                            onClick = { scope.launch { store.add(dataset) } },
+                            onClick = { store.addDetached(dataset) },
                         )
                     }
                 }
@@ -94,7 +91,7 @@ class GtfsDatasetListScreen(
                         .lightClickable(onClick = {
                             navigateTo({ activity ->
                                 GtfsBulkAddConfirmScreen(activity, datasets)
-                            }) { picked -> goBack(picked) }
+                            }) { picked -> store.addAllDetached(picked) }
                         }),
                 )
             }
