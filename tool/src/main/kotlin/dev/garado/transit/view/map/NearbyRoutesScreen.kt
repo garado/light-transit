@@ -2,6 +2,7 @@ package dev.garado.transit.view.map
 
 import dev.garado.transit.models.LatLon
 import dev.garado.transit.view.components.map.MapOverlay
+import dev.garado.transit.view.components.map.MarkerShape
 import dev.garado.transit.view.components.map.RasterTileSource
 import dev.garado.transit.view.components.map.TransitMapView
 import dev.garado.transit.data.database.maptiles.TileCacheDatabase
@@ -76,7 +77,9 @@ class NearbyRoutesScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit
 
         val markerColor = LightThemeTokens.colors.content
         val searchMarkers = remember(searchedCenter, markerColor) {
-            searchedCenter?.let { listOf(MapOverlay.Marker(point = it, color = markerColor)) }.orEmpty()
+            searchedCenter?.let {
+                listOf(MapOverlay.Marker(point = it, color = markerColor, radiusDp = 5.dp, shape = MarkerShape.SQUARE))
+            }.orEmpty()
         }
         LightTheme(colors = themeColors) {
             Column(
@@ -100,7 +103,7 @@ class NearbyRoutesScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit
                             initialCenter = searchedCenter ?: defaultCenter,
                             initialZoom = 17f,
                             overlays = searchMarkers,
-                            centerIndicatorColor = markerColor,
+                            centerIndicatorColor = markerColor.takeIf { !hasSearched },
                             onCenterChanged = viewModel::onMapCenterChanged,
                             modifier = Modifier.weight(1f).fillMaxSize(),
                         )

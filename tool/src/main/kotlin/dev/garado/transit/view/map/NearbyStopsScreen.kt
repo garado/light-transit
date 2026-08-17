@@ -4,6 +4,7 @@ import dev.garado.transit.view.route.boundingBox
 import dev.garado.transit.models.LatLon
 import dev.garado.transit.models.LatLonBounds
 import dev.garado.transit.view.components.map.MapOverlay
+import dev.garado.transit.view.components.map.MarkerShape
 import dev.garado.transit.view.components.map.RasterTileSource
 import dev.garado.transit.view.components.map.TransitMapView
 import dev.garado.transit.data.database.maptiles.TileCacheDatabase
@@ -80,6 +81,11 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit,
             }
         }
         val fitBounds = remember(stops) { stops.map { LatLon(lat = it.lat, lon = it.lon) }.boundingBox() }
+        val searchMarkers = remember(searchedCenter, markerColor) {
+            searchedCenter?.let {
+                listOf(MapOverlay.Marker(point = it, color = markerColor, radiusDp = 5.dp, shape = MarkerShape.SQUARE))
+            }.orEmpty()
+        }
 
         fun onStopSelected(stop: TripStop) {
             navigateTo({ activity -> StopDeparturesScreen(activity, stop.name, viewModel.departuresFor(stop)) })
@@ -106,8 +112,8 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit,
                             tileSource = tileSource,
                             initialCenter = searchedCenter ?: defaultCenter,
                             initialZoom = 17f,
-                            overlays = markers,
-                            centerIndicatorColor = markerColor,
+                            overlays = markers + searchMarkers,
+                            centerIndicatorColor = markerColor.takeIf { !hasSearched },
                             fitBounds = fitBounds,
                             onMarkerClick = { marker ->
                                 stops.find { it.globalStopId == marker.id }?.let(::onStopSelected)

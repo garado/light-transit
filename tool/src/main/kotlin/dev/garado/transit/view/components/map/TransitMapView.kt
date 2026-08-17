@@ -225,5 +225,11 @@ private fun DrawScope.drawMarker(
     scale: Float,
 ) {
     val offset = lonLatToOffset(marker.point.lat, marker.point.lon, tilesZoom, liveFracX, liveFracY, scale)
-    drawCircle(color = marker.color, radius = marker.radiusDp.toPx(), center = offset)
+    when (marker.shape) {
+        MarkerShape.CIRCLE -> drawCircle(color = marker.color, radius = marker.radiusDp.toPx(), center = offset)
+        MarkerShape.SQUARE -> {
+            val side = marker.radiusDp.toPx() * 2
+            drawRect(color = marker.color, topLeft = offset - Offset(side / 2, side / 2), size = Size(side, side))
+        }
+    }
 }

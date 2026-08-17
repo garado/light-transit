@@ -112,6 +112,7 @@ class NearbyStopsViewModel internal constructor(
                 }
                 _stops.value = stops
                 _departuresByStop.value = departuresProvider?.departures(stops.flatMap { it.groupedStopIds }) ?: emptyMap()
+                _searchedCenter.value = location
                 _hasSearched.value = true
             } finally {
                 _isSearching.value = false
