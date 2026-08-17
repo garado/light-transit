@@ -6,10 +6,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -30,6 +33,8 @@ import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
 import dev.garado.transit.models.GtfsDataset
 import dev.garado.transit.data.gtfs.GtfsDisplayNames
+import dev.garado.transit.data.gtfs.local.GtfsDatabaseHolder
+import dev.garado.transit.data.gtfs.sources.GtfsSourceStore
 
 class GtfsCountryListScreen(sealedActivity: SealedLightActivity) :
     LightScreen<List<GtfsDataset>, GtfsBrowserViewModel>(sealedActivity) {
@@ -45,6 +50,7 @@ class GtfsCountryListScreen(sealedActivity: SealedLightActivity) :
         val isRefreshing by viewModel.isRefreshing.collectAsState()
 
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
+        val store = remember { GtfsSourceStore(GtfsDatabaseHolder.get(lightContext), lightContext.filesDir) }
         val regionsByCountry = remember(datasetsByRegion) {
             datasetsByRegion.entries
                 .groupBy({ it.key.substringBefore("-") }, { it.key to it.value })
@@ -79,7 +85,11 @@ class GtfsCountryListScreen(sealedActivity: SealedLightActivity) :
                         modifier = Modifier.weight(1f),
                     )
                     else -> {
-                        LightScrollView(modifier = Modifier.weight(1f)) {
+                        val scrollState = rememberScrollState(initial = viewModel.savedScrollOffset)
+                        LaunchedEffect(scrollState) {
+                            snapshotFlow { scrollState.value }.collect { viewModel.savedScrollOffset = it }
+                        }
+                        LightScrollView(modifier = Modifier.weight(1f), scrollState = scrollState) {
                             regionsByCountry.forEach { (countryCode, regions) ->
                                 CountryRow(
                                     countryCode = countryCode,
@@ -90,11 +100,11 @@ class GtfsCountryListScreen(sealedActivity: SealedLightActivity) :
                                             val datasets = regions.values.first()
                                             navigateTo({ activity ->
                                                 GtfsDatasetListScreen(activity, countryCode, datasets)
-                                            }) { picked -> goBack(picked) }
+                                            })
                                         } else {
                                             navigateTo({ activity ->
                                                 GtfsRegionListScreen(activity, countryCode, regions)
-                                            }) { picked -> goBack(picked) }
+                                            })
                                         }
                                     },
                                 )
@@ -111,7 +121,7 @@ class GtfsCountryListScreen(sealedActivity: SealedLightActivity) :
                                 .lightClickable(onClick = {
                                     navigateTo({ activity ->
                                         GtfsBulkAddConfirmScreen(activity, allVisible)
-                                    }) { datasets -> goBack(datasets) }
+                                    }) { picked -> store.addAllDetached(picked) }
                                 }),
                         )
                     }

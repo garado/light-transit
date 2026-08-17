@@ -12,11 +12,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -113,6 +116,8 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit,
                             stops = stops,
                             modifier = Modifier.weight(1f),
                             onStopClick = ::onStopSelected,
+                            savedScrollOffset = viewModel.savedScrollOffset,
+                            onScrollOffsetChanged = { viewModel.savedScrollOffset = it },
                         )
                     }
 
@@ -178,7 +183,13 @@ private fun SearchingOverlay(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun NearbyStopsList(stops: List<TripStop>, modifier: Modifier = Modifier, onStopClick: (TripStop) -> Unit) {
+private fun NearbyStopsList(
+    stops: List<TripStop>,
+    modifier: Modifier = Modifier,
+    onStopClick: (TripStop) -> Unit,
+    savedScrollOffset: Int,
+    onScrollOffsetChanged: (Int) -> Unit,
+) {
     if (stops.isEmpty()) {
         Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             LightText(
@@ -189,7 +200,11 @@ private fun NearbyStopsList(stops: List<TripStop>, modifier: Modifier = Modifier
         }
         return
     }
-    LightScrollView(modifier = modifier) {
+    val scrollState = rememberScrollState(initial = savedScrollOffset)
+    LaunchedEffect(scrollState) {
+        snapshotFlow { scrollState.value }.collect(onScrollOffsetChanged)
+    }
+    LightScrollView(modifier = modifier, scrollState = scrollState) {
         stops.forEach { stop ->
             LightText(
                 text = stop.name,

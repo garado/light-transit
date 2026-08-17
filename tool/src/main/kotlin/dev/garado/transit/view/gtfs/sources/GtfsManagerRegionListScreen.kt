@@ -15,7 +15,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,7 +38,6 @@ import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
 import dev.garado.transit.data.gtfs.GtfsDisplayNames
 import dev.garado.transit.data.gtfs.local.GtfsDatabaseHolder
-import kotlinx.coroutines.launch
 
 /** Sub-regions of saved sources within one country, mirrors GtfsRegionListScreen. */
 class GtfsManagerRegionListScreen(
@@ -57,9 +55,12 @@ class GtfsManagerRegionListScreen(
             )
         }
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
-        val scope = rememberCoroutineScope()
-        val sources by store.all.collectAsState(initial = emptyList())
+        val allSources by store.all.collectAsState(initial = emptyList())
         var isEditing by remember { mutableStateOf(false) }
+
+        // Hides just-deleted sources immediately and delete in the BG
+        var pendingDeleteIds by remember { mutableStateOf(emptySet<Long>()) }
+        val sources = remember(allSources, pendingDeleteIds) { allSources.filter { it.id !in pendingDeleteIds } }
 
         val byRegion = remember(sources) {
             sources
@@ -87,7 +88,10 @@ class GtfsManagerRegionListScreen(
                             regionName = displayNames.regionName(regionCode),
                             count = srcs.size,
                             isEditing = isEditing,
-                            onDeleteClick = { scope.launch { store.deleteAll(srcs) } },
+                            onDeleteClick = {
+                                pendingDeleteIds = pendingDeleteIds + srcs.map { it.id }
+                                store.deleteAllDetached(srcs)
+                            },
                             onClick = {
                                 navigateTo({ activity ->
                                     GtfsManagerSourceListScreen(activity, countryCode, regionCode)

@@ -23,11 +23,17 @@ import dev.garado.transit.models.LatLon
 import dev.garado.transit.util.encodePolyline
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
 // SOURCES ------------------------
 
-@Entity(tableName = "gtfs_sources")
+@Entity(
+    tableName = "gtfs_sources",
+    indices = [Index(value = ["key", "region_code"], unique = true)],
+)
 internal data class GtfsSourceEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val key: String,
@@ -44,7 +50,8 @@ internal interface GtfsSourceDao {
     @Query("SELECT * FROM gtfs_sources WHERE key = :key AND region_code = :regionCode LIMIT 1")
     suspend fun findByKeyAndRegion(key: String, regionCode: String): GtfsSourceEntity?
 
-    @Insert
+    /** -1 if a row for this (key, region_code) already exists */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(entity: GtfsSourceEntity): Long
 
     @Query("DELETE FROM gtfs_sources WHERE id = :id")
@@ -58,6 +65,9 @@ internal interface GtfsSourceDao {
 
     @Query("UPDATE gtfs_sources SET download_state = :state")
     suspend fun resetAllDownloadStates(state: String)
+
+    @Query("UPDATE gtfs_sources SET download_state = :toState WHERE download_state = :fromState")
+    suspend fun resetDownloadState(fromState: String, toState: String)
 }
 
 // STOPS ------------------------
@@ -549,6 +559,16 @@ internal object GtfsDatabaseHolder {
     fun get(lightContext: SealedLightContext): GtfsDatabase =
         instance ?: synchronized(this) {
             instance ?: lightContext.buildDatabase(GtfsDatabase::class.java, "gtfs.db")
-                .also { instance = it }
+                .also { db ->
+                    instance = db
+                    // A source stuck DOWNLOADING can only be from a process that's no longer running
+                    // (a real in-flight download would have re-registered itself by now)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        db.gtfsSourceDao().resetDownloadState(
+                            fromState = GtfsSourceDownloadState.DOWNLOADING.name,
+                            toState = GtfsSourceDownloadState.FAILED.name,
+                        )
+                    }
+                }
         }
 }

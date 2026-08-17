@@ -18,7 +18,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,7 +41,6 @@ import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
 import dev.garado.transit.data.gtfs.GtfsDisplayNames
 import dev.garado.transit.data.gtfs.local.GtfsDatabaseHolder
-import kotlinx.coroutines.launch
 
 class GtfsManagerSourceListScreen(
     sealedActivity: SealedLightActivity,
@@ -60,12 +58,13 @@ class GtfsManagerSourceListScreen(
             )
         }
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
-        val scope = rememberCoroutineScope()
         val allSources by store.all.collectAsState(initial = null)
         var isEditing by remember { mutableStateOf(false) }
 
-        val sources = remember(allSources) {
-            allSources?.filter { it.regionCode == regionCode }
+        // Hide just-deleted sources immediately instead of waiting for deletion to finish (can take a while)
+        var pendingDeleteIds by remember { mutableStateOf(emptySet<Long>()) }
+        val sources = remember(allSources, pendingDeleteIds) {
+            allSources?.filter { it.regionCode == regionCode && it.id !in pendingDeleteIds }
         }
 
         LightTheme(colors = themeColors) {
@@ -97,8 +96,11 @@ class GtfsManagerSourceListScreen(
                                 source = source,
                                 displayName = displayNames.agencyName(source.key, source.regionCode),
                                 isEditing = isEditing,
-                                onDeleteClick = { scope.launch { store.delete(source) } },
-                                onRetryClick = { scope.launch { store.retryDownload(source) } },
+                                onDeleteClick = {
+                                    pendingDeleteIds = pendingDeleteIds + source.id
+                                    store.deleteDetached(source)
+                                },
+                                onRetryClick = { store.retryDownloadDetached(source) },
                             )
                         }
                     }

@@ -28,6 +28,8 @@ import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
 import dev.garado.transit.models.GtfsDataset
 import dev.garado.transit.data.gtfs.GtfsDisplayNames
+import dev.garado.transit.data.gtfs.local.GtfsDatabaseHolder
+import dev.garado.transit.data.gtfs.sources.GtfsSourceStore
 
 /** Sub-regions within one country (only shown when that country has more than one region code). */
 class GtfsRegionListScreen(
@@ -40,6 +42,7 @@ class GtfsRegionListScreen(
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
+        val store = remember { GtfsSourceStore(GtfsDatabaseHolder.get(lightContext), lightContext.filesDir) }
         val allVisible = regions.values.flatten()
 
         LightTheme(colors = themeColors) {
@@ -62,7 +65,7 @@ class GtfsRegionListScreen(
                             onClick = {
                                 navigateTo({ activity ->
                                     GtfsDatasetListScreen(activity, regionCode, datasets)
-                                }) { picked -> goBack(picked) }
+                                })
                             },
                         )
                     }
@@ -78,7 +81,7 @@ class GtfsRegionListScreen(
                         .lightClickable(onClick = {
                             navigateTo({ activity ->
                                 GtfsBulkAddConfirmScreen(activity, allVisible)
-                            }) { datasets -> goBack(datasets) }
+                            }) { picked -> store.addAllDetached(picked) }
                         }),
                 )
             }

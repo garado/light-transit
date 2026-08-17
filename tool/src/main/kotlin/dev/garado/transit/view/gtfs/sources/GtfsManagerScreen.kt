@@ -9,12 +9,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -46,10 +49,14 @@ class GtfsManagerScreen(sealedActivity: SealedLightActivity) :
     @Composable
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
-        val sources by viewModel.sources.collectAsState()
+        val allSources by viewModel.sources.collectAsState()
         val hasLoaded by viewModel.hasLoaded.collectAsState()
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
         var isEditing by remember { mutableStateOf(false) }
+
+        // Hide just-deleted sources immediately instead of waiting for deletion to finish (can take a while)
+        var pendingDeleteIds by remember { mutableStateOf(emptySet<Long>()) }
+        val sources = remember(allSources, pendingDeleteIds) { allSources.filter { it.id !in pendingDeleteIds } }
 
         val byCountry = remember(sources) {
             sources
@@ -67,12 +74,10 @@ class GtfsManagerScreen(sealedActivity: SealedLightActivity) :
                 StatusBar()
                 LightTopBar(
                     leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = { goBack() }),
-                    center = LightTopBarCenter.Text("Route data"),
+                    center = LightTopBarCenter.Text("Manage Route Data"),
                     rightButton = LightBarButton.LightIcon(
                         icon = LightIcons.ADD,
-                        onClick = {
-                            navigateTo(::GtfsCountryListScreen) { datasets -> viewModel.addAll(datasets) }
-                        },
+                        onClick = { navigateTo(::GtfsCountryListScreen) },
                         sizeUnits = 1.5f,
                     ),
                 )
@@ -88,14 +93,21 @@ class GtfsManagerScreen(sealedActivity: SealedLightActivity) :
                         }
                     }
                 } else {
-                    LightScrollView(modifier = Modifier.weight(1f)) {
+                    val scrollState = rememberScrollState(initial = viewModel.savedScrollOffset)
+                    LaunchedEffect(scrollState) {
+                        snapshotFlow { scrollState.value }.collect { viewModel.savedScrollOffset = it }
+                    }
+                    LightScrollView(modifier = Modifier.weight(1f), scrollState = scrollState) {
                         byCountry.forEach { (countryCode, srcs) ->
                             val regionCodes = srcs.map { it.regionCode }.distinct()
                             CountryRow(
                                 countryName = displayNames.countryName(countryCode),
                                 count = srcs.size,
                                 isEditing = isEditing,
-                                onDeleteClick = { viewModel.deleteAll(srcs) },
+                                onDeleteClick = {
+                                    pendingDeleteIds = pendingDeleteIds + srcs.map { it.id }
+                                    viewModel.deleteAll(srcs)
+                                },
                                 onClick = {
                                     if (regionCodes.size == 1) {
                                         navigateTo({ activity ->

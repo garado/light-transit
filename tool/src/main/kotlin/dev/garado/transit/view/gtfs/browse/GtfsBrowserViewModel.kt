@@ -27,6 +27,8 @@ class GtfsBrowserViewModel(
 ) : LightViewModel<List<GtfsDataset>>() {
     private val dao = GtfsCatalogDatabaseHolder.get(lightContext).gtfsCatalogDao()
 
+    var savedScrollOffset: Int = 0
+
     /** True only until datasetsByRegion below has produced its first (possibly empty) result. */
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()

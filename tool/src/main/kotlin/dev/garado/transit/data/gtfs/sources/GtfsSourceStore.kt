@@ -16,11 +16,20 @@ import dev.garado.transit.data.gtfs.local.GtfsTripsTxtParser
 import dev.garado.transit.data.gtfs.local.GtfsZipExtractor
 import java.io.File
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 
 private const val TAG = "GtfsSourceStore"
@@ -37,76 +46,119 @@ internal class GtfsSourceStore(
 
     val all: Flow<List<GtfsSource>> = dao.getAll().map { entities -> entities.map(GtfsSourceEntity::toGtfsSource) }
 
+    /** Allow "add" operations to survive loss of scope */
+    fun addDetached(dataset: GtfsDataset) {
+        detachedScope.launch { add(dataset) }
+    }
+
+    /** Downloads run concurrently; parsing+DB-writes are serialized */
+    fun addAllDetached(datasets: List<GtfsDataset>) {
+        detachedScope.launch { datasets.map { async { add(it) } }.awaitAll() }
+    }
+
     suspend fun add(dataset: GtfsDataset) {
-        val existing = dao.findByKeyAndRegion(dataset.key, dataset.regionCode)
-        if (existing != null) {
-            val state = runCatching { GtfsSourceDownloadState.valueOf(existing.downloadState) }
-                .getOrDefault(GtfsSourceDownloadState.NOT_DOWNLOADED)
-            if (state == GtfsSourceDownloadState.DOWNLOADED || state == GtfsSourceDownloadState.DOWNLOADING) {
-                Log.d(TAG, "source ${dataset.key}/${dataset.regionCode} already $state (id=${existing.id}), skipping duplicate add")
-                return
+        val id = getOrInsertSourceId(dataset) ?: return
+        downloadFile(id, dataset.downloadUrl)
+    }
+
+    /** Insert-then-react to the unique-index conflict avoids a check-then-insert race. Null if already claimed. */
+    private suspend fun getOrInsertSourceId(dataset: GtfsDataset): Long? {
+        val insertedId = dao.insert(GtfsSourceEntity(key = dataset.key, regionCode = dataset.regionCode, path = dataset.path))
+        if (insertedId != -1L) return insertedId
+
+        val existing = dao.findByKeyAndRegion(dataset.key, dataset.regionCode) ?: return null
+        return when (existing.toDownloadState()) {
+            GtfsSourceDownloadState.DOWNLOADED, GtfsSourceDownloadState.DOWNLOADING -> {
+                Log.d(TAG, "source ${dataset.key}/${dataset.regionCode} already downloaded/downloading (id=${existing.id}), skipping duplicate add")
+                null
             }
             // NOT_DOWNLOADED or FAILED - retry the existing row instead of inserting a duplicate
-            downloadFile(existing.id, dataset.downloadUrl)
-            return
+            GtfsSourceDownloadState.NOT_DOWNLOADED, GtfsSourceDownloadState.FAILED -> existing.id
         }
-        val id = dao.insert(GtfsSourceEntity(key = dataset.key, regionCode = dataset.regionCode, path = dataset.path))
-        downloadFile(id, dataset.downloadUrl)
     }
 
     suspend fun retryDownload(source: GtfsSource) {
         downloadFile(source.id, source.downloadUrl)
     }
 
+    /** Allow retry ops to survive loss of scope */
+    fun retryDownloadDetached(source: GtfsSource) {
+        detachedScope.launch { retryDownload(source) }
+    }
+
     /** Dependent stops/routes/trips/stop_times/calendar rows cascade automatically via foreign keys */
     suspend fun delete(source: GtfsSource) {
         GtfsImportProgressTracker.cancel(source.id)
         dao.deleteById(source.id)
-        localFile(source.id).delete()
+        withContext(Dispatchers.IO) { localFile(source.id).delete() }
+    }
+
+    /** Allow delete ops to survive loss of scope, like [addDetached] */
+    fun deleteDetached(source: GtfsSource) {
+        detachedScope.launch { delete(source) }
     }
 
     suspend fun deleteAll(sources: List<GtfsSource>) {
         sources.forEach { GtfsImportProgressTracker.cancel(it.id) }
         dao.deleteByIds(sources.map { it.id })
-        sources.forEach { localFile(it.id).delete() }
+        withContext(Dispatchers.IO) { sources.forEach { localFile(it.id).delete() } }
     }
 
-    /** Always resolves to DOWNLOADED or FAILED, unless cancelled */
+    /** Allow delete ops to survive loss of scope, like [addAllDetached] */
+    fun deleteAllDetached(sources: List<GtfsSource>) {
+        detachedScope.launch { deleteAll(sources) }
+    }
+
+    /** Always resolves to DOWNLOADED or FAILED, even if cancelled mid-flight */
     private suspend fun downloadFile(id: Long, url: String): Unit = coroutineScope {
         val job = launch {
             dao.updateDownloadState(id, GtfsSourceDownloadState.DOWNLOADING.name)
             val destination = localFile(id)
             Log.d(TAG, "download started for source $id ($url)")
             GtfsImportProgressTracker.update(id, GtfsImportStage.Downloading(percent = null))
-            val success = try {
-                downloader.download(url, destination) { percent ->
-                    GtfsImportProgressTracker.update(id, GtfsImportStage.Downloading(percent))
+            var success = false
+            try {
+                success = try {
+                    downloadSemaphore.withPermit {
+                        downloader.download(url, destination) { percent ->
+                            GtfsImportProgressTracker.update(id, GtfsImportStage.Downloading(percent))
+                        }
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.e(TAG, "Download failed for source $id", e)
+                    false
+                }
+                Log.d(TAG, "download stopped for source $id, success=$success")
+                if (success) {
+                    // Downloads run concurrently, but only one source writes to the DB at a time.
+                    importMutex.withLock {
+                        try {
+                            importStops(id, destination)
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            Log.e(TAG, "stops.txt import failed for source $id", e)
+                        }
+                        try {
+                            importSchedule(id, destination)
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            Log.e(TAG, "schedule import failed for source $id", e)
+                        }
+                    }
                 }
             } catch (e: CancellationException) {
+                success = false
                 throw e
-            } catch (e: Exception) {
-                Log.e(TAG, "Download failed for source $id", e)
-                false
-            }
-            Log.d(TAG, "download stopped for source $id, success=$success")
-            if (success) {
-                try {
-                    importStops(id, destination)
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    Log.e(TAG, "stops.txt import failed for source $id", e)
-                }
-                try {
-                    importSchedule(id, destination)
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    Log.e(TAG, "schedule import failed for source $id", e)
+            } finally {
+                withContext(NonCancellable) {
+                    dao.updateDownloadState(id, (if (success) GtfsSourceDownloadState.DOWNLOADED else GtfsSourceDownloadState.FAILED).name)
+                    GtfsImportProgressTracker.clear(id)
                 }
             }
-            dao.updateDownloadState(id, (if (success) GtfsSourceDownloadState.DOWNLOADED else GtfsSourceDownloadState.FAILED).name)
-            GtfsImportProgressTracker.clear(id)
         }
         GtfsImportProgressTracker.registerJob(id, job)
         job.invokeOnCompletion { GtfsImportProgressTracker.unregisterJob(id) }
@@ -203,12 +255,26 @@ internal class GtfsSourceStore(
     }
 
     private fun localFile(id: Long) = File(File(filesDir, "gtfs"), "$id.gtfs.zip")
+
+    private companion object {
+        /** Scope outliving every screen's lifecycle so GTFS operations continue if user leaves GTFS screens */
+        val detachedScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+        /** Enforce serialized parsing/DB-writing */
+        val importMutex = Mutex()
+
+        /** Max number of parallel downloads */
+        val downloadSemaphore = Semaphore(permits = 3)
+    }
 }
+
+private fun GtfsSourceEntity.toDownloadState(): GtfsSourceDownloadState =
+    runCatching { GtfsSourceDownloadState.valueOf(downloadState) }.getOrDefault(GtfsSourceDownloadState.NOT_DOWNLOADED)
 
 private fun GtfsSourceEntity.toGtfsSource() = GtfsSource(
     id = id,
     key = key,
     regionCode = regionCode,
     path = path,
-    downloadState = runCatching { GtfsSourceDownloadState.valueOf(downloadState) }.getOrDefault(GtfsSourceDownloadState.NOT_DOWNLOADED),
+    downloadState = toDownloadState(),
 )

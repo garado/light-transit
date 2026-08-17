@@ -64,7 +64,6 @@ fun SettingsTabContent(
     options: List<SettingsOption>,
     displayName: String,
     onToggle: (String) -> Unit,
-    onAboutClick: () -> Unit,
     onSavedLocationsClick: () -> Unit,
     onApiSettingsClick: () -> Unit,
     onGtfsManagerClick: () -> Unit,
@@ -95,7 +94,7 @@ fun SettingsTabContent(
 
         item {
             SettingsNavigationRow(
-                label = "Download route data",
+                label = "Manage Downloaded Data",
                 onClick = onGtfsManagerClick,
             )
         }
@@ -106,13 +105,6 @@ fun SettingsTabContent(
                 onClick = onAttributionClick,
             )
         }
-
-        // item {
-        //     SettingsNavigationRow(
-        //         label = "About",
-        //         onClick = onAboutClick,
-        //     )
-        // }
     }
 }
 

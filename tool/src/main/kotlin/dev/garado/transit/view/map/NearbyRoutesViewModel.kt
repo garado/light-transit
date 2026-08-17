@@ -21,6 +21,8 @@ class NearbyRoutesViewModel(
     private val _routes = MutableStateFlow<List<TripRoute>>(emptyList())
     val routes: StateFlow<List<TripRoute>> = _routes.asStateFlow()
 
+    var savedScrollOffset: Int = 0
+
     /** Whether [search] has completed at least once */
     private val _hasSearched = MutableStateFlow(false)
     val hasSearched: StateFlow<Boolean> = _hasSearched.asStateFlow()
@@ -57,6 +59,7 @@ class NearbyRoutesViewModel(
         _viewMode.value = NearbyRoutesViewMode.MAP
         _routes.value = emptyList()
         _hasSearched.value = false
+        savedScrollOffset = 0
     }
 
     fun search() {

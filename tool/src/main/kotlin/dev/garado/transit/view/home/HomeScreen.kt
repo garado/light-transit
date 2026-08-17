@@ -1,6 +1,6 @@
 package dev.garado.transit.view.home
 
-import dev.garado.transit.view.gtfs.sources.GtfsManagerScreen
+import dev.garado.transit.view.gtfs.sources.GtfsOverviewScreen
 import dev.garado.transit.util.formatClockTime
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -132,10 +132,9 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                                 options = settingsOptions,
                                 displayName = displayName,
                                 onToggle = viewModel.settings::toggleSetting,
-                                onAboutClick = { navigateTo(::AboutScreen) },
                                 onSavedLocationsClick = { navigateTo(::SavedLocationsScreen) },
                                 onApiSettingsClick = { navigateTo(::ApiSettingsScreen) },
-                                onGtfsManagerClick = { navigateTo(::GtfsManagerScreen) },
+                                onGtfsManagerClick = { navigateTo(::GtfsOverviewScreen) },
                                 onAttributionClick = { navigateTo(::AttributionScreen) },
                                 onEditName = { viewModel.settings.startEditingName() },
                             )
