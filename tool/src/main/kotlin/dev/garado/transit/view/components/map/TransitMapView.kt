@@ -51,6 +51,8 @@ private const val MIN_ZOOM = 3f
 private const val MAX_ZOOM = 19f
 private const val DEFAULT_ZOOM = 14f
 private const val REFETCH_DEBOUNCE_MS = 400L
+/** Fetch tiles one zoomlevel coarser than displayed and draw them upscaled, so labels are actually legible */
+private const val TEXT_MAGNIFICATION_ZOOM_OFFSET = 1f
 private const val METERS_PER_DEGREE_LAT = 111_320.0
 private val MARKER_TOUCH_TARGET_RADIUS = 24.dp
 private val CENTER_INDICATOR_RADIUS = 5.dp
@@ -98,8 +100,9 @@ fun TransitMapView(
 
     suspend fun refetch() {
         if (canvasSize == IntSize.Zero) return
-        val tileZoom = zoom.roundToInt().coerceIn(MIN_ZOOM.toInt(), MAX_ZOOM.toInt())
-        val metersPerPx = metersPerPixel(centerLat, tileZoom)
+        val tileZoom = (zoom - TEXT_MAGNIFICATION_ZOOM_OFFSET).roundToInt().coerceIn(MIN_ZOOM.toInt(), MAX_ZOOM.toInt())
+        val scale = 2.0.pow((zoom - tileZoom).toDouble()).toFloat()
+        val metersPerPx = metersPerPixel(centerLat, tileZoom) / scale
         val halfWidthMeters = (canvasSize.width / 2f) * metersPerPx
         val halfHeightMeters = (canvasSize.height / 2f) * metersPerPx
 
