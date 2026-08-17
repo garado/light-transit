@@ -7,8 +7,9 @@
 - Attributions screen + proper User-Agent for requests
 - Redesign GTFS manager screen
     - Add overview screen showing total space used and count of saved sources
-    - Allow adding multiple consecutive individual GTFS sources, instead of immediately exiting Browse view upon adding a source. Also redesign to allow parallel downloads when doing this.
+    - Allow adding multiple consecutive individual GTFS sources, instead of immediately exiting Browse view upon adding a source.
+        - Also redesign to allow parallel downloads when doing this.
+- Add default location setting and wire into routing and nearby stops/routes
+- Add initialZoom param to map, and increase default zoom for nearby stops/routes
 
 ## In progress
-- Fixing download/delete bugs for gtfs
-    - seeing a duplicate download bug...
