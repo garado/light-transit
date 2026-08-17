@@ -30,7 +30,10 @@ import kotlinx.coroutines.launch
 
 // SOURCES ------------------------
 
-@Entity(tableName = "gtfs_sources")
+@Entity(
+    tableName = "gtfs_sources",
+    indices = [Index(value = ["key", "region_code"], unique = true)],
+)
 internal data class GtfsSourceEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val key: String,
@@ -47,7 +50,8 @@ internal interface GtfsSourceDao {
     @Query("SELECT * FROM gtfs_sources WHERE key = :key AND region_code = :regionCode LIMIT 1")
     suspend fun findByKeyAndRegion(key: String, regionCode: String): GtfsSourceEntity?
 
-    @Insert
+    /** -1 if a row for this (key, region_code) already exists */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(entity: GtfsSourceEntity): Long
 
     @Query("DELETE FROM gtfs_sources WHERE id = :id")

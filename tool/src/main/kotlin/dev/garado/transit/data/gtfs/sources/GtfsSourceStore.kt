@@ -55,21 +55,24 @@ internal class GtfsSourceStore(
     }
 
     suspend fun add(dataset: GtfsDataset) {
-        val existing = dao.findByKeyAndRegion(dataset.key, dataset.regionCode)
-        if (existing != null) {
-            val state = runCatching { GtfsSourceDownloadState.valueOf(existing.downloadState) }
-                .getOrDefault(GtfsSourceDownloadState.NOT_DOWNLOADED)
-            if (state == GtfsSourceDownloadState.DOWNLOADED || state == GtfsSourceDownloadState.DOWNLOADING) {
-                Log.d(TAG, "source ${dataset.key}/${dataset.regionCode} already $state (id=${existing.id}), skipping duplicate add")
-                return
-            }
-
-            // NOT_DOWNLOADED or FAILED - retry the existing row instead of inserting a duplicate
-            downloadFile(existing.id, dataset.downloadUrl)
-            return
-        }
-        val id = dao.insert(GtfsSourceEntity(key = dataset.key, regionCode = dataset.regionCode, path = dataset.path))
+        val id = getOrInsertSourceId(dataset) ?: return
         downloadFile(id, dataset.downloadUrl)
+    }
+
+    /** Insert-then-react to the unique-index conflict avoids a check-then-insert race. Null if already claimed. */
+    private suspend fun getOrInsertSourceId(dataset: GtfsDataset): Long? {
+        val insertedId = dao.insert(GtfsSourceEntity(key = dataset.key, regionCode = dataset.regionCode, path = dataset.path))
+        if (insertedId != -1L) return insertedId
+
+        val existing = dao.findByKeyAndRegion(dataset.key, dataset.regionCode) ?: return null
+        return when (existing.toDownloadState()) {
+            GtfsSourceDownloadState.DOWNLOADED, GtfsSourceDownloadState.DOWNLOADING -> {
+                Log.d(TAG, "source ${dataset.key}/${dataset.regionCode} already downloaded/downloading (id=${existing.id}), skipping duplicate add")
+                null
+            }
+            // NOT_DOWNLOADED or FAILED - retry the existing row instead of inserting a duplicate
+            GtfsSourceDownloadState.NOT_DOWNLOADED, GtfsSourceDownloadState.FAILED -> existing.id
+        }
     }
 
     suspend fun retryDownload(source: GtfsSource) {
@@ -240,10 +243,13 @@ internal class GtfsSourceStore(
     }
 }
 
+private fun GtfsSourceEntity.toDownloadState(): GtfsSourceDownloadState =
+    runCatching { GtfsSourceDownloadState.valueOf(downloadState) }.getOrDefault(GtfsSourceDownloadState.NOT_DOWNLOADED)
+
 private fun GtfsSourceEntity.toGtfsSource() = GtfsSource(
     id = id,
     key = key,
     regionCode = regionCode,
     path = path,
-    downloadState = runCatching { GtfsSourceDownloadState.valueOf(downloadState) }.getOrDefault(GtfsSourceDownloadState.NOT_DOWNLOADED),
+    downloadState = toDownloadState(),
 )
