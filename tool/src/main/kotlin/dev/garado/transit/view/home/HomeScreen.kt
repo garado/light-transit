@@ -66,10 +66,13 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
         val isEditingName by viewModel.settings.isEditingName.collectAsState()
         val editSessionId by viewModel.settings.editSessionId.collectAsState()
         val themeColors by LightThemeController.colors.collectAsState()
+        val showOnboarding by viewModel.showOnboarding.collectAsState()
         var settingsTapCount by remember { mutableStateOf(0) }
 
         LightTheme(colors = themeColors) {
-            if (isEditingName) {
+            if (showOnboarding) {
+                OnboardingContent(onDone = viewModel::completeOnboarding)
+            } else if (isEditingName) {
                 NameEditor(
                     displayName = displayName,
                     editSessionId = editSessionId,

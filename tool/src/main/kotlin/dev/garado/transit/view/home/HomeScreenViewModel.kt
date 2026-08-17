@@ -6,6 +6,7 @@ import com.thelightphone.sdk.SealedLightContext
 import dev.garado.transit.data.settings.DEFAULT_LOCATION_FALLBACK
 import dev.garado.transit.data.settings.DefaultLocationStore
 import dev.garado.transit.data.settings.InvertColorsStore
+import dev.garado.transit.data.settings.OnboardingStore
 import dev.garado.transit.models.LocationResult
 import dev.garado.transit.view.search.SearchState
 import dev.garado.transit.view.settings.SettingsOption
@@ -34,6 +35,10 @@ class HomeScreenViewModel(lightContext: SealedLightContext) : LightViewModel<Uni
         .map { enabled -> listOf(SettingsOption(INVERT_COLORS_LABEL, enabled)) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, listOf(SettingsOption(INVERT_COLORS_LABEL, enabled = false)))
 
+    private val onboardingStore = OnboardingStore(lightContext.dataStore)
+    val showOnboarding: StateFlow<Boolean> = onboardingStore.complete
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
     private val _selectedTab = MutableStateFlow(HomeTab.SEARCH)
     val selectedTab: StateFlow<HomeTab> = _selectedTab.asStateFlow()
 
@@ -55,5 +60,9 @@ class HomeScreenViewModel(lightContext: SealedLightContext) : LightViewModel<Uni
     fun toggleSetting(label: String) {
         if (label != INVERT_COLORS_LABEL) return
         viewModelScope.launch { invertColorsStore.setEnabled(!invertColorsStore.enabled.first()) }
+    }
+
+    fun completeOnboarding() {
+        viewModelScope.launch { onboardingStore.setComplete(false) }
     }
 }
