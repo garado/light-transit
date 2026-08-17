@@ -77,6 +77,7 @@ class NearbyStopsViewModel internal constructor(
         _stops.value = emptyList()
         _departuresByStop.value = emptyMap()
         _hasSearched.value = false
+        savedScrollOffset = 0
     }
 
     /** Fetch NearbyStops and StopDepartures centered on wherever the map is now */

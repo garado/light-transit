@@ -59,6 +59,7 @@ class NearbyRoutesViewModel(
         _viewMode.value = NearbyRoutesViewMode.MAP
         _routes.value = emptyList()
         _hasSearched.value = false
+        savedScrollOffset = 0
     }
 
     fun search() {
