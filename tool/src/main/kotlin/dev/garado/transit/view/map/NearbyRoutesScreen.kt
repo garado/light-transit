@@ -98,6 +98,7 @@ class NearbyRoutesScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit
                             isDarkTheme = LightThemeController.isDarkTheme,
                             tileSource = tileSource,
                             initialCenter = searchedCenter ?: defaultCenter,
+                            initialZoom = 17f,
                             overlays = searchMarkers,
                             centerIndicatorColor = markerColor,
                             onCenterChanged = viewModel::onMapCenterChanged,
