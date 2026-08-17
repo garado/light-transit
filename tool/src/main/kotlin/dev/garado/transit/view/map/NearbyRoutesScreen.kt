@@ -2,7 +2,6 @@ package dev.garado.transit.view.map
 
 import dev.garado.transit.models.LatLon
 import dev.garado.transit.view.components.map.MapOverlay
-import dev.garado.transit.view.components.map.MarkerShape
 import dev.garado.transit.view.components.map.RasterTileSource
 import dev.garado.transit.view.components.map.TransitMapView
 import dev.garado.transit.data.database.maptiles.TileCacheDatabase
@@ -57,7 +56,6 @@ class NearbyRoutesScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit
         val viewMode by viewModel.viewMode.collectAsState()
         val searchedCenter by viewModel.searchedCenter.collectAsState()
         val defaultCenter by viewModel.defaultCenter.collectAsState()
-        val liveCenter by viewModel.liveCenter.collectAsState()
         val hasSearched by viewModel.hasSearched.collectAsState()
         val isSearching by viewModel.isSearching.collectAsState()
 
@@ -80,14 +78,6 @@ class NearbyRoutesScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit
         val searchMarkers = remember(searchedCenter, markerColor) {
             searchedCenter?.let { listOf(MapOverlay.Marker(point = it, color = markerColor)) }.orEmpty()
         }
-        val centerDot = MapOverlay.Marker(
-            point = liveCenter,
-            color = markerColor,
-            radiusDp = 5.dp,
-            id = "center",
-            shape = MarkerShape.SQUARE,
-        )
-
         LightTheme(colors = themeColors) {
             Column(
                 modifier = Modifier
@@ -108,7 +98,8 @@ class NearbyRoutesScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit
                             isDarkTheme = LightThemeController.isDarkTheme,
                             tileSource = tileSource,
                             initialCenter = searchedCenter ?: defaultCenter,
-                            overlays = searchMarkers + centerDot,
+                            overlays = searchMarkers,
+                            centerIndicatorColor = markerColor,
                             onCenterChanged = viewModel::onMapCenterChanged,
                             modifier = Modifier.weight(1f).fillMaxSize(),
                         )

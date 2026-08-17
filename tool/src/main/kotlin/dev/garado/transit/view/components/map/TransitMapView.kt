@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -52,6 +53,7 @@ private const val DEFAULT_ZOOM = 14f
 private const val REFETCH_DEBOUNCE_MS = 400L
 private const val METERS_PER_DEGREE_LAT = 111_320.0
 private val MARKER_TOUCH_TARGET_RADIUS = 24.dp
+private val CENTER_INDICATOR_RADIUS = 5.dp
 
 private val DEFAULT_CENTER = LatLon(lat = 40.7128, lon = -74.0060) // NYC
 
@@ -64,6 +66,8 @@ fun TransitMapView(
     fitBounds: LatLonBounds? = null,
     onMarkerClick: ((MapOverlay.Marker) -> Unit)? = null,
     onCenterChanged: ((LatLon) -> Unit)? = null,
+    /** Square point fixed at the canvas center */
+    centerIndicatorColor: Color? = null,
     modifier: Modifier = Modifier,
 ) {
     var centerLat by remember(initialCenter) { mutableStateOf(initialCenter.lat) }
@@ -182,6 +186,11 @@ fun TransitMapView(
                         is MapOverlay.Marker -> drawMarker(overlay, tilesZoom, liveFracX, liveFracY, scale)
                     }
                 }
+
+                if (centerIndicatorColor != null) {
+                    val side = CENTER_INDICATOR_RADIUS.toPx() * 2
+                    drawRect(color = centerIndicatorColor, topLeft = Offset(-side / 2, -side / 2), size = Size(side, side))
+                }
             }
         }
     }
@@ -215,11 +224,5 @@ private fun DrawScope.drawMarker(
     scale: Float,
 ) {
     val offset = lonLatToOffset(marker.point.lat, marker.point.lon, tilesZoom, liveFracX, liveFracY, scale)
-    when (marker.shape) {
-        MarkerShape.CIRCLE -> drawCircle(color = marker.color, radius = marker.radiusDp.toPx(), center = offset)
-        MarkerShape.SQUARE -> {
-            val side = marker.radiusDp.toPx() * 2
-            drawRect(color = marker.color, topLeft = offset - Offset(side / 2, side / 2), size = Size(side, side))
-        }
-    }
+    drawCircle(color = marker.color, radius = marker.radiusDp.toPx(), center = offset)
 }
