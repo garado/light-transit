@@ -29,13 +29,17 @@ class GtfsOverviewViewModel(lightContext: SealedLightContext) : LightViewModel<U
 
     init {
         viewModelScope.launch {
-            _spaceUsedBytes.value = withContext(Dispatchers.IO) {
-                val zipBytes = File(lightContext.filesDir, "gtfs").listFiles()?.sumOf { it.length() } ?: 0L
-                // Room's default database directory: <app-private-data-dir>/databases/
-                val dbDir = File(lightContext.filesDir.parentFile, "databases")
-                val dbBytes = listOf("gtfs.db", "gtfs.db-wal", "gtfs.db-shm")
-                    .sumOf { File(dbDir, it).let { f -> if (f.exists()) f.length() else 0L } }
-                zipBytes + dbBytes
+            // Recomputed on every source change
+            sources.collect {
+                _spaceUsedBytes.value = withContext(Dispatchers.IO) {
+                    val zipBytes = File(lightContext.filesDir, "gtfs").listFiles()?.sumOf { it.length() } ?: 0L
+
+                    // Room's default database directory is: <app-private-data-dir>/databases/
+                    val dbDir = File(lightContext.filesDir.parentFile, "databases")
+
+                    val dbBytes = listOf("gtfs.db", "gtfs.db-wal", "gtfs.db-shm").sumOf { File(dbDir, it).length() }
+                    zipBytes + dbBytes
+                }
             }
         }
     }
