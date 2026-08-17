@@ -11,5 +11,7 @@
         - Also redesign to allow parallel downloads when doing this.
 - Add default location setting and wire into routing and nearby stops/routes
 - Add initialZoom param to map, and increase default zoom for nearby stops/routes
+- Improve map readability by upscaling tiles
+- Add support for toggling map color
 
 ## In progress

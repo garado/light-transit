@@ -54,7 +54,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
     @Composable
     override fun Content() {
         val selectedTab by viewModel.selectedTab.collectAsState()
-        val settingsOptions by viewModel.settings.settingsOptions.collectAsState()
+        val settingsOptions by viewModel.settingsOptions.collectAsState()
         val displayName by viewModel.settings.displayName.collectAsState()
         val fromLocation by viewModel.search.fromLocation.collectAsState()
         val toLocation by viewModel.search.toLocation.collectAsState()
@@ -132,7 +132,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                             HomeTab.SETTINGS -> SettingsTabContent(
                                 options = settingsOptions,
                                 displayName = displayName,
-                                onToggle = viewModel.settings::toggleSetting,
+                                onToggle = viewModel::toggleSetting,
                                 defaultLocation = defaultLocation,
                                 onDefaultLocationClick = {
                                     navigateTo(::LocationSearchScreen) { result ->

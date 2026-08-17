@@ -6,6 +6,7 @@ import dev.garado.transit.view.components.map.MarkerShape
 import dev.garado.transit.view.components.map.RasterTileSource
 import dev.garado.transit.view.components.map.TransitMapView
 import dev.garado.transit.data.database.maptiles.TileCacheDatabase
+import dev.garado.transit.data.settings.InvertColorsStore
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -59,6 +60,8 @@ class NearbyRoutesScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit
         val defaultCenter by viewModel.defaultCenter.collectAsState()
         val hasSearched by viewModel.hasSearched.collectAsState()
         val isSearching by viewModel.isSearching.collectAsState()
+        val invertColorsStore = remember { InvertColorsStore(lightContext.dataStore) }
+        val invertColors by invertColorsStore.enabled.collectAsState(initial = false)
 
         val tileCacheDatabase = remember {
             lightContext.buildDatabase(TileCacheDatabase::class.java, "tile_cache.db")
@@ -104,6 +107,7 @@ class NearbyRoutesScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit
                             initialZoom = 17f,
                             overlays = searchMarkers,
                             centerIndicatorColor = markerColor.takeIf { !hasSearched },
+                            invertTiles = invertColors,
                             onCenterChanged = viewModel::onMapCenterChanged,
                             modifier = Modifier.weight(1f).fillMaxSize(),
                         )

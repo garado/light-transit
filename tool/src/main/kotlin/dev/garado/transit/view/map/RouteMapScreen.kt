@@ -2,6 +2,7 @@ package dev.garado.transit.view.map
 
 import dev.garado.transit.view.route.boundingBox
 import dev.garado.transit.data.settings.DEFAULT_LOCATION_FALLBACK
+import dev.garado.transit.data.settings.InvertColorsStore
 import dev.garado.transit.models.LatLon
 import dev.garado.transit.models.LatLonBounds
 import dev.garado.transit.view.components.map.MapOverlay
@@ -70,6 +71,9 @@ class RouteMapScreen(
             }
         }
 
+        val invertColorsStore = remember { InvertColorsStore(lightContext.dataStore) }
+        val invertColors by invertColorsStore.enabled.collectAsState(initial = false)
+
         val tileCacheDatabase = remember {
             lightContext.buildDatabase(TileCacheDatabase::class.java, "tile_cache.db")
         }
@@ -115,6 +119,7 @@ class RouteMapScreen(
                     overlays = overlays,
                     fitBounds = fitBounds,
                     onMarkerClick = { marker -> stops.find { it.globalStopId == marker.id }?.let(::onStopSelected) },
+                    invertTiles = invertColors,
                     modifier = Modifier.weight(1f).fillMaxSize(),
                 )
             }

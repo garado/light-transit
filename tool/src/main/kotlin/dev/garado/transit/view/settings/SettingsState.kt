@@ -7,13 +7,6 @@ import kotlinx.coroutines.flow.asStateFlow
 data class SettingsOption(val label: String, val enabled: Boolean)
 
 class SettingsState {
-    private val _settingsOptions = MutableStateFlow(
-        listOf(
-            SettingsOption("Invert Colors", enabled = false),
-        )
-    )
-    val settingsOptions: StateFlow<List<SettingsOption>> = _settingsOptions.asStateFlow()
-
     private val _displayName = MutableStateFlow("")
     val displayName: StateFlow<String> = _displayName.asStateFlow()
 
@@ -25,12 +18,6 @@ class SettingsState {
     // from a previous session isnt reused
     private val _editSessionId = MutableStateFlow(0)
     val editSessionId: StateFlow<Int> = _editSessionId.asStateFlow()
-
-    fun toggleSetting(label: String) {
-        _settingsOptions.value = _settingsOptions.value.map {
-            if (it.label == label) it.copy(enabled = !it.enabled) else it
-        }
-    }
 
     fun startEditingName() {
         _editSessionId.value += 1

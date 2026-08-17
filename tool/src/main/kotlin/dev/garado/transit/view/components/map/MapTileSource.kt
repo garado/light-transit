@@ -1,6 +1,7 @@
 package dev.garado.transit.view.components.map
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.DrawScope
 
 /** One fetched tile at some integer tile coordinate */
@@ -29,7 +30,7 @@ interface MapTileSource {
     ): MapTileBatch
 
     /** Draw one tile at [offset], scaled to [sizePx] on a side */
-    fun DrawScope.drawTile(tile: MapTile, offset: Offset, sizePx: Int)
+    fun DrawScope.drawTile(tile: MapTile, offset: Offset, sizePx: Int, colorFilter: ColorFilter? = null)
 
     fun close()
 }

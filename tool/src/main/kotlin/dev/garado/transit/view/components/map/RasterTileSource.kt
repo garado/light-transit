@@ -17,6 +17,7 @@ import dev.garado.transit.data.database.maptiles.TileEntity
 import dev.garado.transit.util.TILE_SIZE
 import dev.garado.transit.util.lonLatToTileFraction
 import dev.garado.transit.util.metersPerPixel
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.IntOffset
@@ -177,12 +178,13 @@ class RasterTileSource(database: TileCacheDatabase) : MapTileSource {
         }
     }
 
-    override fun DrawScope.drawTile(tile: MapTile, offset: Offset, sizePx: Int) {
+    override fun DrawScope.drawTile(tile: MapTile, offset: Offset, sizePx: Int, colorFilter: ColorFilter?) {
         if (tile !is RasterMapTile) return
         drawImage(
             image = tile.bitmap.asImageBitmap(),
             dstOffset = IntOffset(offset.x.roundToInt(), offset.y.roundToInt()),
             dstSize = IntSize(sizePx, sizePx),
+            colorFilter = colorFilter,
         )
     }
 

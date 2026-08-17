@@ -30,6 +30,8 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -57,6 +59,17 @@ private const val METERS_PER_DEGREE_LAT = 111_320.0
 private val MARKER_TOUCH_TARGET_RADIUS = 24.dp
 private val CENTER_INDICATOR_RADIUS = 5.dp
 
+private val INVERT_COLOR_FILTER = ColorFilter.colorMatrix(
+    ColorMatrix(
+        floatArrayOf(
+            -1f, 0f, 0f, 0f, 255f,
+            0f, -1f, 0f, 0f, 255f,
+            0f, 0f, -1f, 0f, 255f,
+            0f, 0f, 0f, 1f, 0f,
+        ),
+    ),
+)
+
 private val DEFAULT_CENTER = LatLon(lat = 40.7128, lon = -74.0060) // NYC
 
 @Composable
@@ -71,6 +84,7 @@ fun TransitMapView(
     onCenterChanged: ((LatLon) -> Unit)? = null,
     /** Square point fixed at the canvas center */
     centerIndicatorColor: Color? = null,
+    invertTiles: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     var centerLat by remember(initialCenter) { mutableStateOf(initialCenter.lat) }
@@ -181,24 +195,27 @@ fun TransitMapView(
                     val offset = tileFractionToOffset(
                         tile.tileX.toDouble(), tile.tileY.toDouble(), liveFracX, liveFracY, scale,
                     )
-                    with(tileSource) { drawTile(tile, offset, drawSizeInt) }
+                    with(tileSource) { drawTile(tile, offset, drawSizeInt, colorFilter = if (invertTiles) INVERT_COLOR_FILTER else null) }
                 }
 
                 for (overlay in overlays) {
                     when (overlay) {
-                        is MapOverlay.Polyline -> drawPolyline(overlay, tilesZoom, liveFracX, liveFracY, scale)
-                        is MapOverlay.Marker -> drawMarker(overlay, tilesZoom, liveFracX, liveFracY, scale)
+                        is MapOverlay.Polyline -> drawPolyline(overlay, tilesZoom, liveFracX, liveFracY, scale, invertTiles)
+                        is MapOverlay.Marker -> drawMarker(overlay, tilesZoom, liveFracX, liveFracY, scale, invertTiles)
                     }
                 }
 
                 if (centerIndicatorColor != null) {
                     val side = CENTER_INDICATOR_RADIUS.toPx() * 2
-                    drawRect(color = centerIndicatorColor, topLeft = Offset(-side / 2, -side / 2), size = Size(side, side))
+                    val color = if (invertTiles) centerIndicatorColor.invertedRgb() else centerIndicatorColor
+                    drawRect(color = color, topLeft = Offset(-side / 2, -side / 2), size = Size(side, side))
                 }
             }
         }
     }
 }
+
+private fun Color.invertedRgb() = copy(red = 1f - red, green = 1f - green, blue = 1f - blue)
 
 private fun DrawScope.drawPolyline(
     polyline: MapOverlay.Polyline,
@@ -206,6 +223,7 @@ private fun DrawScope.drawPolyline(
     liveFracX: Double,
     liveFracY: Double,
     scale: Float,
+    invert: Boolean,
 ) {
     if (polyline.points.isEmpty()) return
     val path = Path()
@@ -215,7 +233,7 @@ private fun DrawScope.drawPolyline(
     }
     drawPath(
         path = path,
-        color = polyline.color,
+        color = if (invert) polyline.color.invertedRgb() else polyline.color,
         style = Stroke(width = polyline.widthDp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round),
     )
 }
@@ -226,13 +244,15 @@ private fun DrawScope.drawMarker(
     liveFracX: Double,
     liveFracY: Double,
     scale: Float,
+    invert: Boolean,
 ) {
     val offset = lonLatToOffset(marker.point.lat, marker.point.lon, tilesZoom, liveFracX, liveFracY, scale)
+    val color = if (invert) marker.color.invertedRgb() else marker.color
     when (marker.shape) {
-        MarkerShape.CIRCLE -> drawCircle(color = marker.color, radius = marker.radiusDp.toPx(), center = offset)
+        MarkerShape.CIRCLE -> drawCircle(color = color, radius = marker.radiusDp.toPx(), center = offset)
         MarkerShape.SQUARE -> {
             val side = marker.radiusDp.toPx() * 2
-            drawRect(color = marker.color, topLeft = offset - Offset(side / 2, side / 2), size = Size(side, side))
+            drawRect(color = color, topLeft = offset - Offset(side / 2, side / 2), size = Size(side, side))
         }
     }
 }

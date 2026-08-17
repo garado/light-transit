@@ -48,6 +48,7 @@ import dev.garado.transit.util.formatDuration
 import dev.garado.transit.models.LatLon
 import dev.garado.transit.view.components.map.RasterTileSource
 import dev.garado.transit.data.database.maptiles.TileCacheDatabase
+import dev.garado.transit.data.settings.InvertColorsStore
 import dev.garado.transit.view.components.map.TransitMapView
 import dev.garado.transit.models.LocationResult
 
@@ -66,6 +67,9 @@ class NavigationScreen(
         val themeColors by LightThemeController.colors.collectAsState()
         var viewMode by remember { mutableStateOf(NavigationViewMode.DIRECTIONS) }
         var focusedStop by remember { mutableStateOf<TripStop?>(null) }
+
+        val invertColorsStore = remember { InvertColorsStore(lightContext.dataStore) }
+        val invertColors by invertColorsStore.enabled.collectAsState(initial = false)
 
         val tileCacheDatabase = remember {
             lightContext.buildDatabase(TileCacheDatabase::class.java, "tile_cache.db")
@@ -111,6 +115,7 @@ class NavigationScreen(
                             tileSource = tileSource,
                             initialCenter = mapCenter,
                             overlays = overlays,
+                            invertTiles = invertColors,
                             modifier = Modifier.fillMaxSize(),
                         )
                     }
