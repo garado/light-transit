@@ -45,10 +45,8 @@ class GtfsOverviewViewModel(lightContext: SealedLightContext) : LightViewModel<U
     }
 
     fun retryAllFailed() {
-        viewModelScope.launch {
-            sources.value
-                .filter { it.downloadState == GtfsSourceDownloadState.FAILED }
-                .forEach { store.retryDownload(it) }
-        }
+        sources.value
+            .filter { it.downloadState == GtfsSourceDownloadState.FAILED }
+            .forEach { store.retryDownloadDetached(it) }
     }
 }

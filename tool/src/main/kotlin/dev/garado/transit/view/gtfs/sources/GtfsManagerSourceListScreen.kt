@@ -98,7 +98,7 @@ class GtfsManagerSourceListScreen(
                                 displayName = displayNames.agencyName(source.key, source.regionCode),
                                 isEditing = isEditing,
                                 onDeleteClick = { scope.launch { store.delete(source) } },
-                                onRetryClick = { scope.launch { store.retryDownload(source) } },
+                                onRetryClick = { store.retryDownloadDetached(source) },
                             )
                         }
                     }

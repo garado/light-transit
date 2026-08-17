@@ -46,12 +46,12 @@ internal class GtfsSourceStore(
 
     val all: Flow<List<GtfsSource>> = dao.getAll().map { entities -> entities.map(GtfsSourceEntity::toGtfsSource) }
 
-    /** Survives the triggering screen's rememberCoroutineScope() being cancelled on navigation */
+    /** Allow "add" operations to survive loss of scope */
     fun addDetached(dataset: GtfsDataset) {
         detachedScope.launch { add(dataset) }
     }
 
-    /** Downloads run concurrently. Parsing+DB-writes are serialized */
+    /** Downloads run concurrently; parsing+DB-writes are serialized */
     fun addAllDetached(datasets: List<GtfsDataset>) {
         detachedScope.launch { datasets.map { async { add(it) } }.awaitAll() }
     }
@@ -79,6 +79,11 @@ internal class GtfsSourceStore(
 
     suspend fun retryDownload(source: GtfsSource) {
         downloadFile(source.id, source.downloadUrl)
+    }
+
+    /** Allow retry ops to survive loss of scope */
+    fun retryDownloadDetached(source: GtfsSource) {
+        detachedScope.launch { retryDownload(source) }
     }
 
     /** Dependent stops/routes/trips/stop_times/calendar rows cascade automatically via foreign keys */
