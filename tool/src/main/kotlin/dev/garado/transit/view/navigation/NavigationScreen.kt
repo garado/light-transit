@@ -118,7 +118,7 @@ class NavigationScreen(
 
                 NavigationBottomBar(
                     viewMode = viewMode,
-                    stepSummary = plan.stepSummary(index = 0, toLocation = toLocation),
+                    etaText = "ETA: ${formatClockTime(plan.endTime)}",
                     onRecenter = { /* TODO: recenter to live gps location */ },
                     onSwitchView = {
                         viewMode = when (viewMode) {
@@ -206,7 +206,7 @@ private fun DestinationRow(toLocation: LocationResult, eta: String) {
 @Composable
 private fun NavigationBottomBar(
     viewMode: NavigationViewMode,
-    stepSummary: String,
+    etaText: String,
     onRecenter: () -> Unit,
     onSwitchView: () -> Unit,
 ) {
@@ -221,25 +221,14 @@ private fun NavigationBottomBar(
         when (viewMode) {
             NavigationViewMode.DIRECTIONS -> {
                 LightIcon(icon = LightIcons.SPACER)
-                LightText(text = stepSummary, variant = LightTextVariant.Detail)
+                LightText(text = etaText, variant = LightTextVariant.Copy)
                 LightIcon(icon = LightIcons.MAP, modifier = Modifier.lightClickable(onClick = onSwitchView))
             }
             NavigationViewMode.MAP -> {
                 LightIcon(icon = LightIcons.CROSSHAIR, modifier = Modifier.lightClickable(onClick = onRecenter))
-                LightText(text = stepSummary, variant = LightTextVariant.Detail)
+                LightText(text = etaText, variant = LightTextVariant.Copy)
                 LightIcon(icon = LightIcons.LIST, modifier = Modifier.lightClickable(onClick = onSwitchView))
             }
         }
     }
-}
-
-private fun TripPlan.stepSummary(index: Int, toLocation: LocationResult): String =
-    when (val leg = legs.getOrNull(index) ?: return "") {
-        is TripLeg.Walk -> "Walk to ${legs.getOrNull(index + 1)?.startLocationName(toLocation) ?: toLocation.title}"
-        is TripLeg.Transit -> "Board ${leg.routeName}"
-    }
-
-private fun TripLeg.startLocationName(toLocation: LocationResult): String = when (this) {
-    is TripLeg.Transit -> stops.firstOrNull()?.name ?: toLocation.title
-    is TripLeg.Walk -> toLocation.title
 }
