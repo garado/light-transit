@@ -4,6 +4,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 /** Stage of an in-progress GTFS source download+import (for UI feedback) */
 sealed class GtfsImportStage {
@@ -26,11 +27,11 @@ object GtfsImportProgressTracker {
     private val jobs = mutableMapOf<Long, Job>()
 
     fun update(sourceId: Long, stage: GtfsImportStage) {
-        _progress.value = _progress.value + (sourceId to stage)
+        _progress.update { it + (sourceId to stage) }
     }
 
     fun clear(sourceId: Long) {
-        _progress.value = _progress.value - sourceId
+        _progress.update { it - sourceId }
     }
 
     /** Save [Job] doing [sourceId]'s download+import in case it needs to be cancelled */
