@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -25,6 +26,13 @@ class HomeScreenViewModel(lightContext: SealedLightContext) : LightViewModel<Uni
 
     private val _selectedTab = MutableStateFlow(HomeTab.SEARCH)
     val selectedTab: StateFlow<HomeTab> = _selectedTab.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val initial = defaultLocationStore.location.first()
+            if (search.fromLocation.value == null) search.setFromLocation(initial)
+        }
+    }
 
     fun selectTab(tab: HomeTab) {
         _selectedTab.value = tab

@@ -54,6 +54,7 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit,
         val stops by viewModel.stops.collectAsState()
         val viewMode by viewModel.viewMode.collectAsState()
         val searchedCenter by viewModel.searchedCenter.collectAsState()
+        val defaultCenter by viewModel.defaultCenter.collectAsState()
         val hasSearched by viewModel.hasSearched.collectAsState()
         val isSearching by viewModel.isSearching.collectAsState()
 
@@ -103,7 +104,7 @@ class NearbyStopsScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit,
                         NearbyStopsViewMode.MAP -> TransitMapView(
                             isDarkTheme = LightThemeController.isDarkTheme,
                             tileSource = tileSource,
-                            initialCenter = searchedCenter ?: DEMO_LOCATION,
+                            initialCenter = searchedCenter ?: defaultCenter,
                             overlays = markers,
                             fitBounds = fitBounds,
                             onMarkerClick = { marker ->

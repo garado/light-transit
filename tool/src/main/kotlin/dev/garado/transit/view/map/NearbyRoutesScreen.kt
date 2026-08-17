@@ -55,6 +55,7 @@ class NearbyRoutesScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit
         val routes by viewModel.routes.collectAsState()
         val viewMode by viewModel.viewMode.collectAsState()
         val searchedCenter by viewModel.searchedCenter.collectAsState()
+        val defaultCenter by viewModel.defaultCenter.collectAsState()
         val hasSearched by viewModel.hasSearched.collectAsState()
         val isSearching by viewModel.isSearching.collectAsState()
 
@@ -97,7 +98,7 @@ class NearbyRoutesScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit
                         NearbyRoutesViewMode.MAP -> TransitMapView(
                             isDarkTheme = LightThemeController.isDarkTheme,
                             tileSource = tileSource,
-                            initialCenter = searchedCenter ?: DEMO_LOCATION,
+                            initialCenter = searchedCenter ?: defaultCenter,
                             overlays = searchMarkers,
                             onCenterChanged = viewModel::onMapCenterChanged,
                             modifier = Modifier.weight(1f).fillMaxSize(),

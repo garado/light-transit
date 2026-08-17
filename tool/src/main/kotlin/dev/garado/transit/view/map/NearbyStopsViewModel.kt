@@ -4,6 +4,8 @@ import dev.garado.transit.models.LatLon
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightContext
+import dev.garado.transit.data.settings.DEFAULT_LOCATION_FALLBACK
+import dev.garado.transit.data.settings.DefaultLocationStore
 import dev.garado.transit.models.StopDeparture
 import dev.garado.transit.models.TripStop
 import dev.garado.transit.interfaces.nearbystops.GtfsLocalNearbyStopsProvider
@@ -15,10 +17,8 @@ import dev.garado.transit.interfaces.stopdepartures.TransitApiStopDeparturesProv
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-
-// TODO
-internal val DEMO_LOCATION = LatLon(lat = 37.8288, lon = -122.2673)
 
 enum class NearbyStopsViewMode { MAP, LIST }
 
@@ -51,13 +51,27 @@ class NearbyStopsViewModel internal constructor(
     private val _viewMode = MutableStateFlow(NearbyStopsViewMode.MAP)
     val viewMode: StateFlow<NearbyStopsViewMode> = _viewMode.asStateFlow()
 
+    private val fallbackCenter = LatLon(lat = DEFAULT_LOCATION_FALLBACK.lat, lon = DEFAULT_LOCATION_FALLBACK.lon)
+
     /** Where the map is actually centered right now */
-    private val _liveCenter = MutableStateFlow(DEMO_LOCATION)
+    private val _liveCenter = MutableStateFlow(fallbackCenter)
     val liveCenter: StateFlow<LatLon> = _liveCenter.asStateFlow()
 
     /** Set only when the header's search icon should move the map somewhere */
     private val _searchedCenter = MutableStateFlow<LatLon?>(null)
     val searchedCenter: StateFlow<LatLon?> = _searchedCenter.asStateFlow()
+
+    private val _defaultCenter = MutableStateFlow(fallbackCenter)
+    val defaultCenter: StateFlow<LatLon> = _defaultCenter.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val default = DefaultLocationStore(lightContext.dataStore).location.first()
+            val latLon = LatLon(lat = default.lat, lon = default.lon)
+            _defaultCenter.value = latLon
+            if (_liveCenter.value == fallbackCenter) _liveCenter.value = latLon
+        }
+    }
 
     fun toggleViewMode() {
         _viewMode.value = when (_viewMode.value) {

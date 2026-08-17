@@ -1,6 +1,7 @@
 package dev.garado.transit.view.map
 
 import dev.garado.transit.view.route.boundingBox
+import dev.garado.transit.data.settings.DEFAULT_LOCATION_FALLBACK
 import dev.garado.transit.models.LatLon
 import dev.garado.transit.models.LatLonBounds
 import dev.garado.transit.view.components.map.MapOverlay
@@ -110,7 +111,7 @@ class RouteMapScreen(
                 TransitMapView(
                     isDarkTheme = LightThemeController.isDarkTheme,
                     tileSource = tileSource,
-                    initialCenter = fitBounds?.center ?: DEMO_LOCATION,
+                    initialCenter = fitBounds?.center ?: LatLon(lat = DEFAULT_LOCATION_FALLBACK.lat, lon = DEFAULT_LOCATION_FALLBACK.lon),
                     overlays = overlays,
                     fitBounds = fitBounds,
                     onMarkerClick = { marker -> stops.find { it.globalStopId == marker.id }?.let(::onStopSelected) },
