@@ -80,13 +80,13 @@ internal class GtfsSourceStore(
     suspend fun delete(source: GtfsSource) {
         GtfsImportProgressTracker.cancel(source.id)
         dao.deleteById(source.id)
-        localFile(source.id).delete()
+        withContext(Dispatchers.IO) { localFile(source.id).delete() }
     }
 
     suspend fun deleteAll(sources: List<GtfsSource>) {
         sources.forEach { GtfsImportProgressTracker.cancel(it.id) }
         dao.deleteByIds(sources.map { it.id })
-        sources.forEach { localFile(it.id).delete() }
+        withContext(Dispatchers.IO) { sources.forEach { localFile(it.id).delete() } }
     }
 
     /** Always resolves to DOWNLOADED or FAILED, even if cancelled mid-flight */
