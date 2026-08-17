@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 
 class GtfsManagerViewModel(lightContext: SealedLightContext) : LightViewModel<Unit>() {
     private val store = GtfsSourceStore(
@@ -31,6 +30,6 @@ class GtfsManagerViewModel(lightContext: SealedLightContext) : LightViewModel<Un
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     fun deleteAll(sources: List<GtfsSource>) {
-        viewModelScope.launch { store.deleteAll(sources) }
+        store.deleteAllDetached(sources)
     }
 }

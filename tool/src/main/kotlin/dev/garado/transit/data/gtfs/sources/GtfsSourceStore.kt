@@ -93,10 +93,20 @@ internal class GtfsSourceStore(
         withContext(Dispatchers.IO) { localFile(source.id).delete() }
     }
 
+    /** Allow delete ops to survive loss of scope, like [addDetached] */
+    fun deleteDetached(source: GtfsSource) {
+        detachedScope.launch { delete(source) }
+    }
+
     suspend fun deleteAll(sources: List<GtfsSource>) {
         sources.forEach { GtfsImportProgressTracker.cancel(it.id) }
         dao.deleteByIds(sources.map { it.id })
         withContext(Dispatchers.IO) { sources.forEach { localFile(it.id).delete() } }
+    }
+
+    /** Allow delete ops to survive loss of scope, like [addAllDetached] */
+    fun deleteAllDetached(sources: List<GtfsSource>) {
+        detachedScope.launch { deleteAll(sources) }
     }
 
     /** Always resolves to DOWNLOADED or FAILED, even if cancelled mid-flight */

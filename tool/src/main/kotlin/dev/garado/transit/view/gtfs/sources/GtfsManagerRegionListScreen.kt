@@ -15,7 +15,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,7 +38,6 @@ import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
 import dev.garado.transit.data.gtfs.GtfsDisplayNames
 import dev.garado.transit.data.gtfs.local.GtfsDatabaseHolder
-import kotlinx.coroutines.launch
 
 /** Sub-regions of saved sources within one country, mirrors GtfsRegionListScreen. */
 class GtfsManagerRegionListScreen(
@@ -57,7 +55,6 @@ class GtfsManagerRegionListScreen(
             )
         }
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
-        val scope = rememberCoroutineScope()
         val allSources by store.all.collectAsState(initial = emptyList())
         var isEditing by remember { mutableStateOf(false) }
 
@@ -93,7 +90,7 @@ class GtfsManagerRegionListScreen(
                             isEditing = isEditing,
                             onDeleteClick = {
                                 pendingDeleteIds = pendingDeleteIds + srcs.map { it.id }
-                                scope.launch { store.deleteAll(srcs) }
+                                store.deleteAllDetached(srcs)
                             },
                             onClick = {
                                 navigateTo({ activity ->
