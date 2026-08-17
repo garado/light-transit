@@ -58,8 +58,12 @@ class GtfsManagerRegionListScreen(
         }
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
         val scope = rememberCoroutineScope()
-        val sources by store.all.collectAsState(initial = emptyList())
+        val allSources by store.all.collectAsState(initial = emptyList())
         var isEditing by remember { mutableStateOf(false) }
+
+        // Hides just-deleted sources immediately and delete in the BG
+        var pendingDeleteIds by remember { mutableStateOf(emptySet<Long>()) }
+        val sources = remember(allSources, pendingDeleteIds) { allSources.filter { it.id !in pendingDeleteIds } }
 
         val byRegion = remember(sources) {
             sources
@@ -87,7 +91,10 @@ class GtfsManagerRegionListScreen(
                             regionName = displayNames.regionName(regionCode),
                             count = srcs.size,
                             isEditing = isEditing,
-                            onDeleteClick = { scope.launch { store.deleteAll(srcs) } },
+                            onDeleteClick = {
+                                pendingDeleteIds = pendingDeleteIds + srcs.map { it.id }
+                                scope.launch { store.deleteAll(srcs) }
+                            },
                             onClick = {
                                 navigateTo({ activity ->
                                     GtfsManagerSourceListScreen(activity, countryCode, regionCode)

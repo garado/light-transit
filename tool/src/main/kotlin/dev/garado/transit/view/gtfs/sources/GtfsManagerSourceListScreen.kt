@@ -64,8 +64,10 @@ class GtfsManagerSourceListScreen(
         val allSources by store.all.collectAsState(initial = null)
         var isEditing by remember { mutableStateOf(false) }
 
-        val sources = remember(allSources) {
-            allSources?.filter { it.regionCode == regionCode }
+        // Hide just-deleted sources immediately instead of waiting for deletion to finish (can take a while)
+        var pendingDeleteIds by remember { mutableStateOf(emptySet<Long>()) }
+        val sources = remember(allSources, pendingDeleteIds) {
+            allSources?.filter { it.regionCode == regionCode && it.id !in pendingDeleteIds }
         }
 
         LightTheme(colors = themeColors) {
@@ -97,7 +99,10 @@ class GtfsManagerSourceListScreen(
                                 source = source,
                                 displayName = displayNames.agencyName(source.key, source.regionCode),
                                 isEditing = isEditing,
-                                onDeleteClick = { scope.launch { store.delete(source) } },
+                                onDeleteClick = {
+                                    pendingDeleteIds = pendingDeleteIds + source.id
+                                    scope.launch { store.delete(source) }
+                                },
                                 onRetryClick = { store.retryDownloadDetached(source) },
                             )
                         }

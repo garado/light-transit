@@ -49,10 +49,14 @@ class GtfsManagerScreen(sealedActivity: SealedLightActivity) :
     @Composable
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
-        val sources by viewModel.sources.collectAsState()
+        val allSources by viewModel.sources.collectAsState()
         val hasLoaded by viewModel.hasLoaded.collectAsState()
         val displayNames = remember { GtfsDisplayNames.get(lightContext) }
         var isEditing by remember { mutableStateOf(false) }
+
+        // Hide just-deleted sources immediately instead of waiting for deletion to finish (can take a while)
+        var pendingDeleteIds by remember { mutableStateOf(emptySet<Long>()) }
+        val sources = remember(allSources, pendingDeleteIds) { allSources.filter { it.id !in pendingDeleteIds } }
 
         val byCountry = remember(sources) {
             sources
@@ -100,7 +104,10 @@ class GtfsManagerScreen(sealedActivity: SealedLightActivity) :
                                 countryName = displayNames.countryName(countryCode),
                                 count = srcs.size,
                                 isEditing = isEditing,
-                                onDeleteClick = { viewModel.deleteAll(srcs) },
+                                onDeleteClick = {
+                                    pendingDeleteIds = pendingDeleteIds + srcs.map { it.id }
+                                    viewModel.deleteAll(srcs)
+                                },
                                 onClick = {
                                     if (regionCodes.size == 1) {
                                         navigateTo({ activity ->
