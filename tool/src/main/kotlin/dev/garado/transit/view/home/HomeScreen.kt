@@ -48,7 +48,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
         get() = HomeScreenViewModel::class.java
 
     override fun createViewModel(): HomeScreenViewModel {
-        return HomeScreenViewModel()
+        return HomeScreenViewModel(lightContext)
     }
 
     @Composable
@@ -62,6 +62,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
         val toDisplay = toLocation?.let { it.displayName ?: it.title } ?: ""
         val departureSelection by viewModel.search.departureSelection.collectAsState()
         val departureTime by viewModel.search.departureTime.collectAsState()
+        val defaultLocation by viewModel.defaultLocation.collectAsState()
         val isEditingName by viewModel.settings.isEditingName.collectAsState()
         val editSessionId by viewModel.settings.editSessionId.collectAsState()
         val themeColors by LightThemeController.colors.collectAsState()
@@ -132,6 +133,12 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
                                 options = settingsOptions,
                                 displayName = displayName,
                                 onToggle = viewModel.settings::toggleSetting,
+                                defaultLocation = defaultLocation,
+                                onDefaultLocationClick = {
+                                    navigateTo(::LocationSearchScreen) { result ->
+                                        viewModel.setDefaultLocation(result)
+                                    }
+                                },
                                 onSavedLocationsClick = { navigateTo(::SavedLocationsScreen) },
                                 onApiSettingsClick = { navigateTo(::ApiSettingsScreen) },
                                 onGtfsManagerClick = { navigateTo(::GtfsOverviewScreen) },

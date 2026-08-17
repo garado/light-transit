@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.thelightphone.lp3Keyboard.ui.KeyboardOptions
 import com.thelightphone.sdk.ui.LightIcon
@@ -22,6 +23,7 @@ import com.thelightphone.sdk.ui.LightTextInputEditor
 import com.thelightphone.sdk.ui.LightTextVariant
 import com.thelightphone.sdk.ui.lightClickable
 import dev.garado.transit.view.home.StatusBar
+import dev.garado.transit.models.LocationResult
 import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
@@ -64,6 +66,8 @@ fun SettingsTabContent(
     options: List<SettingsOption>,
     displayName: String,
     onToggle: (String) -> Unit,
+    defaultLocation: LocationResult,
+    onDefaultLocationClick: () -> Unit,
     onSavedLocationsClick: () -> Unit,
     onApiSettingsClick: () -> Unit,
     onGtfsManagerClick: () -> Unit,
@@ -75,6 +79,13 @@ fun SettingsTabContent(
             SettingsToggleRow(
                 option = option,
                 onClick = { onToggle(option.label) },
+            )
+        }
+
+        item {
+            DefaultLocationRow(
+                location = defaultLocation,
+                onClick = onDefaultLocationClick,
             )
         }
 
@@ -122,6 +133,25 @@ private fun SettingsToggleRow(option: SettingsOption, onClick: () -> Unit) {
             modifier = Modifier.padding(end = 16.dp),
         )
         LightText(text = option.label, variant = LightTextVariant.Copy)
+    }
+}
+
+@Composable
+private fun DefaultLocationRow(location: LocationResult, onClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .lightClickable(onClick = onClick)
+            .padding(vertical = 12.dp),
+    ) {
+        LightText(text = "Default Location", variant = LightTextVariant.Detail)
+        LightText(
+            text = location.address.ifBlank { location.title },
+            variant = LightTextVariant.Copy,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(top = 2.dp),
+        )
     }
 }
 
