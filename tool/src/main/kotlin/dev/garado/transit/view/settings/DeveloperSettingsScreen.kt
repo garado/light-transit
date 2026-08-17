@@ -34,6 +34,7 @@ import dev.garado.transit.view.home.StatusBar
 import dev.garado.transit.data.api.transitapi.MockTransitApiSettings
 import dev.garado.transit.data.api.transitous.MockTransitousSettings
 import dev.garado.transit.data.gtfs.sources.clearGtfsDownloadCache
+import dev.garado.transit.data.settings.OnboardingStore
 import kotlinx.coroutines.launch
 
 class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Unit>(sealedActivity) {
@@ -49,6 +50,8 @@ class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLight
 
         val transitousMockSettings = remember { MockTransitousSettings(lightContext.dataStore) }
         val simulateTransitousFailure by transitousMockSettings.simulateApiFailure.collectAsState(initial = false)
+
+        val onboardingStore = remember { OnboardingStore(lightContext.dataStore) }
 
         LightTheme(colors = themeColors) {
             Column(
@@ -93,6 +96,10 @@ class DeveloperSettingsScreen(sealedActivity: SealedLightActivity) : SimpleLight
                                 }
                             }
                         },
+                    )
+                    DevActionRow(
+                        label = "Reset onboarding state",
+                        onClick = { coroutineScope.launch { onboardingStore.setComplete(true) } },
                     )
                 }
             }
