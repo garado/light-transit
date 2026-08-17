@@ -135,6 +135,9 @@ internal class GtfsSourceStore(
                         }
                     }
                 }
+            } catch (e: CancellationException) {
+                success = false
+                throw e
             } finally {
                 withContext(NonCancellable) {
                     dao.updateDownloadState(id, (if (success) GtfsSourceDownloadState.DOWNLOADED else GtfsSourceDownloadState.FAILED).name)
