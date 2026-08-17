@@ -27,7 +27,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 
 private const val TAG = "GtfsSourceStore"
@@ -102,8 +104,10 @@ internal class GtfsSourceStore(
             var success = false
             try {
                 success = try {
-                    downloader.download(url, destination) { percent ->
-                        GtfsImportProgressTracker.update(id, GtfsImportStage.Downloading(percent))
+                    downloadSemaphore.withPermit {
+                        downloader.download(url, destination) { percent ->
+                            GtfsImportProgressTracker.update(id, GtfsImportStage.Downloading(percent))
+                        }
                     }
                 } catch (e: CancellationException) {
                     throw e
@@ -235,11 +239,14 @@ internal class GtfsSourceStore(
     private fun localFile(id: Long) = File(File(filesDir, "gtfs"), "$id.gtfs.zip")
 
     private companion object {
-        /** Process-wide, never tied to any single screen's lifecycle */
+        /** Scope outliving every screen's lifecycle so GTFS operations continue if user leaves GTFS screens */
         val detachedScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
-        /** Serializes parsing+DB-writes across all sources, even ones downloading concurrently */
+        /** Enforce serialized parsing/DB-writing */
         val importMutex = Mutex()
+
+        /** Max number of parallel downloads */
+        val downloadSemaphore = Semaphore(permits = 3)
     }
 }
 
