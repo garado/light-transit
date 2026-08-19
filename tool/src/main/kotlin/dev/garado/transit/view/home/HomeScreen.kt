@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +37,7 @@ import dev.garado.transit.view.settings.DeveloperSettingsScreen
 import dev.garado.transit.view.settings.NameEditor
 import dev.garado.transit.view.settings.SavedLocationsScreen
 import dev.garado.transit.view.settings.SettingsTabContent
+import dev.garado.transit.view.onboarding.OnboardingScreen
 
 enum class HomeTab { SEARCH, SETTINGS }
 
@@ -69,10 +71,12 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeSc
         val showOnboarding by viewModel.showOnboarding.collectAsState()
         var settingsTapCount by remember { mutableStateOf(0) }
 
+        LaunchedEffect(showOnboarding) {
+            if (showOnboarding) navigateTo(::OnboardingScreen)
+        }
+
         LightTheme(colors = themeColors) {
-            if (showOnboarding) {
-                OnboardingContent(onDone = viewModel::completeOnboarding)
-            } else if (isEditingName) {
+            if (isEditingName) {
                 NameEditor(
                     displayName = displayName,
                     editSessionId = editSessionId,

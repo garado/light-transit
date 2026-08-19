@@ -61,8 +61,4 @@ class HomeScreenViewModel(lightContext: SealedLightContext) : LightViewModel<Uni
         if (label != INVERT_COLORS_LABEL) return
         viewModelScope.launch { invertColorsStore.setEnabled(!invertColorsStore.enabled.first()) }
     }
-
-    fun completeOnboarding() {
-        viewModelScope.launch { onboardingStore.setComplete(false) }
-    }
 }
