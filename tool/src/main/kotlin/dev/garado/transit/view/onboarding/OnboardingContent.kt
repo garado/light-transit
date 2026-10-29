@@ -53,7 +53,7 @@ fun OnboardingSaveLocationContent(onAddLocation: () -> Unit, onSkip: () -> Unit)
 fun OnboardingCompleteContent(onComplete: () -> Unit) {
     OnboardingStepContent(
         title = "You're all set!",
-        description = "Change these options at any time from Settings."
+        description = "Change these options at any time from Settings.",
         buttonLabel = "COMPLETE",
         onButtonClick = onComplete,
     )
