@@ -1,10 +1,14 @@
 package dev.garado.transit.view.onboarding
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -27,7 +31,7 @@ fun OnboardingContent(onDone: () -> Unit) {
 fun OnboardingSetLocationContent(onSetLocation: () -> Unit) {
     OnboardingStepContent(
         title = "Set default location",
-        description = "Choose a default location so we can center maps and searches near you, even without GPS.",
+        description = "Choose a default location to center maps and search results.",
         buttonLabel = "SET LOCATION",
         onButtonClick = onSetLocation,
     )
@@ -37,8 +41,8 @@ fun OnboardingSetLocationContent(onSetLocation: () -> Unit) {
 fun OnboardingSaveLocationContent(onAddLocation: () -> Unit, onSkip: () -> Unit) {
     OnboardingStepContent(
         title = "Save a location",
-        description = "Save frequent places like home or work for quick access later. You can add more anytime from Settings.",
-        buttonLabel = "ADD LOCATION",
+        description = "Save frequently-visited places like home or work for quick access.",
+        buttonLabel = "ADD",
         onButtonClick = onAddLocation,
         secondaryButtonLabel = "SKIP",
         onSecondaryButtonClick = onSkip,
@@ -48,8 +52,8 @@ fun OnboardingSaveLocationContent(onAddLocation: () -> Unit, onSkip: () -> Unit)
 @Composable
 fun OnboardingCompleteContent(onComplete: () -> Unit) {
     OnboardingStepContent(
-        title = "You're all set",
-        description = "You can change your default location and other settings anytime from Settings.",
+        title = "You're all set!",
+        description = "Change these options at any time from Settings."
         buttonLabel = "COMPLETE",
         onButtonClick = onComplete,
     )
@@ -67,32 +71,49 @@ private fun OnboardingStepContent(
     Column(modifier = Modifier.fillMaxSize()) {
         StatusBar()
         Column(modifier = Modifier.weight(1f).padding(16.dp)) {
-            LightText(text = title, variant = LightTextVariant.Heading)
             LightText(
-                text = description,
-                variant = LightTextVariant.Paragraph,
-                modifier = Modifier.padding(top = 8.dp),
+                text = title,
+                variant = LightTextVariant.Heading,
+                align = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
             )
+            Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                LightText(
+                    text = description,
+                    variant = LightTextVariant.Paragraph,
+                    align = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
         }
-        LightText(
-            text = buttonLabel,
-            variant = LightTextVariant.Button,
-            align = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp, vertical = 16.dp)
-                .lightClickable(onClick = onButtonClick),
-        )
         if (secondaryButtonLabel != null && onSecondaryButtonClick != null) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp, vertical = 16.dp),
+            ) {
+                LightText(
+                    text = buttonLabel,
+                    variant = LightTextVariant.Button,
+                    modifier = Modifier.lightClickable(onClick = onButtonClick),
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                LightText(
+                    text = secondaryButtonLabel,
+                    variant = LightTextVariant.Button,
+                    lighten = true,
+                    modifier = Modifier.lightClickable(onClick = onSecondaryButtonClick),
+                )
+            }
+        } else {
             LightText(
-                text = secondaryButtonLabel,
+                text = buttonLabel,
                 variant = LightTextVariant.Button,
                 align = TextAlign.Center,
-                lighten = true,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 32.dp, vertical = 16.dp)
-                    .lightClickable(onClick = onSecondaryButtonClick),
+                    .lightClickable(onClick = onButtonClick),
             )
         }
     }
