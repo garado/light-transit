@@ -17,7 +17,7 @@ class OnboardingSetLocationScreen(sealedActivity: SealedLightActivity) : SimpleL
             navigateTo(::LocationSearchScreen) { result ->
                 // Not scoped to this composable - navigating away right after would cancel it mid-write
                 CoroutineScope(Dispatchers.IO).launch { DefaultLocationStore(lightContext.dataStore).set(result) }
-                navigateTo(::OnboardingCompleteScreen) { goBack(Unit) }
+                navigateTo(::OnboardingSaveLocationScreen) { goBack(Unit) }
             }
         })
     }

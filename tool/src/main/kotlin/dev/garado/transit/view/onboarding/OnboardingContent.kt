@@ -34,6 +34,18 @@ fun OnboardingSetLocationContent(onSetLocation: () -> Unit) {
 }
 
 @Composable
+fun OnboardingSaveLocationContent(onAddLocation: () -> Unit, onSkip: () -> Unit) {
+    OnboardingStepContent(
+        title = "Save a location",
+        description = "Save frequent places like home or work for quick access later. You can add more anytime from Settings.",
+        buttonLabel = "ADD LOCATION",
+        onButtonClick = onAddLocation,
+        secondaryButtonLabel = "SKIP",
+        onSecondaryButtonClick = onSkip,
+    )
+}
+
+@Composable
 fun OnboardingCompleteContent(onComplete: () -> Unit) {
     OnboardingStepContent(
         title = "You're all set",
@@ -44,7 +56,14 @@ fun OnboardingCompleteContent(onComplete: () -> Unit) {
 }
 
 @Composable
-private fun OnboardingStepContent(title: String, description: String, buttonLabel: String, onButtonClick: () -> Unit) {
+private fun OnboardingStepContent(
+    title: String,
+    description: String,
+    buttonLabel: String,
+    onButtonClick: () -> Unit,
+    secondaryButtonLabel: String? = null,
+    onSecondaryButtonClick: (() -> Unit)? = null,
+) {
     Column(modifier = Modifier.fillMaxSize()) {
         StatusBar()
         Column(modifier = Modifier.weight(1f).padding(16.dp)) {
@@ -64,5 +83,17 @@ private fun OnboardingStepContent(title: String, description: String, buttonLabe
                 .padding(horizontal = 32.dp, vertical = 16.dp)
                 .lightClickable(onClick = onButtonClick),
         )
+        if (secondaryButtonLabel != null && onSecondaryButtonClick != null) {
+            LightText(
+                text = secondaryButtonLabel,
+                variant = LightTextVariant.Button,
+                align = TextAlign.Center,
+                lighten = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp, vertical = 16.dp)
+                    .lightClickable(onClick = onSecondaryButtonClick),
+            )
+        }
     }
 }
