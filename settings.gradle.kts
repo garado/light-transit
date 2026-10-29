@@ -28,6 +28,10 @@ dependencyResolutionManagement {
                 password = ghPassword
             }
         }
+        maven {
+            name = "JitPack"
+            url = uri("https://jitpack.io")
+        }
     }
     versionCatalogs {
         create("libs") {

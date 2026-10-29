@@ -1,12 +1,9 @@
-diff --git a/plugin/src/main/kotlin/com/thelightphone/plugin/LightSdkPlugin.kt b/plugin/src/main/kotlin/com/thelightphone/plugin/LightSdkPlugin.kt
-index 2da84e2..328c00e 100644
---- a/plugin/src/main/kotlin/com/thelightphone/plugin/LightSdkPlugin.kt
-+++ b/plugin/src/main/kotlin/com/thelightphone/plugin/LightSdkPlugin.kt
-@@ -36,6 +36,7 @@ class LightSdkPlugin : Plugin<Project> {
-             "androidx.startup",
-             "androidx.media3",
-             "io.github.david-allison:anki-android-backend",
-+            "org.yaml:snakeyaml",
-         )
- 
-         val ALLOWED_PLUGINS = setOf(
+diff --git a/plugin/src/main/resources/com/thelightphone/plugin/allowed-dependencies.txt b/plugin/src/main/resources/com/thelightphone/plugin/allowed-dependencies.txt
+index ba23a5f..edc51f1 100644
+--- a/plugin/src/main/resources/com/thelightphone/plugin/allowed-dependencies.txt
++++ b/plugin/src/main/resources/com/thelightphone/plugin/allowed-dependencies.txt
+@@ -37,3 +37,4 @@ de.connect2x.trixnity:trixnity-client
+ de.connect2x.trixnity:trixnity-client-repository-room
+ de.connect2x.trixnity:trixnity-client-media-okio
+ de.connect2x.trixnity:trixnity-client-cryptodriver-libolm
++org.yaml:snakeyaml
